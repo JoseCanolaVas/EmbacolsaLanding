@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: embacolsa-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: embacolsa
+      POSTGRES_USER: embacolsa_user
+      POSTGRES_PASSWORD: embacolsa_password
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - embacolsa_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  embacolsa_postgres_data:
+
