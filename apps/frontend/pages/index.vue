@@ -1,664 +1,909 @@
 <template>
   <v-app class="storefront">
-
-    <header class="main-header">
-      <v-container class="d-flex align-center py-4">
-        <a href="#inicio" class="brand">
-          <img class="brand-logo" src="/images/embacolsa.png" alt="Embacolsa">
+    <header class="store-header">
+      <v-container class="header-inner">
+        <a href="#inicio" class="brand-link">
+          <img :src="logoActual" alt="Embacolsa" class="brand-logo">
         </a>
-        <v-spacer />
-        <v-text-field v-model="search" class="search-box d-none d-sm-flex" dense hide-details outlined rounded
-          placeholder="¿Qué producto necesitas?" prepend-inner-icon="mdi-magnify" @keyup.enter="showSearch = true">
-          <template #append><v-btn color="primary" small depressed rounded
-              @click="showSearch = true">Buscar</v-btn></template>
-        </v-text-field>
-        <v-btn icon class="d-sm-none" color="primary"
-          @click="mobileSearch = !mobileSearch"><v-icon>mdi-magnify</v-icon></v-btn>
-        <v-badge :content="cart" :value="cart" color="primary" overlap class="ml-3"><v-btn icon
-            color="primary"><v-icon>mdi-cart-outline</v-icon></v-btn></v-badge>
+
+        <div class="header-search d-none d-md-block">
+          <v-text-field v-model="search" dense hide-details solo flat rounded background-color="#f4f8fb"
+            placeholder="Buscar cintas, stretch, cajas..." prepend-inner-icon="mdi-magnify" @keyup.enter="buscarProducto">
+            <template v-slot:append>
+              <v-btn small rounded depressed color="primary" @click="buscarProducto">
+                Buscar
+              </v-btn>
+            </template>
+          </v-text-field>
+        </div>
+
+        <nav class="header-links d-none d-lg-flex">
+          <a v-for="link in links" :key="link.label" :href="link.href">
+            {{ link.label }}
+          </a>
+        </nav>
+
+        <v-btn icon color="primary" class="d-lg-none" @click="drawer = true">
+          <v-icon>mdi-menu</v-icon>
+        </v-btn>
       </v-container>
-      <v-container v-if="mobileSearch" class="pt-0 d-sm-none"><v-text-field v-model="search" dense hide-details outlined
-          rounded placeholder="Buscar productos" prepend-inner-icon="mdi-magnify" /></v-container>
     </header>
 
-    <nav class="nav-bar">
-      <v-container class="d-flex align-center py-0">
-        <v-menu offset-y>
-          <template #activator="{ on, attrs }"><v-btn class="category-button" text v-bind="attrs" v-on="on"><v-icon
-                left>mdi-view-grid-outline</v-icon> Categorías <v-icon right
-                small>mdi-chevron-down</v-icon></v-btn></template>
-          <v-list dense><v-list-item v-for="category in categories" :key="category"><v-list-item-title>{{ category
-          }}</v-list-item-title></v-list-item></v-list>
-        </v-menu>
-        <div class="nav-links d-none d-md-flex"><a v-for="link in links" :key="link.label" :href="link.href">{{
-          link.label
-            }}</a></div>
-        <v-spacer /><v-btn text color="white" class="d-md-none" @click="drawer = true"><v-icon left>mdi-menu</v-icon>
-          Menú</v-btn>
-      </v-container>
-    </nav>
-
-    <v-navigation-drawer v-model="drawer" temporary right fixed><v-list nav><v-list-item v-for="link in links"
-          :key="link.label" :href="link.href" @click="drawer = false"><v-list-item-title>{{ link.label
-          }}</v-list-item-title></v-list-item></v-list></v-navigation-drawer>
+    <v-navigation-drawer v-model="drawer" temporary right fixed>
+      <div class="pa-4">
+        <img :src="logoActual" alt="Embacolsa" class="drawer-logo">
+      </div>
+      <v-list nav>
+        <v-list-item v-for="link in links" :key="link.label" :href="link.href" @click="drawer = false">
+          <v-list-item-icon>
+            <v-icon>{{ link.icon }}</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>{{ link.label }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
 
     <main>
-      <section id="inicio" class="hero-section">
+      <section id="inicio" class="hero-section" :style="heroStyle">
+        <v-container class="hero-inner">
+          <div class="hero-copy">
+            <span class="eyebrow">EMPAQUES, EMBALAJES Y SUMINISTROS</span>
+            <h1>Embacolsa</h1>
+            <p>
+              Soluciones listas para empacar, proteger y despachar tu operacion con mejor imagen,
+              menos vueltas y respuesta comercial rapida.
+            </p>
+
+            <div class="hero-actions">
+              <v-btn x-large rounded depressed color="primary" href="#productos">
+                Ver productos
+                <v-icon right>mdi-arrow-right</v-icon>
+              </v-btn>
+              <v-btn x-large rounded outlined color="white" href="https://wa.me/573218720375" target="_blank">
+                Cotizar por WhatsApp
+              </v-btn>
+            </div>
+          </div>
+
+          <div class="hero-panel catalog-panel">
+            <div class="catalog-control">
+              <span>Explorar catalogo</span>
+              <v-select v-model="categoriaSeleccionada" :items="opcionesCategorias" item-text="name" item-value="id"
+                solo flat dense hide-details rounded background-color="white" prepend-inner-icon="mdi-view-grid-outline"
+                label="Todas las categorias" clearable />
+            </div>
+
+            <div class="catalog-summary">
+              <div>
+                <strong>{{ productosIndex.length }}</strong>
+                <span>productos visibles</span>
+              </div>
+              <div>
+                <strong>{{ categoriasIndex.length }}</strong>
+                <span>categorias activas</span>
+              </div>
+            </div>
+          </div>
+        </v-container>
+      </section>
+
+      <section class="category-strip">
         <v-container>
-          <div class="hero-card">
-            <div class="hero-orbit orbit-one" />
-            <div class="hero-orbit orbit-two" />
-            <v-row align="center">
-              <v-col cols="12" md="7" class="hero-copy">
-                <span class="eyebrow">EMBACOLSA · SOLUCIONES EMPRESARIALES</span>
-                <h1>Suministros que mueven <em>tu operación.</em></h1>
-                <p>Todo lo que tu empresa necesita para empacar, proteger y despachar con calidad, respaldo y entregas a
-                  nivel nacional.</p>
-                <div class="d-flex flex-wrap" style="gap: 12px"><v-btn color="primary" x-large rounded depressed
-                    href="#productos">Explorar productos <v-icon right>mdi-arrow-right</v-icon></v-btn><v-btn outlined
-                    color="white" x-large rounded href="#contacto">Cotizar ahora</v-btn></div>
-              </v-col>
-              <v-col cols="12" md="5" class="hero-visual">
-                <div class="package stack-one"><v-icon>mdi-package-variant-closed</v-icon></div>
-                <div class="roll roll-one" />
-                <div class="roll roll-two" />
-                <div class="tape"><span>EMBACOLSA</span></div>
-                <div class="hero-label"><v-icon color="primary" small>mdi-truck-fast-outline</v-icon><span><b>Envíos
-                      rápidos</b><small>A toda Colombia</small></span></div>
-              </v-col>
-            </v-row>
-            <v-row class="trust-row"><v-col v-for="item in trust" :key="item.title" cols="6" sm="3">
-                <div class="trust-item"><v-icon color="primary">{{ item.icon }}</v-icon><span><b>{{ item.title
-                }}</b><small>{{ item.text }}</small></span></div>
-              </v-col></v-row>
+          <div class="catalog-toolbar">
+            <v-select v-model="categoriaSeleccionada" :items="opcionesCategorias" item-text="name" item-value="id"
+              label="Categoria" outlined dense rounded clearable hide-details prepend-inner-icon="mdi-filter-outline" />
+
+            <v-text-field v-model="search" label="Buscar producto" outlined dense rounded clearable hide-details
+              prepend-inner-icon="mdi-magnify" />
+
+            <v-btn rounded depressed color="primary" href="#productos">
+              Ver resultados
+              <v-icon right>mdi-arrow-down</v-icon>
+            </v-btn>
           </div>
         </v-container>
       </section>
 
       <section id="productos" class="products-section">
         <v-container>
-          <div class="section-heading">
-            <div><span>CATEGORÍAS DESTACADAS</span>
-              <h2>Encuentra la solución ideal</h2>
-            </div><v-btn text color="primary" href="#contacto">Ver catálogo completo <v-icon
-                right>mdi-arrow-right</v-icon></v-btn>
+          <div class="section-heading products-heading">
+            <div>
+              <span class="eyebrow blue">CATALOGO PARAMETRIZADO</span>
+              <h2>{{ tituloProductos }}</h2>
+            </div>
+            <v-btn v-if="categoriaSeleccionada || search" text color="primary" @click="limpiarCatalogo">
+              Limpiar filtros
+              <v-icon right small>mdi-close</v-icon>
+            </v-btn>
           </div>
+
           <v-row>
-            <v-col v-for="product in products" :key="product.title" cols="12" sm="6" lg="3"><v-card class="product-card"
-                outlined height="100%">
-                <div class="product-art" :class="product.class"><v-icon>{{ product.icon }}</v-icon><span>{{
-                  product.figure
-                    }}</span></div><v-card-text><span class="product-type">{{ product.type }}</span>
+            <v-col v-for="product in productosIndex" :key="product.title" cols="12" sm="6" lg="3">
+              <v-card class="product-card" outlined height="100%">
+                <div class="product-visual" :class="product.class">
+                  <v-img v-if="product.image" :src="product.image" height="175" cover />
+                  <v-icon v-else>{{ product.icon }}</v-icon>
+                </div>
+                <v-card-text>
+                  <div class="product-type">{{ product.type }}</div>
                   <h3>{{ product.title }}</h3>
-                  <p>{{ product.text }}</p><v-btn text color="primary" class="px-0" @click="addToCart(product)">Agregar
-                    a
-                    cotización <v-icon right small>mdi-plus</v-icon></v-btn>
+                  <p>{{ product.text }}</p>
                 </v-card-text>
-              </v-card></v-col>
+                <v-card-actions>
+                  <v-btn text color="primary" @click="seleccionarProducto(product)">
+                    Solicitar cotizacion
+                    <v-icon right small>mdi-plus</v-icon>
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-col>
+
+            <v-col v-if="!productosIndex.length" cols="12">
+              <div class="empty-products">
+                <v-icon size="64" color="grey lighten-1">
+                  mdi-package-variant-remove
+                </v-icon>
+                <h3>No hay productos para este filtro</h3>
+                <p>Prueba con otra categoria o limpia la busqueda.</p>
+              </div>
+            </v-col>
           </v-row>
         </v-container>
       </section>
 
-      <section id="beneficios" class="value-section"><v-container><v-row align="center"><v-col cols="12" md="5"><span
-                class="eyebrow">¿POR QUÉ EMBACOLSA?</span>
-              <h2>Más que productos, respaldo para cada despacho.</h2>
-              <p>Atendemos las necesidades reales de tu negocio con soluciones prácticas y una asesoría que no te deja
-                esperando.</p><v-btn color="primary" rounded depressed href="#contacto">Hablar con un asesor</v-btn>
-            </v-col><v-col cols="12" md="7"><v-row><v-col v-for="benefit in benefits" :key="benefit.title" cols="12"
-                  sm="6">
-                  <div class="benefit-card"><v-icon color="primary">{{ benefit.icon }}</v-icon>
-                    <h3>{{ benefit.title }}</h3>
+      <section id="beneficios" class="operation-section">
+        <v-container>
+          <v-row align="center">
+            <v-col cols="12" md="5">
+              <span class="eyebrow blue">OPERACION SIN ENREDOS</span>
+              <h2>Acompañamiento para comprar mejor, no solo comprar mas.</h2>
+              <p>
+                Te ayudamos a escoger materiales segun carga, rotacion, presupuesto y presentacion final.
+              </p>
+            </v-col>
+            <v-col cols="12" md="7">
+              <div class="benefit-grid">
+                <div v-for="benefit in benefits" :key="benefit.title" class="benefit-item">
+                  <v-icon color="primary">{{ benefit.icon }}</v-icon>
+                  <div>
+                    <strong>{{ benefit.title }}</strong>
                     <p>{{ benefit.text }}</p>
                   </div>
-                </v-col></v-row></v-col></v-row></v-container></section>
+                </div>
+              </div>
+            </v-col>
+          </v-row>
+        </v-container>
+      </section>
 
-      <section id="contacto" class="contact-section"><v-container><v-row align="center"><v-col cols="12" md="7"><span
-                class="eyebrow">COTIZA SIN COMPLICACIONES</span>
-              <h2>¿Listo para abastecer tu operación?</h2>
-              <p>Cuéntanos qué necesitas y te ayudamos a encontrar la mejor solución.</p>
-            </v-col><v-col cols="12" md="5" class="text-md-right"><v-btn x-large rounded color="white"
-                class="primary--text mr-2 mb-2" href="https://wa.me/573218720375" target="_blank"><v-icon
-                  left>mdi-whatsapp</v-icon> Escribir por WhatsApp</v-btn><v-btn x-large rounded outlined color="white"
-                class="mb-2" href="mailto:comercial@embacolsa.com.co">Enviar
-                correo</v-btn></v-col></v-row></v-container>
+      <section id="contacto" class="contact-section">
+        <v-container class="contact-inner">
+          <div>
+            <span class="eyebrow">HABLEMOS DE TU PEDIDO</span>
+            <h2>Cuéntanos qué necesitas empacar.</h2>
+            <p>Armamos una cotizacion clara para tu empresa.</p>
+          </div>
+          <div class="contact-actions">
+            <v-btn x-large rounded color="white" class="primary--text" href="https://wa.me/573218720375" target="_blank">
+              <v-icon left>mdi-whatsapp</v-icon>
+              WhatsApp
+            </v-btn>
+            <v-btn x-large rounded outlined color="white" href="mailto:comercial@embacolsa.com.co">
+              Correo
+            </v-btn>
+          </div>
+        </v-container>
       </section>
     </main>
-    <footer><v-container class="d-flex flex-column flex-md-row justify-space-between align-md-center"><span>© {{ new
-      Date().getFullYear() }} SOFTNOVA SOLUTIONS </span><span>Colombia · Atención
-          nacional</span></v-container></footer>
-    <v-snackbar v-model="showSearch" color="primary" rounded>Buscaremos “{{ search || 'todos los productos' }}” en el
-      catálogo.<template #action="{ attrs }"><v-btn text v-bind="attrs"
-          @click="showSearch = false">Cerrar</v-btn></template></v-snackbar>
+
+    <footer class="store-footer">
+      <v-container class="footer-inner">
+        <span>© {{ new Date().getFullYear() }} Embacolsa</span>
+        <span>Desarrollado por SOFTNOVA SOLUTIONS</span>
+      </v-container>
+    </footer>
+
+    <v-snackbar v-model="showSearch" color="primary" rounded>
+      Listo, vamos a buscar "{{ search || 'todos los productos' }}" en el catalogo.
+      <template v-slot:action="{ attrs }">
+        <v-btn text v-bind="attrs" @click="showSearch = false">
+          Cerrar
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-app>
 </template>
 
 <script>
 export default {
   name: 'IndexPage',
-  data: () => (
-    {
+
+  data() {
+    return {
       search: '',
-      cart: 0,
+      categoriaSeleccionada: null,
       drawer: false,
-      mobileSearch: false,
       showSearch: false,
       links: [
-        { label: 'Inicio', href: '#inicio' },
-        { label: 'Beneficios', href: '#beneficios' },
-        { label: 'Productos', href: '#productos' },
-        { label: 'Nosotros', href: '#beneficios' },
-        { label: 'Contacto', href: '#contacto' }
+        { label: 'Inicio', href: '#inicio', icon: 'mdi-home-outline' },
+        { label: 'Productos', href: '#productos', icon: 'mdi-package-variant-closed' },
+        { label: 'Beneficios', href: '#beneficios', icon: 'mdi-shield-check-outline' },
+        { label: 'Contacto', href: '#contacto', icon: 'mdi-phone-outline' },
+        { label: 'Panel', href: '/modulo-parametrizacion/productos', icon: 'mdi-view-dashboard-outline' },
       ],
       categories: [
-        'Cintas y adhesivos',
-        'Stretch film',
-        'Sunchos y zunchos',
-        'Cajas de cartón',
-        'Seguridad industrial'
+        { id: 'cintas', name: 'Cintas', icon: 'mdi-tape-measure' },
+        { id: 'stretch', name: 'Stretch film', icon: 'mdi-rollup' },
+        { id: 'cajas', name: 'Cajas', icon: 'mdi-package-variant' },
+        { id: 'zunchos', name: 'Zunchos', icon: 'mdi-link-variant' },
+        { id: 'seguridad', name: 'Seguridad', icon: 'mdi-hard-hat' },
       ],
-      trust: [{
-        icon: 'mdi-map-marker-radius-outline',
-        title: 'Cobertura nacional',
-        text: 'Llegamos a tu empresa'
-      },
-      { icon: 'mdi-shield-check-outline', title: 'Calidad garantizada', text: 'Productos confiables' }, { icon: 'mdi-account-tie-outline', title: 'Asesoría experta', text: 'Atención personalizada' }, { icon: 'mdi-clock-fast', title: 'Respuesta ágil', text: 'Cotiza sin esperar' }], products: [{ type: 'Empaque', title: 'Cintas adhesivas', text: 'Sellado seguro y resistente para cada tipo de empaque.', icon: 'mdi-tape-measure', figure: '48 mm', class: 'art-tape' }, { type: 'Protección', title: 'Stretch film', text: 'Estabiliza y protege tus cargas durante el transporte.', icon: 'mdi-rollup', figure: '1500 m', class: 'art-film' }, { type: 'Industrial', title: 'Sunchos y zunchos', text: 'Sujeción firme para mercancía y operaciones exigentes.', icon: 'mdi-package-variant', figure: 'Alta tensión', class: 'art-strap' }, { type: 'Almacenaje', title: 'Cajas de cartón', text: 'Empaques durables, listos para cuidar lo que envías.', icon: 'mdi-cube-outline', figure: 'A tu medida', class: 'art-box' }], benefits: [{ icon: 'mdi-truck-check-outline', title: 'Entrega confiable', text: 'Coordinamos pedidos para que tu operación no se detenga.' }, { icon: 'mdi-layers-triple-outline', title: 'Portafolio completo', text: 'Compra lo esencial desde un solo proveedor.' }, { icon: 'mdi-handshake-outline', title: 'Acompañamiento real', text: 'Recomendaciones según tu producto y volumen.' }, { icon: 'mdi-headset', title: 'Canales directos', text: 'Estamos listos para responder y cotizar rápido.' }]
-    }), methods: { addToCart(product) { this.cart += 1; this.search = product.title; this.showSearch = true } }
+      products: [
+        {
+          categoryId: 'cintas',
+          type: 'Sellado',
+          title: 'Cintas adhesivas',
+          text: 'Cierre fuerte, presentacion limpia y medidas para distintos usos.',
+          icon: 'mdi-tape-measure',
+          class: 'visual-cyan',
+        },
+        {
+          categoryId: 'stretch',
+          type: 'Proteccion',
+          title: 'Stretch film',
+          text: 'Estabilidad para carga, inventario y despachos de alto movimiento.',
+          icon: 'mdi-rollup',
+          class: 'visual-blue',
+        },
+        {
+          categoryId: 'zunchos',
+          type: 'Carga',
+          title: 'Sunchos y zunchos',
+          text: 'Sujecion firme para cajas, paquetes y procesos industriales.',
+          icon: 'mdi-link-variant',
+          class: 'visual-gold',
+        },
+        {
+          categoryId: 'cajas',
+          type: 'Empaque',
+          title: 'Cajas de carton',
+          text: 'Opciones resistentes para proteger lo que vendes y despachas.',
+          icon: 'mdi-package-variant-closed',
+          class: 'visual-green',
+        },
+      ],
+      benefits: [
+        { icon: 'mdi-truck-fast-outline', title: 'Despacho confiable', text: 'Coordinacion para que tu operacion no se frene.' },
+        { icon: 'mdi-account-tie-outline', title: 'Asesoria real', text: 'Recomendaciones segun el producto y el volumen.' },
+        { icon: 'mdi-layers-triple-outline', title: 'Portafolio completo', text: 'Compra lo esencial desde un solo proveedor.' },
+        { icon: 'mdi-message-reply-text-outline', title: 'Atencion directa', text: 'Cotizaciones claras y respuesta sin tanta vuelta.' },
+      ],
+      categoriasParametrizadas: [],
+      productosParametrizados: [],
+      imagenesParametrizadas: [],
+    }
+  },
+
+  computed: {
+    logoActual() {
+      return this.obtenerImagenPorTipo('logo') || '/images/embacolsa.png'
+    },
+
+    bannerActual() {
+      return this.obtenerImagenPorTipo('banner') ||
+        this.obtenerImagenPorTipo('principal') ||
+        '/images/login.png'
+    },
+
+    heroStyle() {
+      return {
+        backgroundImage: `linear-gradient(110deg, rgba(7, 28, 66, .94), rgba(9, 71, 104, .78)), url('${this.bannerActual}')`,
+      }
+    },
+
+    categoriasIndex() {
+      const categoriasActivas = this.categoriasParametrizadas
+        .filter(categoria => this.estaActivo(categoria.estado))
+        .map(categoria => ({
+          id: categoria.id,
+          name: categoria.nombre,
+          icon: 'mdi-format-list-bulleted-type',
+        }))
+
+      return categoriasActivas.length ? categoriasActivas : this.categories
+    },
+
+    opcionesCategorias() {
+      return this.categoriasIndex
+    },
+
+    productosIndex() {
+      const busqueda = (this.search || '').toLowerCase().trim()
+      const productosActivos = this.productosParametrizados
+        .filter(producto => this.estaActivo(producto.estado))
+        .filter((producto) => {
+          if (!this.categoriaSeleccionada) {
+            return true
+          }
+
+          return producto.categoria_id === this.categoriaSeleccionada ||
+            producto.categoria?.id === this.categoriaSeleccionada
+        })
+        .filter((producto) => {
+          if (!busqueda) {
+            return true
+          }
+
+          return `${producto.nombre || ''} ${producto.descripcion || ''} ${producto.categoria?.nombre || ''}`
+            .toLowerCase()
+            .includes(busqueda)
+        })
+        .slice(0, 8)
+        .map((producto, index) => ({
+          id: producto.id,
+          categoryId: producto.categoria_id || producto.categoria?.id,
+          type: producto.categoria?.nombre || 'Producto',
+          title: producto.nombre,
+          text: producto.descripcion || 'Sin descripcion por ahora',
+          icon: this.products[index % this.products.length].icon,
+          class: this.products[index % this.products.length].class,
+          image: this.resolverImagen(producto.ruta_imagen),
+        }))
+
+      if (productosActivos.length || this.productosParametrizados.length) {
+        return productosActivos
+      }
+
+      return this.products
+        .filter((producto) => {
+          if (!this.categoriaSeleccionada) {
+            return true
+          }
+
+          return producto.categoryId === this.categoriaSeleccionada
+        })
+        .filter((producto) => {
+          if (!busqueda) {
+            return true
+          }
+
+          return `${producto.title} ${producto.text} ${producto.type}`
+            .toLowerCase()
+            .includes(busqueda)
+        })
+    },
+
+    tituloProductos() {
+      const categoria = this.categoriasIndex.find(item => item.id === this.categoriaSeleccionada)
+
+      if (categoria) {
+        return `Productos de ${categoria.name}`
+      }
+
+      return 'Productos que resuelven el dia a dia de tu bodega'
+    },
+  },
+
+  mounted() {
+    this.cargarParametrizacion()
+  },
+
+  methods: {
+    async cargarParametrizacion() {
+      await Promise.all([
+        this.listarCategorias(),
+        this.listarProductos(),
+        this.listarImagenes(),
+      ])
+    },
+
+    async listarCategorias() {
+      try {
+        const response = await this.$axios.get('/categorias/listar')
+        this.categoriasParametrizadas = response.data || []
+      } catch (error) {
+        this.categoriasParametrizadas = []
+      }
+    },
+
+    async listarProductos() {
+      try {
+        const response = await this.$axios.post('/productos/listar', {
+          paginacion: null,
+        })
+        this.productosParametrizados = response.data || []
+      } catch (error) {
+        this.productosParametrizados = []
+      }
+    },
+
+    async listarImagenes() {
+      try {
+        const response = await this.$axios.get('/imagenes/listar')
+        this.imagenesParametrizadas = response.data || []
+      } catch (error) {
+        this.imagenesParametrizadas = []
+      }
+    },
+
+    obtenerImagenPorTipo(tipoBuscado) {
+      const imagen = this.imagenesParametrizadas.find((item) => {
+        const nombreTipo = item.tipo_imagen?.nombre || item.tipoImagen?.nombre || ''
+
+        return nombreTipo.toLowerCase().includes(tipoBuscado)
+      })
+
+      return imagen ? this.resolverImagen(imagen.ruta) : null
+    },
+
+    resolverImagen(rutaImagen) {
+      if (!rutaImagen) {
+        return null
+      }
+
+      if (rutaImagen.startsWith('http') || rutaImagen.startsWith('blob:')) {
+        return rutaImagen
+      }
+
+      const apiUrl = this.$axios?.defaults?.baseURL ||
+        this.$config?.API_URL ||
+        'http://localhost:8000/api'
+      const backendUrl = apiUrl.replace(/\/api\/?$/, '').replace(/\/$/, '')
+      const ruta = rutaImagen.startsWith('/') ? rutaImagen : `/${rutaImagen}`
+
+      return `${backendUrl}${ruta}`
+    },
+
+    estaActivo(estado) {
+      return estado === true || estado === 1 || estado === '1'
+    },
+
+    buscarProducto() {
+      this.showSearch = true
+    },
+
+    seleccionarProducto(product) {
+      this.search = product.title
+      this.showSearch = true
+    },
+
+    limpiarCatalogo() {
+      this.search = ''
+      this.categoriaSeleccionada = null
+    },
+  },
 }
 </script>
 
 <style scoped>
 .storefront {
-  font-family: Arial, sans-serif;
+  background: #f4f8fb;
   color: #102b5c;
-  background: #fff;
+  font-family: Arial, sans-serif;
 }
 
-.top-strip {
-  background: linear-gradient(90deg, #0b2458, #174f82);
-  color: #fff;
-  font-size: 13px;
+.store-header {
+  background: rgba(255, 255, 255, .96);
+  border-bottom: 1px solid #e6edf5;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-.top-strip .v-container {
-  min-height: 42px;
+.header-inner {
+  align-items: center;
+  display: flex;
+  gap: 22px;
+  min-height: 84px;
 }
 
-.top-message {
-  font-weight: 700;
-}
-
-.top-message .v-icon {
-  font-size: 10px;
-  margin-right: 7px;
-}
-
-.contact-links {
-  gap: 10px;
-}
-
-.contact-links a {
-  color: #fff;
-  text-decoration: none;
-  border: 1px solid rgba(255, 255, 255, .16);
-  padding: 5px 11px;
-  border-radius: 18px;
-}
-
-.contact-links .v-icon {
-  color: #76e6ee;
-  margin-right: 4px;
-}
-
-.main-header {
-  background: linear-gradient(125deg, #fff, #f5fbfd);
-}
-
-.brand {
+.brand-link {
   display: block;
-  width: 280px;
-  height: 76px;
+  flex: 0 0 auto;
+  height: 64px;
   overflow: hidden;
+  width: 235px;
 }
 
 .brand-logo {
   display: block;
-  width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
+  width: 100%;
 }
 
-.search-box {
-  max-width: 570px;
+.header-search {
+  flex: 1;
+  max-width: 520px;
 }
 
-.search-box::v-deep .v-input__slot {
-  background: #f5f8fd !important;
-  border-color: #d8e1ee !important;
-}
-
-.nav-bar {
-  background: linear-gradient(90deg, #0b255a, #173772 58%, #102b5c);
-  box-shadow: 0 8px 22px rgba(10, 38, 85, .15);
-}
-
-.category-button {
-  height: 38px !important;
-  border: 1px solid rgba(116, 232, 237, .42) !important;
-  border-radius: 20px !important;
-  color: #d9fbfd !important;
-  font-weight: 700;
-  letter-spacing: .1px;
-}
-
-.nav-links {
-  height: 48px;
-  gap: 42px;
-  margin-left: 30px;
+.header-links {
   align-items: center;
+  gap: 24px;
 }
 
-.nav-links a {
-  color: #fff;
-  text-decoration: none;
+.header-links a {
+  color: #17365d;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.drawer-logo {
+  display: block;
+  height: 72px;
+  object-fit: cover;
+  object-position: center;
+  overflow: hidden;
+  width: 220px;
 }
 
 .hero-section {
-  background: linear-gradient(135deg, #0a245a, #09234b);
-  padding: 32px 0 0;
-}
-
-.hero-card {
-  overflow: hidden;
-  padding: 52px 42px 0;
-  border: 1px solid rgba(117, 235, 240, .18);
-  border-radius: 28px 28px 0 0;
-  background: linear-gradient(116deg, rgba(7, 27, 68, .95) 0%, rgba(10, 48, 97, .82) 48%, rgba(9, 43, 91, .75)), url('/images/login.png') center/cover;
+  background:
+    linear-gradient(110deg, rgba(7, 28, 66, .94), rgba(9, 71, 104, .78)),
+    url('/images/login.png') center/cover;
   color: #fff;
+}
+
+.hero-inner {
+  min-height: 620px;
+  padding-bottom: 36px;
+  padding-top: 96px;
   position: relative;
 }
 
-.hero-card>.row {
-  position: relative;
-  z-index: 1;
-}
-
-.hero-orbit {
-  position: absolute;
-  border: 1px solid rgba(102, 233, 239, .23);
-  border-radius: 50%;
-  z-index: 0;
-}
-
-.orbit-one {
-  width: 540px;
-  height: 540px;
-  right: -160px;
-  top: -260px
-}
-
-.orbit-two {
-  width: 280px;
-  height: 280px;
-  right: 215px;
-  bottom: -190px
+.hero-copy {
+  max-width: 680px;
 }
 
 .eyebrow {
+  color: #72edf0;
   display: inline-block;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 900;
-  letter-spacing: 1.5px;
-  color: #65e2ea;
+  letter-spacing: 1px;
 }
 
 .eyebrow.blue {
-  color: #20aab8;
+  color: #159eab;
 }
 
-.hero-copy h1,
-.value-section h2,
-.contact-section h2 {
-  font-size: clamp(35px, 4vw, 58px);
-  letter-spacing: -2.5px;
-  line-height: 1.03;
-  margin: 15px 0;
-  max-width: 620px;
-}
-
-.hero-copy h1 em {
-  color: #58d8df;
-  font-style: normal;
+.hero-copy h1 {
+  font-size: 76px;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: .95;
+  margin: 16px 0;
 }
 
 .hero-copy p {
-  max-width: 580px;
-  line-height: 1.7;
-  color: #dbe5f5;
+  color: #e5f4fb;
+  font-size: 20px;
+  line-height: 1.6;
+  max-width: 620px;
 }
 
-.hero-visual {
-  min-height: 320px;
-  position: relative;
-}
-
-.package {
-  position: absolute;
-  right: 72px;
-  bottom: 49px;
-  width: 195px;
-  height: 140px;
-  border-radius: 7px;
-  background: linear-gradient(145deg, #e6b662, #a5632c);
-  box-shadow: 20px 18px 30px rgba(0, 0, 0, .27);
-  transform: skewY(-8deg);
-}
-
-.package .v-icon {
-  font-size: 66px;
-  color: rgba(255, 255, 255, .72);
-  margin: 38px 64px;
-}
-
-.roll {
-  position: absolute;
-  border-radius: 50%;
-  background: repeating-radial-gradient(circle at center, #18242b 0, #18242b 6px, #59636b 7px, #59636b 10px);
-  box-shadow: 13px 14px 25px rgba(0, 0, 0, .3);
-}
-
-.roll-one {
-  height: 156px;
-  width: 156px;
-  right: 7px;
-  top: 34px;
-}
-
-.roll-two {
-  height: 114px;
-  width: 114px;
-  right: 125px;
-  top: 70px;
-  background: repeating-radial-gradient(circle at center, #eff5f5 0, #eff5f5 7px, #b8cdcf 8px, #b8cdcf 10px);
-}
-
-.tape {
-  position: absolute;
-  width: 130px;
-  height: 130px;
-  border-radius: 50%;
-  right: 14px;
-  bottom: 10px;
-  background: repeating-radial-gradient(circle at center, #725723 0, #725723 16px, #e5bd59 17px, #e5bd59 25px);
+.hero-actions {
   display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.hero-panel {
+  bottom: 34px;
+  left: 12px;
+  max-width: 820px;
+  position: absolute;
+  right: 12px;
+}
+
+.catalog-panel {
   align-items: center;
-  justify-content: center;
+  background: rgba(255, 255, 255, .94);
+  border: 1px solid rgba(255, 255, 255, .5);
+  color: #12305e;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: 1.5fr 1fr;
+  padding: 18px;
 }
 
-.tape span {
-  background: #fff8db;
-  color: #9d6a10;
-  font-weight: 900;
-  font-size: 10px;
-  padding: 9px 5px;
-  border-radius: 50%;
+.catalog-control span {
+  color: #6b7a90;
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  text-transform: uppercase;
 }
 
-.hero-label {
-  position: absolute;
-  bottom: 10px;
-  left: 35px;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  background: linear-gradient(135deg, #fff, #e6feff);
-  color: #112e64;
-  padding: 11px 16px;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, .18);
-}
-
-.hero-label span,
-.trust-item span {
-  display: flex;
-  flex-direction: column;
-}
-
-.hero-label small,
-.trust-item small {
-  font-size: 11px;
-  color: #71819f;
-}
-
-.trust-row {
-  border-top: 1px solid rgba(255, 255, 255, .12);
-  margin-top: 25px;
-}
-
-.trust-item {
-  display: flex;
+.catalog-summary {
+  display: grid;
   gap: 10px;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.catalog-summary div {
+  background: #f4f8fb;
+  border: 1px solid #dfe9f2;
+  padding: 14px;
+}
+
+.catalog-summary strong,
+.catalog-summary span {
+  display: block;
+}
+
+.catalog-summary strong {
+  color: #0f8e9a;
+  font-size: 27px;
+  line-height: 1;
+}
+
+.catalog-summary span {
+  color: #6b7a90;
+  font-size: 12px;
+  font-weight: 800;
+  margin-top: 5px;
+  text-transform: uppercase;
+}
+
+.category-strip {
+  background: #fff;
+  border-bottom: 1px solid #e6edf5;
+  border-top: 1px solid #e6edf5;
+}
+
+.catalog-toolbar {
   align-items: center;
+  display: flex;
+  gap: 14px;
   padding: 18px 0;
 }
 
-.trust-item b {
-  font-size: 13px;
+.catalog-toolbar .v-input {
+  max-width: 360px;
 }
 
 .products-section,
-.value-section {
-  padding: 88px 0;
+.operation-section {
+  padding: 78px 0;
 }
 
 .section-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  margin-bottom: 28px;
+  margin-bottom: 30px;
+  max-width: 680px;
 }
 
-.section-heading h2 {
-  font-size: 36px;
-  letter-spacing: -1.4px;
+.products-heading {
+  align-items: flex-end;
+  display: flex;
+  justify-content: space-between;
+  max-width: none;
+}
+
+.section-heading h2,
+.operation-section h2,
+.contact-section h2 {
+  color: #112e64;
+  font-size: 42px;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1.08;
   margin: 8px 0 0;
 }
 
 .product-card {
-  border-color: #e1e9f3 !important;
-  border-radius: 15px;
+  border-color: #dfe9f2 !important;
+  border-radius: 8px;
   overflow: hidden;
   transition: transform .2s, box-shadow .2s;
 }
 
 .product-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 13px 30px rgba(12, 48, 91, .12);
+  box-shadow: 0 18px 36px rgba(16, 43, 92, .12);
+  transform: translateY(-4px);
 }
 
-.product-art {
-  height: 177px;
-  display: flex;
+.product-visual {
   align-items: center;
+  display: flex;
+  height: 175px;
   justify-content: center;
-  position: relative;
-  overflow: hidden;
 }
 
-.product-art .v-icon {
-  font-size: 88px;
+.product-visual .v-icon {
   color: #fff;
-  filter: drop-shadow(0 9px 7px rgba(0, 0, 0, .18));
+  font-size: 82px;
 }
 
-.product-art span {
-  position: absolute;
-  right: 14px;
-  bottom: 12px;
-  color: #fff;
-  font-weight: 800;
-  font-size: 12px;
-  opacity: .8;
+.visual-cyan {
+  background: linear-gradient(135deg, #0fa5b1, #39d4d6);
 }
 
-.art-tape {
-  background: linear-gradient(135deg, #1fbfc5, #1786aa)
+.visual-blue {
+  background: linear-gradient(135deg, #12305e, #2e7eb5);
 }
 
-.art-film {
-  background: linear-gradient(135deg, #7187a8, #26385d)
+.visual-gold {
+  background: linear-gradient(135deg, #d49522, #f2c75c);
 }
 
-.art-strap {
-  background: linear-gradient(135deg, #daac3f, #a26d14)
-}
-
-.art-box {
-  background: linear-gradient(135deg, #d9904a, #8f522c)
+.visual-green {
+  background: linear-gradient(135deg, #196b5f, #33b18e);
 }
 
 .product-type {
-  color: #18a9b7;
-  text-transform: uppercase;
-  font-size: 10px;
-  letter-spacing: 1.4px;
+  color: #149daa;
+  font-size: 11px;
   font-weight: 900;
+  text-transform: uppercase;
 }
 
-.product-card h3,
-.benefit-card h3 {
-  margin: 7px 0 8px;
-  font-size: 20px;
+.product-card h3 {
+  color: #17365d;
+  font-size: 21px;
+  font-weight: 900;
+  margin: 8px 0;
 }
 
 .product-card p,
-.benefit-card p,
-.value-section p {
-  color: #61708b;
-  line-height: 1.55;
+.operation-section p,
+.benefit-item p,
+.contact-section p,
+.empty-products p {
+  color: #65758d;
+  line-height: 1.6;
   margin: 0;
 }
 
-.value-section {
-  background: #f3f7fb;
-}
-
-.value-section h2 {
-  color: #112e64;
-  font-size: 42px;
-}
-
-.benefit-card {
-  height: 100%;
+.empty-products {
+  align-items: center;
   background: #fff;
-  border-radius: 13px;
-  padding: 23px;
-  border: 1px solid #e6edf5;
+  border: 1px dashed #cbd8e6;
+  color: #17365d;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 260px;
+  padding: 32px;
+  text-align: center;
 }
 
-.benefit-card h3 {
+.empty-products h3 {
+  font-size: 22px;
+  font-weight: 900;
+  margin: 12px 0 4px;
+}
+
+.operation-section {
+  background: #fff;
+}
+
+.benefit-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.benefit-item {
+  align-items: flex-start;
+  background: #f6f9fc;
+  border: 1px solid #e2ebf3;
+  border-radius: 8px;
+  display: flex;
+  gap: 14px;
+  min-height: 132px;
+  padding: 22px;
+}
+
+.benefit-item strong {
+  color: #17365d;
+  display: block;
   font-size: 17px;
-}
-
-.contact-section {
-  padding: 55px 0;
-  background: linear-gradient(110deg, #1bc0c8, #2582bc);
-  color: #fff;
-}
-
-.contact-section .eyebrow {
-  color: #d7ffff;
-}
-
-.contact-section h2 {
-  font-size: 39px;
   margin-bottom: 6px;
 }
 
+.contact-section {
+  background: linear-gradient(105deg, #0f2c61, #0fa5b1);
+  color: #fff;
+  padding: 54px 0;
+}
+
+.contact-section h2,
 .contact-section p {
-  margin-bottom: 0;
-  font-size: 17px;
-  opacity: .9;
+  color: #fff;
 }
 
-footer {
-  padding: 22px 0;
-  background: #0b2149;
-  color: #c2cee2;
+.contact-inner,
+.footer-inner {
+  align-items: center;
+  display: flex;
+  gap: 22px;
+  justify-content: space-between;
+}
+
+.contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.store-footer {
+  background: #071b42;
+  color: #c7d5e8;
   font-size: 13px;
+  padding: 20px 0;
 }
 
-@media(max-width:600px) {
-  .hero-card {
-    padding: 35px 24px 0
+@media (max-width: 960px) {
+  .hero-copy h1 {
+    font-size: 58px;
+  }
+
+  .benefit-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .hero-panel {
+    position: static;
+    margin-top: 54px;
+  }
+
+  .catalog-panel,
+  .catalog-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .catalog-toolbar,
+  .products-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .catalog-toolbar .v-input {
+    max-width: none;
+  }
+
+  .contact-inner,
+  .footer-inner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 600px) {
+  .brand-link {
+    height: 56px;
+    width: 190px;
+  }
+
+  .hero-inner {
+    min-height: auto;
+    padding-top: 62px;
   }
 
   .hero-copy h1 {
-    letter-spacing: -1.8px
+    font-size: 46px;
   }
 
-  .hero-visual {
-    min-height: 245px
+  .hero-copy p {
+    font-size: 17px;
   }
 
-  .package {
-    transform: scale(.75) skewY(-8deg);
-    transform-origin: bottom right
+  .hero-panel,
+  .benefit-grid {
+    grid-template-columns: 1fr;
   }
 
-  .roll-one {
-    transform: scale(.75);
-    transform-origin: top right
-  }
-
-  .roll-two {
-    transform: scale(.75);
-    transform-origin: top right
-  }
-
-  .tape {
-    transform: scale(.75);
-    transform-origin: bottom right
-  }
-
-  .hero-label {
-    left: 0;
-    transform: scale(.85);
-    transform-origin: bottom left
-  }
-
-  .section-heading {
-    align-items: start;
-    flex-direction: column;
-    gap: 7px
-  }
-
-  .products-section,
-  .value-section {
-    padding: 58px 0
-  }
-
-  .contact-section {
-    text-align: center
-  }
-
-  .brand {
-    width: 190px;
-    height: 58px
-  }
-
-  .trust-item {
-    padding: 11px 0
-  }
-
-  .trust-item b {
-    font-size: 11px
-  }
-
-  .trust-item small {
-    font-size: 9px
+  .section-heading h2,
+  .operation-section h2,
+  .contact-section h2 {
+    font-size: 31px;
   }
 }
 </style>

@@ -1,19 +1,15 @@
 export default function ({ route, redirect }) {
+  if (route.path === '/login') {
+    return
+  }
+
   if (!process.client) {
     return
   }
 
   const token = sessionStorage.getItem('embacolsa_token')
 
-  const rutasPublicas = ['/login', '/']
-
-  const esRutaPublica = rutasPublicas.includes(route.path)
-
-  if (!token && !esRutaPublica) {
-    return redirect('/login')
-  }
-
-  if (token && route.path === '/login') {
-    return redirect('/')
+  if (!token) {
+    return redirect('/login');
   }
 }

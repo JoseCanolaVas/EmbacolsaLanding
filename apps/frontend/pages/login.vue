@@ -3,17 +3,10 @@
         <div class="login-overlay"></div>
 
         <!-- Login -->
-        <v-card
-            class="login-card"
-            elevation="16"
-        >
+        <v-card class="login-card" elevation="16">
             <v-card-text class="login-content">
                 <div class="login-header">
-                    <img
-                        src="/images/embacolsa.png"
-                        alt="Logo Embacolsa"
-                        class="login-logo"
-                    />
+                    <img src="/images/embacolsa.png" alt="Logo Embacolsa" class="login-logo" />
 
                     <h1 class="login-title">
                         Inicio de sesión
@@ -25,60 +18,28 @@
                     </p>
                 </div>
 
-                <v-form
-                    ref="formVal"
-                    lazy-validation
-                    @submit.prevent="iniciarSesion"
-                >
+                <v-form ref="formVal" lazy-validation @submit.prevent="iniciarSesion">
                     <v-row dense>
                         <v-col cols="12">
-                            <v-text-field
-                                v-model.trim="form.email"
-                                label="Correo electrónico"
-                                prepend-inner-icon="mdi-email-outline"
-                                type="email"
-                                autocomplete="email"
-                                outlined
-                                rounded
-                                dense
-                                hide-details="auto"
-                                class="login-field"
-                                :rules="[rules.requerido, rules.email]"
-                            />
+                            <v-text-field v-model.trim="form.email" label="Correo electrónico"
+                                prepend-inner-icon="mdi-email-outline" type="email" autocomplete="email" outlined
+                                rounded dense hide-details="auto" class="login-field"
+                                :rules="[rules.requerido, rules.email]" />
                         </v-col>
 
                         <v-col cols="12">
-                            <v-text-field
-                                v-model="form.password"
-                                label="Contraseña"
-                                prepend-inner-icon="mdi-lock-outline"
-                                :append-icon="
-                                    mostrarPassword
-                                        ? 'mdi-eye-off-outline'
-                                        : 'mdi-eye-outline'
-                                "
-                                :type="mostrarPassword ? 'text' : 'password'"
-                                autocomplete="current-password"
-                                outlined
-                                rounded
-                                dense
-                                hide-details="auto"
-                                class="login-field"
-                                :rules="[rules.requerido]"
-                                @click:append="mostrarPassword = !mostrarPassword"
-                            />
+                            <v-text-field v-model="form.password" label="Contraseña"
+                                prepend-inner-icon="mdi-lock-outline" :append-icon="mostrarPassword
+                                    ? 'mdi-eye-off-outline'
+                                    : 'mdi-eye-outline'
+                                    " :type="mostrarPassword ? 'text' : 'password'" autocomplete="current-password"
+                                outlined rounded dense hide-details="auto" class="login-field"
+                                :rules="[rules.requerido]" @click:append="mostrarPassword = !mostrarPassword" />
                         </v-col>
 
                         <v-col cols="12">
-                            <v-btn
-                                type="submit"
-                                block
-                                large
-                                rounded
-                                :loading="cargando"
-                                :disabled="cargando"
-                                class="login-button text-none"
-                            >
+                            <v-btn type="submit" block large rounded :loading="cargando" :disabled="cargando"
+                                class="login-button text-none">
                                 Iniciar sesión
                             </v-btn>
                         </v-col>
@@ -86,13 +47,8 @@
                 </v-form>
 
                 <div class="text-center mt-4">
-                    <v-btn
-                        text
-                        small
-                        type="button"
-                        class="text-none font-weight-bold white--text"
-                        @click.stop="modal = true"
-                    >
+                    <v-btn text small type="button" class="text-none font-weight-bold white--text"
+                        @click.stop="modal = true">
                         ¿Olvidaste tu contraseña?
                     </v-btn>
                 </div>
@@ -104,20 +60,12 @@
         </v-card>
 
         <!-- Modal recuperación -->
-        <v-dialog
-            v-model="modal"
-            max-width="560"
-            persistent
-        >
+        <v-dialog v-model="modal" max-width="560" persistent>
             <v-card class="modal-card">
                 <!-- Encabezado -->
                 <v-card-title class="modal-header white--text pa-5">
                     <div class="d-flex align-center">
-                        <v-icon
-                            color="white"
-                            size="30"
-                            class="mr-3"
-                        >
+                        <v-icon color="white" size="30" class="mr-3">
                             mdi-lock-reset
                         </v-icon>
 
@@ -128,12 +76,7 @@
 
                     <v-spacer />
 
-                    <v-btn
-                        icon
-                        color="white"
-                        type="button"
-                        @click="modal = false"
-                    >
+                    <v-btn icon color="white" type="button" @click="modal = false">
                         <v-icon size="34">
                             mdi-close
                         </v-icon>
@@ -143,49 +86,20 @@
                 <!-- Contenido -->
                 <v-card-text class="pa-6 pa-sm-8 text-center">
                     <!-- Los dos íconos separados -->
-                    <v-row
-                        dense
-                        justify="center"
-                        align="center"
-                        class="mb-7"
-                    >
-                        <v-col
-                            cols="auto"
-                            class="px-2"
-                        >
-                            <v-avatar
-                                size="88"
-                                color="#25D366"
-                                class="elevation-5"
-                            >
-                                <v-icon
-                                    color="white"
-                                    size="52"
-                                >
+                    <v-row dense justify="center" align="center" class="mb-7">
+                        <v-col cols="auto" class="px-2">
+                            <v-avatar size="88" color="#25D366" class="elevation-5">
+                                <v-icon color="white" size="52">
                                     mdi-whatsapp
                                 </v-icon>
                             </v-avatar>
                         </v-col>
 
-                        <v-col
-                            cols="auto"
-                            class="px-2"
-                        >
-                            <v-sheet
-                                width="145"
-                                height="88"
-                                color="#080a10"
-                                elevation="5"
-                                rounded="xl"
-                                class="d-flex align-center justify-center pa-2"
-                            >
-                                <v-img
-                                    src="/images/softnova.jpeg"
-                                    alt="Softnova Solutions"
-                                    contain
-                                    max-width="130"
-                                    max-height="76"
-                                />
+                        <v-col cols="auto" class="px-2">
+                            <v-sheet width="145" height="88" color="#080a10" elevation="5" rounded="xl"
+                                class="d-flex align-center justify-center pa-2">
+                                <v-img src="/images/softnova.jpeg" alt="Softnova Solutions" contain max-width="130"
+                                    max-height="76" />
                             </v-sheet>
                         </v-col>
                     </v-row>
@@ -203,16 +117,8 @@
                     </p>
 
                     <div class="d-flex justify-center mb-6">
-                        <v-chip
-                            large
-                            outlined
-                            color="primary"
-                            class="font-weight-bold px-5"
-                        >
-                            <v-icon
-                                left
-                                color="primary"
-                            >
+                        <v-chip large outlined color="primary" class="font-weight-bold px-5">
+                            <v-icon left color="primary">
                                 mdi-phone
                             </v-icon>
 
@@ -229,37 +135,16 @@
                 <!-- Acciones -->
                 <v-card-actions class="pa-5 pt-0">
                     <v-row dense>
-                        <v-col
-                            cols="12"
-                            sm="5"
-                        >
-                            <v-btn
-                                block
-                                text
-                                rounded
-                                color="error"
-                                type="button"
-                                class="text-none font-weight-bold"
-                                @click="modal = false"
-                            >
+                        <v-col cols="12" sm="5">
+                            <v-btn block text rounded color="error" type="button" class="text-none font-weight-bold"
+                                @click="modal = false">
                                 Cancelar
                             </v-btn>
                         </v-col>
 
-                        <v-col
-                            cols="12"
-                            sm="7"
-                        >
-                            <v-btn
-                                block
-                                rounded
-                                dark
-                                large
-                                color="#25D366"
-                                type="button"
-                                class="text-none font-weight-bold"
-                                @click="abrirWhatsApp"
-                            >
+                        <v-col cols="12" sm="7">
+                            <v-btn block rounded dark large color="#25D366" type="button"
+                                class="text-none font-weight-bold" @click="abrirWhatsApp">
                                 <v-icon left>
                                     mdi-whatsapp
                                 </v-icon>
@@ -329,6 +214,19 @@ export default {
             try {
                 this.cargando = true
 
+                const response = await this.$axios.post('/auth/login', {
+                    email: this.form.email,
+                    password: this.form.password,
+                })
+
+                sessionStorage.setItem(
+                    'embacolsa_token',
+                    response.data.token
+                )
+
+                this.$router.push('/modulo-parametrizacion/categorias')
+
+                this.$toast.success('¡Bienvenido!')
                 /*
                 const response = await this.$axios.post('/login', {
                     email: this.form.email,
@@ -394,12 +292,10 @@ export default {
 .login-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-        135deg,
-        rgba(0, 32, 78, 0.28),
-        rgba(0, 119, 168, 0.1),
-        rgba(62, 160, 74, 0.08)
-    );
+    background: linear-gradient(135deg,
+            rgba(0, 32, 78, 0.28),
+            rgba(0, 119, 168, 0.1),
+            rgba(62, 160, 74, 0.08));
 }
 
 .login-card {
@@ -438,10 +334,7 @@ export default {
     transform: scale(1.12);
     mix-blend-mode: multiply;
     filter:
-        brightness(1.55)
-        contrast(1.08)
-        saturate(1.2)
-        drop-shadow(0 12px 22px rgba(0, 0, 0, 0.2));
+        brightness(1.55) contrast(1.08) saturate(1.2) drop-shadow(0 12px 22px rgba(0, 0, 0, 0.2));
 }
 
 .login-title {
@@ -491,12 +384,10 @@ export default {
     height: 50px !important;
     color: #ffffff !important;
     font-weight: 700;
-    background: linear-gradient(
-        135deg,
-        #0675bd 0%,
-        #0698b3 55%,
-        #43ad56 100%
-    ) !important;
+    background: linear-gradient(135deg,
+            #0675bd 0%,
+            #0698b3 55%,
+            #43ad56 100%) !important;
     box-shadow: 0 14px 28px rgba(0, 28, 68, 0.3) !important;
 }
 
@@ -517,12 +408,10 @@ export default {
 }
 
 .modal-header {
-    background: linear-gradient(
-        135deg,
-        #0675bd 0%,
-        #0698b3 55%,
-        #43ad56 100%
-    );
+    background: linear-gradient(135deg,
+            #0675bd 0%,
+            #0698b3 55%,
+            #43ad56 100%);
 }
 
 .modal-title {

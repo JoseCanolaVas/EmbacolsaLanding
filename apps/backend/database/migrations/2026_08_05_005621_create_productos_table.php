@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('ruta_imagen');
             $table->boolean('estado');
             $table->string('unidad_medida');
-            $table->decimal('precio', 10, 2);
+            $table->decimal('precio', 10, 2)->nullable();
             $table->timestamps();
         });
     }

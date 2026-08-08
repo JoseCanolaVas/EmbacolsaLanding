@@ -22,3 +22,7 @@ use Illuminate\Support\Facades\Route;
 
 require __DIR__ . '/usuarios/usuarios.php';
 require __DIR__ . '/auth/auth.php';
+require __DIR__ . '/categorias/categorias.php';
+require __DIR__ . '/productos/productos.php';
+require __DIR__ . '/tipoImagenes/tipoImagenes.php';
+require __DIR__ . '/imagenes/imagenes.php';
