@@ -19,6 +19,6 @@ export default function ({ route, redirect }) {
   }
 
   if (!token) {
-    return redirect('/')
+    return redirect('/login')
   }
 }

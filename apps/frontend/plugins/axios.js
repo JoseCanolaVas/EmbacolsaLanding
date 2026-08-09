@@ -19,8 +19,8 @@ export default function ({ $axios, redirect }) {
         if (status === 401 && process.client) {
             sessionStorage.removeItem('embacolsa_token')
 
-            if (window.location.pathname !== '/') {
-                redirect('/')
+            if (window.location.pathname !== '/login') {
+                redirect('/login')
             }
         }
 
