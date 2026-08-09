@@ -45,7 +45,7 @@ class ImagenService
         return Imagenes::create([
             'nombre' => $datosValidados['nombre'],
             'tipo_imagen_id' => $datosValidados['tipo_imagen_id'],
-            'ruta' => Storage::url($rutaImagen),
+            'ruta' => $this->rutaPublica($rutaImagen),
         ]);
     }
 
@@ -82,7 +82,7 @@ class ImagenService
                 . '-' . Str::random(8)
                 . '.' . $imagen->getClientOriginalExtension();
 
-            $rutaImagen = Storage::url(
+            $rutaImagen = $this->rutaPublica(
                 $imagen->storeAs($carpeta, $nombreArchivo, 'public')
             );
         }
@@ -108,10 +108,16 @@ class ImagenService
             return;
         }
 
-        $rutaRelativa = preg_replace('/^\/?storage\//', '', $ruta);
+        $rutaPath = parse_url($ruta, PHP_URL_PATH) ?: $ruta;
+        $rutaRelativa = preg_replace('/^\/?storage\//', '', $rutaPath);
 
         if ($rutaRelativa && Storage::disk('public')->exists($rutaRelativa)) {
             Storage::disk('public')->delete($rutaRelativa);
         }
+    }
+
+    private function rutaPublica(string $ruta): string
+    {
+        return '/storage/' . ltrim($ruta, '/');
     }
 }

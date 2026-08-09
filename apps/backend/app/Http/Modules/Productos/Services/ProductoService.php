@@ -49,7 +49,7 @@ class ProductoService
         $rutaImagen = $imagen->storeAs($carpeta, $nombreArchivo, 'public');
 
         $datosValidados['descripcion'] = $datosValidados['descripcion'] ?? 'Sin descripcion por ahora';
-        $datosValidados['ruta_imagen'] = Storage::url($rutaImagen);
+        $datosValidados['ruta_imagen'] = $this->rutaPublica($rutaImagen);
 
         return Productos::create($datosValidados);
     }
@@ -91,7 +91,7 @@ class ProductoService
                 . '.' . $imagen->getClientOriginalExtension();
 
             $rutaImagen = $imagen->storeAs($carpeta, $nombreArchivo, 'public');
-            $datosValidados['ruta_imagen'] = Storage::url($rutaImagen);
+            $datosValidados['ruta_imagen'] = $this->rutaPublica($rutaImagen);
         }
 
         $datosValidados['descripcion'] = $datosValidados['descripcion'] ?? 'Sin descripcion por ahora';
@@ -107,10 +107,16 @@ class ProductoService
             return;
         }
 
-        $rutaRelativa = preg_replace('/^\/?storage\//', '', $ruta);
+        $rutaPath = parse_url($ruta, PHP_URL_PATH) ?: $ruta;
+        $rutaRelativa = preg_replace('/^\/?storage\//', '', $rutaPath);
 
         if ($rutaRelativa && Storage::disk('public')->exists($rutaRelativa)) {
             Storage::disk('public')->delete($rutaRelativa);
         }
+    }
+
+    private function rutaPublica(string $ruta): string
+    {
+        return '/storage/' . ltrim($ruta, '/');
     }
 }
