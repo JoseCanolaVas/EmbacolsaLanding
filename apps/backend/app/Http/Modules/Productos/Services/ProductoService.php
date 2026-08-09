@@ -23,7 +23,7 @@ class ProductoService
             'precio' => ['nullable', 'numeric', 'min:0'],
             'categoria_id' => ['required', 'exists:categorias,id'],
             'marca_id' => ['nullable', 'exists:marcas,id'],
-            'imagen' => ['required', 'image', 'max:5120'],
+            'imagen' => ['required', 'image', 'max:20480'],
         ]);
 
         if ($validator->fails()) {
@@ -64,7 +64,7 @@ class ProductoService
             'precio' => ['nullable', 'numeric', 'min:0'],
             'categoria_id' => ['required', 'exists:categorias,id'],
             'marca_id' => ['nullable', 'exists:marcas,id'],
-            'imagen' => ['nullable', 'image', 'max:5120'],
+            'imagen' => ['nullable', 'image', 'max:20480'],
         ]);
 
         if ($validator->fails()) {

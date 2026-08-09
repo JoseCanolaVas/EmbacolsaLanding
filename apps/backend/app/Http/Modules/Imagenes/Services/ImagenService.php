@@ -17,7 +17,7 @@ class ImagenService
         $validator = Validator::make($data, [
             'nombre' => ['required', 'string', 'max:255'],
             'tipo_imagen_id' => ['required', 'exists:tipo_imagenes,id'],
-            'imagen' => ['required', 'image', 'max:5120'],
+            'imagen' => ['required', 'image', 'max:20480'],
         ]);
 
         if ($validator->fails()) {
@@ -54,7 +54,7 @@ class ImagenService
         $validator = Validator::make($data, [
             'nombre' => ['required', 'string', 'max:255'],
             'tipo_imagen_id' => ['required', 'exists:tipo_imagenes,id'],
-            'imagen' => ['nullable', 'image', 'max:5120'],
+            'imagen' => ['nullable', 'image', 'max:20480'],
         ]);
 
         if ($validator->fails()) {
