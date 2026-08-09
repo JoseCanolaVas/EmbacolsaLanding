@@ -13,6 +13,13 @@ RUN apt-get update \
     && a2enmod rewrite headers \
     && rm -rf /var/lib/apt/lists/*
 
+RUN { \
+        echo "file_uploads=On"; \
+        echo "upload_max_filesize=20M"; \
+        echo "post_max_size=24M"; \
+        echo "memory_limit=256M"; \
+    } > /usr/local/etc/php/conf.d/uploads.ini
+
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
 
