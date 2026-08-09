@@ -9,6 +9,7 @@ use App\Http\Modules\Usuarios\Services\UsuarioService;
 use App\Http\Modules\Usuarios\Repositories\UsuarioRepository;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Controlador para manejar las operaciones relacionadas con los usuarios.
@@ -58,9 +59,15 @@ class UsuarioController extends Controller
         try {
             $usuario = $this->usuarioService->crearUsuario($request->all());
             return response()->json($usuario, Response::HTTP_CREATED);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Datos invalidos para crear el usuario',
+                'errors' => $e->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Ha ocurrido un Error al crear el usuario',
+                'error' => $e->getMessage(),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -77,6 +84,11 @@ class UsuarioController extends Controller
         try {
             $usuario = $this->usuarioService->actualizarUsuario($id, $request->all());
             return response()->json($usuario, Response::HTTP_OK);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Datos invalidos para actualizar el usuario',
+                'errors' => $e->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Ha ocurrido un Error al actualizar el usuario',

@@ -18,8 +18,7 @@
         <v-card-subtitle class="mb-4 mt-5" align="center">
             <h3><b class="justify-center"> <v-icon>mdi-information-slab-circle-outline</v-icon> Panel de parametrizacion
                     de
-                    Categorias, desde aca se podran gestionar informacion de las categorias disponibles para los
-                    productos .</b></h3>
+                    categorías, desde acá se organiza la información disponible para los productos.</b></h3>
         </v-card-subtitle>
 
         <v-card-text>

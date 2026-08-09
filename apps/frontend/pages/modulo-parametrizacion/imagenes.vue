@@ -2,14 +2,14 @@
     <v-card flat class="imagenes-page">
         <div class="page-heading">
             <div>
-                <span>Softnova CMS</span>
-                <h2>Parametrizacion de imagenes</h2>
+                <span>Imágenes</span>
+                <h2>Parametrización de imágenes</h2>
                 <p>
-                    Sube logos, banners y piezas visuales. El index toma las imagenes activas segun su tipo.
+                    Sube logos, banners y piezas visuales para controlar lo que se muestra en el sitio público.
                 </p>
             </div>
 
-            <v-btn rounded depressed color="primary" @click="tab = 0">
+            <v-btn rounded depressed color="primary" @click="prepararNuevaImagen">
                 <v-icon left>mdi-cloud-upload-outline</v-icon>
                 Subir imagen
             </v-btn>
@@ -32,7 +32,7 @@
                     <v-col cols="12" lg="4">
                         <v-card outlined class="upload-card">
                             <v-card-title>
-                                Nueva imagen
+                                {{ imagenSeleccionada.id ? 'Editar imagen' : 'Nueva imagen' }}
                             </v-card-title>
 
                             <v-card-text>
@@ -44,9 +44,11 @@
                                         item-text="nombre" item-value="id" label="Tipo de imagen" outlined dense rounded
                                         prepend-inner-icon="mdi-shape-outline" :rules="[rules.required]" />
 
-                                    <v-file-input v-model="formImagen.imagen" label="Archivo" outlined dense rounded
+                                    <v-file-input v-model="formImagen.imagen" :label="imagenSeleccionada.id
+                                        ? 'Reemplazar archivo (opcional)'
+                                        : 'Archivo'" outlined dense rounded
                                         accept="image/png, image/jpeg, image/jpg, image/webp" prepend-icon=""
-                                        prepend-inner-icon="mdi-camera-outline" show-size :rules="[rules.required]"
+                                        prepend-inner-icon="mdi-camera-outline" show-size :rules="reglasImagenArchivo"
                                         @change="previsualizarImagen" />
 
                                     <div class="preview-box">
@@ -64,11 +66,11 @@
                             <v-card-actions>
                                 <v-spacer />
                                 <v-btn rounded outlined color="error" @click="limpiarFormularioImagen">
-                                    Limpiar
+                                    {{ imagenSeleccionada.id ? 'Cancelar' : 'Limpiar' }}
                                 </v-btn>
                                 <v-btn rounded depressed color="primary" :loading="loading.guardandoImagen"
                                     @click="guardarImagen">
-                                    Guardar
+                                    {{ imagenSeleccionada.id ? 'Actualizar' : 'Guardar' }}
                                 </v-btn>
                             </v-card-actions>
                         </v-card>
@@ -96,6 +98,18 @@
                                         {{ item.tipo_imagen?.nombre || 'Sin tipo' }}
                                     </v-chip>
                                 </template>
+
+                                <template v-slot:item.acciones="{ item }">
+                                    <div class="table-actions">
+                                        <v-btn icon color="primary" @click="editarImagen(item)">
+                                            <v-icon>mdi-pencil-outline</v-icon>
+                                        </v-btn>
+
+                                        <v-btn icon color="error" @click="confirmarEliminarImagen(item)">
+                                            <v-icon>mdi-delete-outline</v-icon>
+                                        </v-btn>
+                                    </div>
+                                </template>
                             </v-data-table>
                         </v-card>
                     </v-col>
@@ -105,7 +119,7 @@
             <v-tab-item>
                 <v-card outlined class="mt-4">
                     <v-card-title class="table-title">
-                        Tipos que controlan el index
+                        Tipos de imagen
                         <v-spacer />
                         <v-btn color="primary" rounded depressed @click="abrirModalCrearTipoImagen()">
                             <v-icon left>mdi-plus</v-icon>
@@ -115,8 +129,9 @@
 
                     <v-card-text>
                         <v-alert text type="info">
-                            Usa nombres claros como Logo, Banner principal, Banner secundario o Aliados. El index reconoce
-                            especialmente Logo y Banner.
+                            Usa nombres claros como Logo, Banner principal, Banner secundario o Aliados. El sitio
+                            público
+                            reconoce especialmente Logo y Banner.
                         </v-alert>
 
                         <v-text-field v-model="buscarTipo" label="Buscar tipo" outlined dense clearable rounded
@@ -125,7 +140,7 @@
                         <v-data-table :items="tiposImagenes" :loading="loading.tipos" :headers="headersTiposImagenes"
                             disable-pagination hide-default-footer :search="buscarTipo">
                             <template v-slot:item.estado="{ item }">
-                                <v-chip :color="item.estado ? 'success' : 'grey'" dark small>
+                                <v-chip :color="item.estado ? 'primary' : 'grey'" dark small>
                                     {{ item.estado ? 'Activo' : 'Inactivo' }}
                                 </v-chip>
                             </template>
@@ -144,6 +159,33 @@
         <v-dialog v-model="modalTipoImagen" max-width="500px">
             <ModalTipoImagenes :tipoImagenSeleccionada="tipoImagenSeleccionada" @cerrarModal="modalTipoImagen = false"
                 @recargar="listarTiposImagenes" />
+        </v-dialog>
+
+        <v-dialog v-model="modalEliminarImagen" max-width="460px">
+            <v-card class="confirm-card">
+                <v-card-title class="confirm-title">
+                    <v-icon color="error" class="mr-2">
+                        mdi-alert-circle-outline
+                    </v-icon>
+                    Eliminar imagen
+                </v-card-title>
+
+                <v-card-text>
+                    ¿Seguro que deseas eliminar
+                    <strong>{{ imagenAEliminar.nombre }}</strong>?
+                    Esta imagen dejará de mostrarse en el index si estaba parametrizada como logo o banner.
+                </v-card-text>
+
+                <v-card-actions>
+                    <v-spacer />
+                    <v-btn rounded text color="grey darken-1" @click="modalEliminarImagen = false">
+                        Cancelar
+                    </v-btn>
+                    <v-btn rounded depressed color="error" :loading="loading.eliminandoImagen" @click="eliminarImagen">
+                        Eliminar
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
         </v-dialog>
     </v-card>
 </template>
@@ -171,15 +213,20 @@ export default {
                 tipo_imagen_id: null,
                 imagen: null,
             },
+            imagenSeleccionada: {},
+            imagenAEliminar: {},
+            modalEliminarImagen: false,
             loading: {
                 imagenes: false,
                 tipos: false,
                 guardandoImagen: false,
+                eliminandoImagen: false,
             },
             headersImagenes: [
                 { text: 'Imagen', value: 'ruta', sortable: false },
                 { text: 'Nombre', value: 'nombre' },
                 { text: 'Tipo', value: 'tipo_imagen' },
+                { text: 'Acciones', value: 'acciones', align: 'center', sortable: false },
             ],
             headersTiposImagenes: [
                 { text: 'Id', value: 'id', align: 'center' },
@@ -214,6 +261,10 @@ export default {
 
                 return `${nombre} ${tipo}`.toLowerCase().includes(busqueda)
             })
+        },
+
+        reglasImagenArchivo() {
+            return this.imagenSeleccionada.id ? [] : [this.rules.required]
         },
     },
 
@@ -272,11 +323,19 @@ export default {
                 const formData = new FormData()
                 formData.append('nombre', this.formImagen.nombre)
                 formData.append('tipo_imagen_id', this.formImagen.tipo_imagen_id)
-                formData.append('imagen', this.formImagen.imagen)
 
-                await this.$axios.post('/imagenes/crear', formData)
+                if (this.formImagen.imagen) {
+                    formData.append('imagen', this.formImagen.imagen)
+                }
 
-                this.$toast.success('Imagen parametrizada correctamente.')
+                if (this.imagenSeleccionada.id) {
+                    await this.$axios.post(`/imagenes/actualizar/${this.imagenSeleccionada.id}`, formData)
+                    this.$toast.success('Imagen actualizada correctamente.')
+                } else {
+                    await this.$axios.post('/imagenes/crear', formData)
+                    this.$toast.success('Imagen parametrizada correctamente.')
+                }
+
                 this.limpiarFormularioImagen()
                 await this.listarImagenes()
             } catch (error) {
@@ -296,10 +355,63 @@ export default {
                 tipo_imagen_id: null,
                 imagen: null,
             }
+            this.imagenSeleccionada = {}
             this.imagenPreview = null
 
             if (this.$refs.formularioImagen) {
                 this.$refs.formularioImagen.resetValidation()
+            }
+        },
+
+        prepararNuevaImagen() {
+            this.tab = 0
+            this.limpiarFormularioImagen()
+        },
+
+        editarImagen(item) {
+            this.tab = 0
+            this.imagenSeleccionada = { ...item }
+            this.formImagen = {
+                nombre: item.nombre,
+                tipo_imagen_id: item.tipo_imagen_id,
+                imagen: null,
+            }
+            this.imagenPreview = this.resolverImagen(item.ruta)
+
+            this.$nextTick(() => {
+                if (this.$refs.formularioImagen) {
+                    this.$refs.formularioImagen.resetValidation()
+                }
+            })
+        },
+
+        confirmarEliminarImagen(item) {
+            this.imagenAEliminar = { ...item }
+            this.modalEliminarImagen = true
+        },
+
+        async eliminarImagen() {
+            if (!this.imagenAEliminar.id) {
+                return
+            }
+
+            try {
+                this.loading.eliminandoImagen = true
+                await this.$axios.delete(`/imagenes/eliminar/${this.imagenAEliminar.id}`)
+
+                this.$toast.success('Imagen eliminada correctamente.')
+                this.modalEliminarImagen = false
+
+                if (this.imagenSeleccionada.id === this.imagenAEliminar.id) {
+                    this.limpiarFormularioImagen()
+                }
+
+                this.imagenAEliminar = {}
+                await this.listarImagenes()
+            } catch (error) {
+                this.$toast.error('No se pudo eliminar la imagen.')
+            } finally {
+                this.loading.eliminandoImagen = false
             }
         },
 
@@ -344,6 +456,7 @@ export default {
     align-items: center;
     background: #fff;
     border: 1px solid #dfe8f0;
+    border-radius: 4px;
     display: flex;
     gap: 18px;
     justify-content: space-between;
@@ -352,7 +465,7 @@ export default {
 }
 
 .page-heading span {
-    color: #159eab;
+    color: #196b5f;
     font-size: 11px;
     font-weight: 900;
     letter-spacing: 1px;
@@ -360,9 +473,9 @@ export default {
 }
 
 .page-heading h2 {
-    color: #112e64;
-    font-size: 28px;
-    font-weight: 900;
+    color: #243b53;
+    font-size: 24px;
+    font-weight: 700;
     margin: 4px 0;
 }
 
@@ -373,14 +486,14 @@ export default {
 
 .upload-card,
 .imagenes-page .v-card {
-    border-radius: 8px;
+    border-radius: 4px;
 }
 
 .preview-box {
     align-items: center;
     background: #f4f8fb;
     border: 1px dashed #b9c9d8;
-    border-radius: 8px;
+    border-radius: 4px;
     display: flex;
     min-height: 206px;
     justify-content: center;
@@ -403,7 +516,7 @@ export default {
 .image-thumb {
     background: #f4f8fb;
     border: 1px solid #e1e8f0;
-    border-radius: 8px;
+    border-radius: 4px;
 }
 
 @media (max-width: 700px) {

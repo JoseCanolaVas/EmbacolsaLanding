@@ -26,3 +26,4 @@ require __DIR__ . '/categorias/categorias.php';
 require __DIR__ . '/productos/productos.php';
 require __DIR__ . '/tipoImagenes/tipoImagenes.php';
 require __DIR__ . '/imagenes/imagenes.php';
+require __DIR__ . '/marcas/marcas.php';

@@ -3,6 +3,7 @@
 namespace App\Http\Modules\Imagenes\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Modules\Imagenes\Models\Imagenes;
 use App\Http\Modules\Imagenes\Repositories\ImagenRepository;
 use App\Http\Modules\Imagenes\Services\ImagenService;
 use Illuminate\Http\JsonResponse;
@@ -46,6 +47,41 @@ class ImagenController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'error' => 'Error al crear la imagen',
+                'message' => $th->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function actualizarImagen(Request $request, Imagenes $imagen): JsonResponse
+    {
+        try {
+            $imagenActualizada = $this->imagenService->actualizarImagen($imagen, $request->all());
+
+            return response()->json($imagenActualizada, Response::HTTP_OK);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'error' => 'Datos invalidos para actualizar la imagen',
+                'message' => $e->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => 'Error al actualizar la imagen',
+                'message' => $th->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function eliminarImagen(Imagenes $imagen): JsonResponse
+    {
+        try {
+            $this->imagenService->eliminarImagen($imagen);
+
+            return response()->json([
+                'message' => 'Imagen eliminada correctamente',
+            ], Response::HTTP_OK);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => 'Error al eliminar la imagen',
                 'message' => $th->getMessage(),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }

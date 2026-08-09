@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    env_file:
+      - ./env/database.env
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./env/backend.env
+    depends_on:
+      - db
+    volumes:
+      - backend_public_storage:/var/www/html/storage/app/public
+    ports:
+      - "8000:80"
+
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile
+      args:
+        API_URL: /api
+    restart: unless-stopped
+    env_file:
+      - ./env/frontend.env
+    depends_on:
+      - backend
+    ports:
+      - "8081:80"
+
+volumes:
+  db_data:
+  backend_public_storage:

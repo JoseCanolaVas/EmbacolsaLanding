@@ -17,11 +17,31 @@ class ProductoRepository
      */
     public function listarProductos(array $data): LengthAwarePaginator|Collection
     {
-        $paginacion = $data['paginacion'];
+        $paginacion = $data['paginacion'] ?? null;
 
-        $productos = Productos::select('id', 'nombre', 'descripcion', 'ruta_imagen', 'estado', 'unidad_medida', 'precio', 'categoria_id')
-            ->with('categoria')
+        $productos = Productos::select('id', 'nombre', 'descripcion', 'ruta_imagen', 'estado', 'unidad_medida', 'precio', 'categoria_id', 'marca_id')
+            ->with(['categoria', 'marca'])
             ->orderBy('id', 'desc');
+
+        if (!empty($data['nombre'])) {
+            $productos->where(function ($query) use ($data) {
+                $query->where('nombre', 'like', '%' . $data['nombre'] . '%')
+                    ->orWhere('descripcion', 'like', '%' . $data['nombre'] . '%')
+                    ->orWhere('unidad_medida', 'like', '%' . $data['nombre'] . '%');
+            });
+        }
+
+        if (!empty($data['categoria'])) {
+            $productos->where('categoria_id', $data['categoria']);
+        }
+
+        if (!empty($data['marca'])) {
+            $productos->where('marca_id', $data['marca']);
+        }
+
+        if (array_key_exists('estado', $data) && $data['estado'] !== null && $data['estado'] !== '') {
+            $productos->where('estado', filter_var($data['estado'], FILTER_VALIDATE_BOOLEAN));
+        }
 
         return !empty($paginacion)
             ? $productos->paginate($paginacion['cantidadRegistros'], ['*'], 'page', $paginacion['pagina'])

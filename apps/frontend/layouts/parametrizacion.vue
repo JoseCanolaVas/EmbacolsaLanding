@@ -1,64 +1,41 @@
 <template>
   <v-app class="admin-shell">
-    <v-navigation-drawer app permanent width="286" class="admin-drawer" dark>
+    <v-navigation-drawer
+      v-model="drawer"
+      app
+      :permanent="$vuetify.breakpoint.mdAndUp"
+      :temporary="$vuetify.breakpoint.smAndDown"
+      width="245"
+      class="admin-drawer"
+    >
       <div class="drawer-brand">
-        <div class="brand-frame">
-          <img src="/images/softnova.png" alt="Softnova">
-        </div>
-        <span>Centro Softnova</span>
+        <img src="/images/softnova-optimized.webp" alt="Softnova">
       </div>
 
       <Sidebar />
 
-      <div class="drawer-footer">
-        <v-icon color="#63e5e9">
-          mdi-shield-check-outline
-        </v-icon>
-        <div>
-          <strong>Modo administrador</strong>
-          <small>Contenido visible en Embacolsa</small>
-        </div>
-      </div>
     </v-navigation-drawer>
 
-    <v-app-bar app flat height="76" class="admin-topbar">
-      <div>
-        <div class="topbar-eyebrow">
-          Softnova
-        </div>
-        <h1>Parametrizacion del contenido</h1>
+    <v-app-bar app color="white" light elevation="1" height="64">
+      <v-btn icon color="primary" class="mr-2 d-md-none" @click="drawer = true">
+        <v-icon>mdi-menu</v-icon>
+      </v-btn>
+
+      <div class="topbar-title">
+        <span>Panel de parametrización</span>
+        <small>Gestión de contenido y catálogo</small>
       </div>
 
       <v-spacer />
 
-      <v-text-field class="topbar-search d-none d-md-flex" dense hide-details outlined rounded
-        prepend-inner-icon="mdi-magnify" placeholder="Buscar en el panel" />
-
-      <v-btn icon class="ml-2" color="primary" to="/">
-        <v-icon>mdi-web</v-icon>
+      <v-btn rounded outlined color="primary" small to="/">
+        <v-icon left small>mdi-web</v-icon>
+        Sitio público
       </v-btn>
     </v-app-bar>
 
     <v-main class="admin-main">
       <v-container fluid class="admin-container">
-        <div class="admin-hero">
-          <div>
-            <span>Gestion central</span>
-            <h2>Lo que parametrices aqui alimenta el index.</h2>
-            <p>Activa categorias, productos, logos y banners para controlar lo que ve el cliente.</p>
-          </div>
-          <div class="hero-actions">
-            <v-btn rounded depressed color="primary" to="/modulo-parametrizacion/productos">
-              Productos
-              <v-icon right>mdi-package-variant-closed</v-icon>
-            </v-btn>
-            <v-btn rounded outlined color="primary" to="/modulo-parametrizacion/imagenes">
-              Imagenes
-              <v-icon right>mdi-image-outline</v-icon>
-            </v-btn>
-          </div>
-        </div>
-
         <Nuxt />
       </v-container>
     </v-main>
@@ -79,157 +56,100 @@ export default {
     AppToast,
     AppPreload,
   },
+
+  data() {
+    return {
+      drawer: false,
+    }
+  },
 }
 </script>
 
 <style scoped>
 .admin-shell {
-  background: #eef4f8;
-  color: #17365d;
+  color: #243b53;
 }
 
 .admin-drawer {
-  background: linear-gradient(180deg, #071b42 0%, #0f3565 52%, #196b5f 100%) !important;
+  background:
+    radial-gradient(circle at 18% 8%, rgba(114, 237, 240, .18), transparent 30%),
+    linear-gradient(180deg, #0f2c61 0%, #155f56 42%, #0c5a4f 100%) !important;
+  border-right: 1px solid rgba(255, 255, 255, .12) !important;
+  box-shadow: 12px 0 34px rgba(8, 37, 63, .16);
 }
 
 .drawer-brand {
-  padding: 22px 18px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, .12);
+  margin: 0 14px 10px;
+  padding: 20px 10px 18px;
+  text-align: center;
 }
 
-.brand-frame {
-  background: rgba(255, 255, 255, .96);
-  height: 76px;
-  overflow: hidden;
-  padding: 8px;
-  width: 238px;
-}
-
-.brand-frame img {
-  display: block;
-  height: 100%;
+.drawer-brand img {
+  height: 112px;
+  margin: 0 auto;
   object-fit: contain;
-  object-position: center;
-  width: 100%;
+  width: 172px;
 }
 
 .drawer-brand span {
-  color: #d9f4f7;
+  color: #fff;
   display: block;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: .7px;
-  margin-top: 12px;
-  text-transform: uppercase;
+  font-size: 15px;
+  font-weight: 700;
+  margin-top: 8px;
 }
 
-.drawer-footer {
-  align-items: center;
-  border: 1px solid rgba(255, 255, 255, .14);
+.drawer-brand small {
+  color: rgba(255, 255, 255, .72);
+  display: block;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.drawer-bottom {
   bottom: 18px;
-  display: flex;
-  gap: 12px;
   left: 18px;
-  padding: 14px;
   position: absolute;
   right: 18px;
 }
 
-.drawer-footer strong,
-.drawer-footer small {
+.topbar-title span,
+.topbar-title small {
   display: block;
 }
 
-.drawer-footer strong {
-  color: #fff;
-  font-size: 13px;
+.topbar-title span {
+  color: #1f2933;
+  font-size: 18px;
+  font-weight: 700;
 }
 
-.drawer-footer small {
-  color: #b7d5dd;
-  font-size: 11px;
-}
-
-.admin-topbar {
-  background: rgba(255, 255, 255, .94) !important;
-  border-bottom: 1px solid #dfe8f0;
-}
-
-.topbar-eyebrow {
-  color: #16a0ad;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.admin-topbar h1 {
-  color: #112e64;
-  font-size: 22px;
-  font-weight: 900;
-  line-height: 1.2;
-  margin: 2px 0 0;
-}
-
-.topbar-search {
-  max-width: 360px;
+.topbar-title small {
+  color: #6b7280;
+  font-size: 12px;
+  margin-top: 1px;
 }
 
 .admin-main {
-  background:
-    linear-gradient(180deg, rgba(15, 165, 177, .08), rgba(255, 255, 255, 0) 260px),
-    #eef4f8;
+  background: #f4f6f8;
 }
 
 .admin-container {
-  padding: 28px;
+  padding: 22px;
 }
 
-.admin-hero {
-  align-items: center;
-  background:
-    linear-gradient(110deg, rgba(7, 27, 66, .95), rgba(15, 117, 128, .82)),
-    url('/images/login.png') center/cover;
-  color: #fff;
-  display: flex;
-  gap: 18px;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  min-height: 178px;
-  padding: 28px;
-}
+@media (max-width: 600px) {
+  .topbar-title span {
+    font-size: 15px;
+  }
 
-.admin-hero span {
-  color: #78edf0;
-  display: block;
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
+  .topbar-title small {
+    display: none;
+  }
 
-.admin-hero h2 {
-  font-size: 30px;
-  font-weight: 900;
-  line-height: 1.12;
-  margin: 7px 0;
-}
-
-.admin-hero p {
-  color: #dcecf4;
-  margin: 0;
-  max-width: 610px;
-}
-
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-@media (max-width: 960px) {
-  .admin-hero {
-    align-items: flex-start;
-    flex-direction: column;
+  .admin-container {
+    padding: 14px;
   }
 }
 </style>

@@ -6,17 +6,6 @@
           <img :src="logoActual" alt="Embacolsa" class="brand-logo">
         </a>
 
-        <div class="header-search d-none d-md-block">
-          <v-text-field v-model="search" dense hide-details solo flat rounded background-color="#f4f8fb"
-            placeholder="Buscar cintas, stretch, cajas..." prepend-inner-icon="mdi-magnify" @keyup.enter="buscarProducto">
-            <template v-slot:append>
-              <v-btn small rounded depressed color="primary" @click="buscarProducto">
-                Buscar
-              </v-btn>
-            </template>
-          </v-text-field>
-        </div>
-
         <nav class="header-links d-none d-lg-flex">
           <a v-for="link in links" :key="link.label" :href="link.href">
             {{ link.label }}
@@ -46,13 +35,12 @@
     </v-navigation-drawer>
 
     <main>
-      <section id="inicio" class="hero-section" :style="heroStyle">
+      <section id="inicio" class="hero-section">
         <v-container class="hero-inner">
           <div class="hero-copy">
             <span class="eyebrow">EMPAQUES, EMBALAJES Y SUMINISTROS</span>
             <h1>Embacolsa</h1>
-            <p>
-              Soluciones listas para empacar, proteger y despachar tu operacion con mejor imagen,
+            <p> Soluciones listas para empacar, proteger y despachar tu operacion con mejor imagen,
               menos vueltas y respuesta comercial rapida.
             </p>
 
@@ -61,47 +49,17 @@
                 Ver productos
                 <v-icon right>mdi-arrow-right</v-icon>
               </v-btn>
+              <v-btn x-large rounded outlined color="white" href="/catalogo">
+                Ver catálogo completo
+              </v-btn>
               <v-btn x-large rounded outlined color="white" href="https://wa.me/573218720375" target="_blank">
                 Cotizar por WhatsApp
               </v-btn>
             </div>
           </div>
 
-          <div class="hero-panel catalog-panel">
-            <div class="catalog-control">
-              <span>Explorar catalogo</span>
-              <v-select v-model="categoriaSeleccionada" :items="opcionesCategorias" item-text="name" item-value="id"
-                solo flat dense hide-details rounded background-color="white" prepend-inner-icon="mdi-view-grid-outline"
-                label="Todas las categorias" clearable />
-            </div>
-
-            <div class="catalog-summary">
-              <div>
-                <strong>{{ productosIndex.length }}</strong>
-                <span>productos visibles</span>
-              </div>
-              <div>
-                <strong>{{ categoriasIndex.length }}</strong>
-                <span>categorias activas</span>
-              </div>
-            </div>
-          </div>
-        </v-container>
-      </section>
-
-      <section class="category-strip">
-        <v-container>
-          <div class="catalog-toolbar">
-            <v-select v-model="categoriaSeleccionada" :items="opcionesCategorias" item-text="name" item-value="id"
-              label="Categoria" outlined dense rounded clearable hide-details prepend-inner-icon="mdi-filter-outline" />
-
-            <v-text-field v-model="search" label="Buscar producto" outlined dense rounded clearable hide-details
-              prepend-inner-icon="mdi-magnify" />
-
-            <v-btn rounded depressed color="primary" href="#productos">
-              Ver resultados
-              <v-icon right>mdi-arrow-down</v-icon>
-            </v-btn>
+          <div class="hero-products-figure">
+            <img :src="bannerActual" alt="Banner Embacolsa">
           </div>
         </v-container>
       </section>
@@ -113,10 +71,9 @@
               <span class="eyebrow blue">CATALOGO PARAMETRIZADO</span>
               <h2>{{ tituloProductos }}</h2>
             </div>
-            <v-btn v-if="categoriaSeleccionada || search" text color="primary" @click="limpiarCatalogo">
-              Limpiar filtros
-              <v-icon right small>mdi-close</v-icon>
-            </v-btn>
+            <v-chip color="primary" outlined>
+              {{ productosIndex.length }} visibles
+            </v-chip>
           </div>
 
           <v-row>
@@ -133,8 +90,8 @@
                 </v-card-text>
                 <v-card-actions>
                   <v-btn text color="primary" @click="seleccionarProducto(product)">
-                    Solicitar cotizacion
-                    <v-icon right small>mdi-plus</v-icon>
+                    Ver en catálogo
+                    <v-icon right small>mdi-arrow-right</v-icon>
                   </v-btn>
                 </v-card-actions>
               </v-card>
@@ -204,15 +161,6 @@
         <span>Desarrollado por SOFTNOVA SOLUTIONS</span>
       </v-container>
     </footer>
-
-    <v-snackbar v-model="showSearch" color="primary" rounded>
-      Listo, vamos a buscar "{{ search || 'todos los productos' }}" en el catalogo.
-      <template v-slot:action="{ attrs }">
-        <v-btn text v-bind="attrs" @click="showSearch = false">
-          Cerrar
-        </v-btn>
-      </template>
-    </v-snackbar>
   </v-app>
 </template>
 
@@ -222,16 +170,14 @@ export default {
 
   data() {
     return {
-      search: '',
-      categoriaSeleccionada: null,
       drawer: false,
-      showSearch: false,
       links: [
         { label: 'Inicio', href: '#inicio', icon: 'mdi-home-outline' },
         { label: 'Productos', href: '#productos', icon: 'mdi-package-variant-closed' },
+        { label: 'Catálogo', href: '/catalogo', icon: 'mdi-storefront-outline' },
         { label: 'Beneficios', href: '#beneficios', icon: 'mdi-shield-check-outline' },
         { label: 'Contacto', href: '#contacto', icon: 'mdi-phone-outline' },
-        { label: 'Panel', href: '/modulo-parametrizacion/productos', icon: 'mdi-view-dashboard-outline' },
+        { label: 'Panel', href: '/login', icon: 'mdi-view-dashboard-outline' },
       ],
       categories: [
         { id: 'cintas', name: 'Cintas', icon: 'mdi-tape-measure' },
@@ -288,19 +234,13 @@ export default {
 
   computed: {
     logoActual() {
-      return this.obtenerImagenPorTipo('logo') || '/images/embacolsa.png'
+      return this.obtenerImagenPorTipo('logo') || '/images/embacolsa-optimized.webp'
     },
 
     bannerActual() {
       return this.obtenerImagenPorTipo('banner') ||
         this.obtenerImagenPorTipo('principal') ||
-        '/images/login.png'
-    },
-
-    heroStyle() {
-      return {
-        backgroundImage: `linear-gradient(110deg, rgba(7, 28, 66, .94), rgba(9, 71, 104, .78)), url('${this.bannerActual}')`,
-      }
+        '/images/hero-products-optimized.webp'
     },
 
     categoriasIndex() {
@@ -320,27 +260,19 @@ export default {
     },
 
     productosIndex() {
-      const busqueda = (this.search || '').toLowerCase().trim()
+      const categoriasVistas = new Set()
       const productosActivos = this.productosParametrizados
         .filter(producto => this.estaActivo(producto.estado))
         .filter((producto) => {
-          if (!this.categoriaSeleccionada) {
-            return true
+          const categoriaId = producto.categoria_id || producto.categoria?.id || `sin-${producto.id}`
+
+          if (categoriasVistas.has(categoriaId)) {
+            return false
           }
 
-          return producto.categoria_id === this.categoriaSeleccionada ||
-            producto.categoria?.id === this.categoriaSeleccionada
+          categoriasVistas.add(categoriaId)
+          return true
         })
-        .filter((producto) => {
-          if (!busqueda) {
-            return true
-          }
-
-          return `${producto.nombre || ''} ${producto.descripcion || ''} ${producto.categoria?.nombre || ''}`
-            .toLowerCase()
-            .includes(busqueda)
-        })
-        .slice(0, 8)
         .map((producto, index) => ({
           id: producto.id,
           categoryId: producto.categoria_id || producto.categoria?.id,
@@ -357,32 +289,10 @@ export default {
       }
 
       return this.products
-        .filter((producto) => {
-          if (!this.categoriaSeleccionada) {
-            return true
-          }
-
-          return producto.categoryId === this.categoriaSeleccionada
-        })
-        .filter((producto) => {
-          if (!busqueda) {
-            return true
-          }
-
-          return `${producto.title} ${producto.text} ${producto.type}`
-            .toLowerCase()
-            .includes(busqueda)
-        })
     },
 
     tituloProductos() {
-      const categoria = this.categoriasIndex.find(item => item.id === this.categoriaSeleccionada)
-
-      if (categoria) {
-        return `Productos de ${categoria.name}`
-      }
-
-      return 'Productos que resuelven el dia a dia de tu bodega'
+      return 'Una muestra por cada categoria activa'
     },
   },
 
@@ -460,19 +370,33 @@ export default {
       return estado === true || estado === 1 || estado === '1'
     },
 
-    buscarProducto() {
-      this.showSearch = true
-    },
-
     seleccionarProducto(product) {
-      this.search = product.title
-      this.showSearch = true
+      this.$router.push({
+        path: '/catalogo',
+        query: {
+          buscar: product.title,
+        },
+      })
     },
 
-    limpiarCatalogo() {
-      this.search = ''
-      this.categoriaSeleccionada = null
+    formatearPrecio(precio) {
+      if (precio === null || precio === undefined || precio === '') {
+        return null
+      }
+
+      const valor = Number(precio)
+
+      if (Number.isNaN(valor)) {
+        return precio
+      }
+
+      return new Intl.NumberFormat('es-CO', {
+        style: 'currency',
+        currency: 'COP',
+        minimumFractionDigits: 0,
+      }).format(valor)
     },
+
   },
 }
 </script>
@@ -515,13 +439,9 @@ export default {
   width: 100%;
 }
 
-.header-search {
-  flex: 1;
-  max-width: 520px;
-}
-
 .header-links {
   align-items: center;
+  margin-left: auto;
   gap: 24px;
 }
 
@@ -543,20 +463,23 @@ export default {
 
 .hero-section {
   background:
-    linear-gradient(110deg, rgba(7, 28, 66, .94), rgba(9, 71, 104, .78)),
-    url('/images/login.png') center/cover;
+    radial-gradient(circle at 78% 14%, rgba(114, 237, 240, .2), transparent 28%),
+    linear-gradient(110deg, #061d43 0%, #073b60 48%, #0d7880 100%);
   color: #fff;
+  overflow: hidden;
 }
 
 .hero-inner {
-  min-height: 620px;
-  padding-bottom: 36px;
+  min-height: 610px;
+  padding-bottom: 72px;
   padding-top: 96px;
   position: relative;
 }
 
 .hero-copy {
-  max-width: 680px;
+  max-width: 610px;
+  position: relative;
+  z-index: 2;
 }
 
 .eyebrow {
@@ -593,83 +516,40 @@ export default {
   margin-top: 28px;
 }
 
-.hero-panel {
-  bottom: 34px;
-  left: 12px;
-  max-width: 820px;
+.hero-products-figure {
+  bottom: 52px;
   position: absolute;
-  right: 12px;
+  right: -86px;
+  width: min(54vw, 760px);
+  z-index: 1;
 }
 
-.catalog-panel {
+.hero-products-figure img {
+  display: block;
+  filter: drop-shadow(0 28px 34px rgba(0, 0, 0, .32));
+  height: auto;
+  max-height: 470px;
+  object-fit: contain;
+  width: 100%;
+}
+
+.hero-product-badge {
   align-items: center;
-  background: rgba(255, 255, 255, .94);
-  border: 1px solid rgba(255, 255, 255, .5);
+  background: rgba(255, 255, 255, .96);
+  border: 1px solid rgba(255, 255, 255, .58);
+  bottom: 30px;
   color: #12305e;
-  display: grid;
-  gap: 18px;
-  grid-template-columns: 1.5fr 1fr;
-  padding: 18px;
-}
-
-.catalog-control span {
-  color: #6b7a90;
-  display: block;
-  font-size: 12px;
-  font-weight: 800;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-}
-
-.catalog-summary {
-  display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(2, 1fr);
-}
-
-.catalog-summary div {
-  background: #f4f8fb;
-  border: 1px solid #dfe9f2;
-  padding: 14px;
-}
-
-.catalog-summary strong,
-.catalog-summary span {
-  display: block;
-}
-
-.catalog-summary strong {
-  color: #0f8e9a;
-  font-size: 27px;
-  line-height: 1;
-}
-
-.catalog-summary span {
-  color: #6b7a90;
-  font-size: 12px;
-  font-weight: 800;
-  margin-top: 5px;
-  text-transform: uppercase;
-}
-
-.category-strip {
-  background: #fff;
-  border-bottom: 1px solid #e6edf5;
-  border-top: 1px solid #e6edf5;
-}
-
-.catalog-toolbar {
-  align-items: center;
   display: flex;
-  gap: 14px;
-  padding: 18px 0;
-}
-
-.catalog-toolbar .v-input {
-  max-width: 360px;
+  font-size: 13px;
+  font-weight: 900;
+  gap: 8px;
+  padding: 11px 14px;
+  position: absolute;
+  right: 118px;
 }
 
 .products-section,
+.full-catalog-section,
 .operation-section {
   padding: 78px 0;
 }
@@ -849,24 +729,23 @@ export default {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .hero-panel {
-    position: static;
-    margin-top: 54px;
+  .hero-products-figure {
+    bottom: auto;
+    margin: 28px 0 0;
+    position: relative;
+    right: auto;
+    width: 100%;
+    z-index: 1;
   }
 
-  .catalog-panel,
-  .catalog-summary {
-    grid-template-columns: 1fr;
+  .hero-product-badge {
+    bottom: 18px;
+    right: 18px;
   }
 
-  .catalog-toolbar,
   .products-heading {
     align-items: stretch;
     flex-direction: column;
-  }
-
-  .catalog-toolbar .v-input {
-    max-width: none;
   }
 
   .contact-inner,
@@ -895,7 +774,17 @@ export default {
     font-size: 17px;
   }
 
-  .hero-panel,
+  .hero-products-figure {
+    margin-top: 22px;
+    width: 112%;
+  }
+
+  .hero-product-badge {
+    font-size: 12px;
+    padding: 9px 11px;
+    right: 26px;
+  }
+
   .benefit-grid {
     grid-template-columns: 1fr;
   }

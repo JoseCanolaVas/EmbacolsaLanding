@@ -5,6 +5,10 @@ namespace App\Http\Modules\Usuarios\Services;
 use App\Http\Modules\Usuarios\Repositories\UsuarioRepository;
 use App\Models\User;
 use Exception;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class UsuarioService
 {
@@ -14,22 +18,58 @@ class UsuarioService
 
     public function crearUsuario(array $data)
     {
-        // if(){
-        //     validar usuario
-        // }
+        $validator = Validator::make($data, [
+            'nombre' => ['required', 'string', 'max:255'],
+            'apellido' => ['required', 'string', 'max:255'],
+            'telefono' => ['nullable', 'string', 'max:30'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:6'],
+            'es_super_admin' => ['nullable', 'boolean'],
+        ]);
 
-        return User::create($data);
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $datosValidados = $validator->validated();
+        $datosValidados['password'] = Hash::make($datosValidados['password']);
+        $datosValidados['es_super_admin'] = $datosValidados['es_super_admin'] ?? false;
+
+        return User::create($datosValidados);
     }
 
     public function actualizarUsuario(int $id, array $data)
     {
         $usuario = $this->usuarioRepository->buscarUsuario($id);
 
-        if (!$usuario) {
+        if (! $usuario) {
             throw new Exception('Usuario no encontrado');
         }
 
-        $usuario->update($data);
+        $validator = Validator::make($data, [
+            'nombre' => ['required', 'string', 'max:255'],
+            'apellido' => ['required', 'string', 'max:255'],
+            'telefono' => ['nullable', 'string', 'max:30'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($id)],
+            'password' => ['nullable', 'string', 'min:6'],
+            'es_super_admin' => ['nullable', 'boolean'],
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $datosValidados = $validator->validated();
+
+        if (! empty($datosValidados['password'])) {
+            $datosValidados['password'] = Hash::make($datosValidados['password']);
+        } else {
+            unset($datosValidados['password']);
+        }
+
+        $datosValidados['es_super_admin'] = $datosValidados['es_super_admin'] ?? false;
+
+        $usuario->update($datosValidados);
 
         return $usuario;
     }

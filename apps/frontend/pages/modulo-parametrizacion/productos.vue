@@ -17,37 +17,42 @@
         <v-card-subtitle class="mb-4 mt-5" align="center">
             <h3><b class="justify-center"> <v-icon>mdi-information-slab-circle-outline</v-icon> Panel de parametrizacion
                     de
-                    productos, desde aca se podran gestionar informacion de los productos
-                    disponibles y su visibilidad dentro de la web principal.</b></h3>
+                    productos, desde acá se gestiona la información visible en el catálogo.</b></h3>
         </v-card-subtitle>
 
         <v-card-text>
             <v-row align="center">
 
-                <v-col cols="12" md="3">
-                    <v-text-field dense outlined rounded label="Numero de Registro" type="Number"></v-text-field>
+                <v-col cols="12" md="2">
+                    <v-text-field v-model="filtros.id" label="ID" outlined dense rounded clearable
+                        @keyup.enter="filtrarProductos" @click:clear="filtrarProductos" />
                 </v-col>
 
                 <v-col cols="12" md="3">
                     <v-text-field v-model="buscar" label="Buscar" prepend-inner-icon="mdi-magnify" outlined dense
-                        rounded clearable />
+                        rounded clearable @keyup.enter="filtrarProductos" @click:clear="filtrarProductos" />
                 </v-col>
 
                 <v-col cols="12" md="3">
                     <v-autocomplete v-model="filtros.categoria" :items="categorias" label="Categoría" outlined dense
-                        item-text="nombre" item-value="id" clearable rounded />
+                        item-text="nombre" item-value="id" clearable rounded @change="filtrarProductos" />
+                </v-col>
+
+                <v-col cols="12" md="2">
+                    <v-autocomplete v-model="filtros.marca" :items="marcas" label="Marca" outlined dense
+                        item-text="nombre" item-value="id" clearable rounded @change="filtrarProductos" />
                 </v-col>
 
                 <v-col cols="12" md="2">
                     <v-select v-model="filtros.estado" :items="estados" label="Estado" outlined dense rounded
-                        clearable />
+                        clearable @change="filtrarProductos" />
                 </v-col>
 
                 <!-- Botones -->
 
                 <v-card-actions class="mb-4">
                     <v-spacer></v-spacer>
-                    <v-btn @click="listarProductos()" rounded color="info">
+                    <v-btn @click="filtrarProductos()" rounded color="info">
                         filtrar <v-icon right>mdi-magnify</v-icon>
                     </v-btn>
                     <v-btn @click="limpiarFiltros()" color="error" rounded>
@@ -78,12 +83,16 @@
                     {{ item.categoria?.nombre || 'Sin categoria' }}
                 </template>
 
+                <template v-slot:item.marca="{ item }">
+                    {{ item.marca?.nombre || 'Sin marca' }}
+                </template>
+
                 <template v-slot:item.precio="{ item }">
                     {{ formatearPrecio(item.precio) }}
                 </template>
 
                 <template v-slot:item.estado="{ item }">
-                    <v-chip small :color="productoActivo(item.estado) ? 'success' : 'grey'" dark>
+                    <v-chip small :color="productoActivo(item.estado) ? 'primary' : 'grey'" dark>
                         {{ productoActivo(item.estado) ? 'Activo' : 'Inactivo' }}
                     </v-chip>
                 </template>
@@ -164,21 +173,27 @@ export default {
             modalDetalleProducto: false,
             productoSeleccionado: {},
             filtros: {
+                id: null,
                 categoria: null,
+                marca: null,
                 estado: null
             },
             categorias: [],
+            marcas: [],
             headersProductos: [
+                { text: 'ID', value: 'id' },
                 { text: 'Imagen', value: 'ruta_imagen', sortable: false },
                 { text: 'Nombre', value: 'nombre' },
                 { text: 'Categoría', value: 'categoria' },
+                { text: 'Marca', value: 'marca' },
                 { text: 'Precio', value: 'precio' },
                 { text: 'Estado', value: 'estado' },
                 { text: 'Acciones', value: 'acciones', sortable: false }
             ],
             loading: {
                 productos: false,
-                categorias: false
+                categorias: false,
+                marcas: false
             },
             productos: [],
             estados: [
@@ -196,6 +211,7 @@ export default {
     mounted() {
         this.listarProductos();
         this.listarCategorias();
+        this.listarMarcas();
     },
 
     methods: {
@@ -209,12 +225,13 @@ export default {
                 const response = await this.$axios.post('/productos/listar', {
                     nombre: this.buscar,
                     categoria: this.filtros.categoria,
+                    marca: this.filtros.marca,
                     estado: this.filtros.estado,
                     paginacion: this.paginacion
                 });
 
-                this.productos = response.data?.data ?? [];
-                this.paginacion.total = response.data.last_page;
+                this.productos = response.data?.data ?? response.data ?? [];
+                this.paginacion.total = response.data?.last_page ?? 1;
             } catch (error) {
                 this.$toast.error('Ocurrió un error al listar los productos. Por favor, inténtelo de nuevo.');
             } finally {
@@ -234,6 +251,18 @@ export default {
             }
         },
 
+        async listarMarcas() {
+            try {
+                this.loading.marcas = true;
+                const response = await this.$axios.get('/marcas/listar');
+                this.marcas = response.data;
+            } catch (error) {
+                this.$toast.error('Ocurrió un error al listar las marcas. Por favor, inténtelo de nuevo.');
+            } finally {
+                this.loading.marcas = false;
+            }
+        },
+
         abrirModalProducto(item = {}) {
             this.modalProducto = true;
             this.productoSeleccionado = { ...item };
@@ -242,6 +271,11 @@ export default {
         abrirModalDetalleProducto(item) {
             this.productoSeleccionado = { ...item };
             this.modalDetalleProducto = true;
+        },
+
+        filtrarProductos() {
+            this.paginacion.pagina = 1;
+            this.listarProductos();
         },
 
         productoActivo(estado) {
@@ -287,6 +321,7 @@ export default {
         limpiarFiltros() {
             this.buscar = null;
             this.filtros.categoria = null;
+            this.filtros.marca = null;
             this.filtros.estado = null;
             this.paginacion.pagina = 1;
             this.paginacion.cantidadRegistros = 10;

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Modules\Productos\Services\ProductoService;
 use App\Http\Modules\Productos\Repositories\ProductoRepository;
+use App\Http\Modules\Productos\Models\Productos;
 use Illuminate\Validation\ValidationException;
 
 class ProductoController extends Controller
@@ -49,6 +50,25 @@ class ProductoController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'error' => 'Error al crear el producto',
+                'message' => $th->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function actualizarProducto(Request $request, Productos $producto): JsonResponse
+    {
+        try {
+            $productoActualizado = $this->productoService->actualizarProducto($producto, $request->all());
+
+            return response()->json($productoActualizado, Response::HTTP_OK);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'error' => 'Datos invalidos para actualizar el producto',
+                'message' => $e->errors()
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => 'Error al actualizar el producto',
                 'message' => $th->getMessage()
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }

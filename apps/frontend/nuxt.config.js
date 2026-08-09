@@ -74,6 +74,7 @@ export default {
 
     router: {
         middleware: ['auth'],
+        prefetchLinks: false,
     },
 
     vuetify: {
@@ -102,5 +103,19 @@ export default {
         },
     },
 
-    build: {},
+    build: {
+        extractCSS: true,
+        optimization: {
+            splitChunks: {
+                chunks: 'all',
+                automaticNameDelimiter: '.',
+                name: true,
+            },
+        },
+        postcss: {
+            postcssOptions: {
+                plugins: {},
+            },
+        },
+    },
 }

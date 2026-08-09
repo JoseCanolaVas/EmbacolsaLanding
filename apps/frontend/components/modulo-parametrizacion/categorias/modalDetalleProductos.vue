@@ -59,6 +59,15 @@
                         </div>
                     </v-col>
 
+                    <v-col cols="12" sm="6">
+                        <div class="detalle-label">
+                            Marca
+                        </div>
+                        <div class="detalle-valor">
+                            {{ marcaNombre }}
+                        </div>
+                    </v-col>
+
                     <v-col cols="12">
                         <div class="detalle-label">
                             Descripción
@@ -131,6 +140,10 @@ export default {
 
         categoriaNombre() {
             return this.producto.categoria?.nombre || 'Sin categoria'
+        },
+
+        marcaNombre() {
+            return this.producto.marca?.nombre || 'Sin marca'
         },
 
         estadoActivo() {
@@ -249,4 +262,3 @@ export default {
     }
 }
 </style>
-</script>

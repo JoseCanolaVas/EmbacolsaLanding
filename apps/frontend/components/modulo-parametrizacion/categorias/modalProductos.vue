@@ -38,6 +38,12 @@
                             :rules="[rules.requerido]" />
                     </v-col>
 
+                    <v-col cols="12" md="6">
+                        <v-select v-model="form.marca_id" :items="marcas" item-text="nombre" item-value="id"
+                            :loading="loading.marcas" label="Marca" prepend-inner-icon="mdi-tag-outline" outlined
+                            rounded dense clearable />
+                    </v-col>
+
                     <!-- PRECIO -->
                     <v-col cols="12" md="6">
                         <v-text-field v-model="form.precio" label="Precio" prepend-inner-icon="mdi-currency-usd"
@@ -165,6 +171,8 @@ export default {
                 imagen: null,
                 estado: true,
                 unidad_medida: null,
+                categoria_id: null,
+                marca_id: null,
                 precio: null,
             },
             estados: [
@@ -182,8 +190,10 @@ export default {
                 estado: value => value !== null && value !== undefined || 'Este campo es requerido',
             },
             categorias: [],
+            marcas: [],
             loading: {
                 categorias: false,
+                marcas: false,
             },
         }
     },
@@ -219,6 +229,12 @@ export default {
                         ? producto.precio
                         : null
 
+                this.form.categoria_id =
+                    producto.categoria_id || producto.categoria?.id || null
+
+                this.form.marca_id =
+                    producto.marca_id || producto.marca?.id || null
+
                 /*
                  * Si el backend devuelve una URL completa,
                  * puedes ponerla directamente.
@@ -235,6 +251,7 @@ export default {
 
     mounted() {
         this.listarCategorias()
+        this.listarMarcas()
     },
 
     methods: {
@@ -343,8 +360,13 @@ export default {
                 formData.append('nombre', this.form.nombre)
                 formData.append('descripcion', this.form.descripcion)
                 formData.append('unidad_medida', this.form.unidad_medida)
+                formData.append('categoria_id', this.form.categoria_id)
 
                 formData.append('estado', this.form.estado ? '1' : '0')
+
+                if (this.form.marca_id) {
+                    formData.append('marca_id', this.form.marca_id)
+                }
 
                 if (this.form.precio !== null) {
                     formData.append('precio', this.form.precio)
@@ -407,6 +429,7 @@ export default {
                 estado: true,
                 unidad_medida: null,
                 categoria_id: null,
+                marca_id: null,
                 precio: null,
             }
 
@@ -438,6 +461,18 @@ export default {
                 this.$toast.error('Ocurrió un error al listar las categorías. Por favor, inténtelo de nuevo.');
             } finally {
                 this.loading.categorias = false;
+            }
+        },
+
+        async listarMarcas() {
+            try {
+                this.loading.marcas = true;
+                const response = await this.$axios.get('/marcas/listar');
+                this.marcas = response.data;
+            } catch (error) {
+                this.$toast.error('Ocurrió un error al listar las marcas. Por favor, inténtelo de nuevo.');
+            } finally {
+                this.loading.marcas = false;
             }
         }
     },
