@@ -278,7 +278,7 @@ export default {
 
                 sessionStorage.setItem(
                     'embacolsa_token',
-                    response.data.token
+                    response.data.access_token
                 )
 
                 this.$router.push('/modulo-parametrizacion')
