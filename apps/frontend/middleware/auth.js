@@ -4,15 +4,16 @@ export default function ({ route, redirect }) {
   }
 
   const token = sessionStorage.getItem('embacolsa_token')
+  const rutaNormalizada = route.path.replace(/\/+$/, '') || '/'
 
-  if (route.path === '/login' && token) {
+  if (rutaNormalizada === '/login' && token) {
     return redirect('/modulo-parametrizacion')
   }
 
   const esRutaPublica =
-    route.path === '/' ||
-    route.path === '/login' ||
-    route.path.startsWith('/catalogo')
+    rutaNormalizada === '/' ||
+    rutaNormalizada === '/login' ||
+    rutaNormalizada.startsWith('/catalogo')
 
   if (esRutaPublica) {
     return
