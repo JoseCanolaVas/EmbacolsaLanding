@@ -29,7 +29,7 @@ RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoload
 COPY . .
 
 RUN composer dump-autoload --optimize \
-    && mkdir -p storage/app/public storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \
+    && mkdir -p storage/app/public storage/framework/cache storage/framework/sessions storage/framework/views storage/oauth-keys bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R ug+rw storage bootstrap/cache \
     && chmod +x docker/entrypoint.sh

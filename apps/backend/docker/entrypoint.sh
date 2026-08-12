@@ -13,9 +13,35 @@ if [ ! -f .env ]; then
     ' > .env
 fi
 
+mkdir -p storage/app/public storage/framework/cache storage/framework/sessions storage/framework/views storage/oauth-keys bootstrap/cache
+
 if [ -z "$APP_KEY" ]; then
-    php artisan key:generate --force --no-interaction
+    if [ -s storage/oauth-keys/app.key ]; then
+        APP_KEY="$(cat storage/oauth-keys/app.key)"
+    else
+        APP_KEY="$(php -r 'echo "base64:".base64_encode(random_bytes(32));')"
+        echo "$APP_KEY" > storage/oauth-keys/app.key
+    fi
+
+    export APP_KEY
+
+    if grep -q '^APP_KEY=' .env; then
+        sed -i "s|^APP_KEY=.*|APP_KEY=$APP_KEY|" .env
+    else
+        echo "APP_KEY=$APP_KEY" >> .env
+    fi
 fi
+
+chown -R www-data:www-data storage bootstrap/cache || true
+chmod -R ug+rw storage bootstrap/cache || true
+
+php artisan config:clear || true
+
+if [ ! -s storage/oauth-keys/oauth-private.key ] || [ ! -s storage/oauth-keys/oauth-public.key ]; then
+    php artisan passport:keys --force --no-interaction
+fi
+
+chown www-data:www-data storage/oauth-keys/oauth-private.key storage/oauth-keys/oauth-public.key storage/oauth-keys/app.key 2>/dev/null || true
 
 php artisan storage:link --force || true
 php artisan config:clear || true
