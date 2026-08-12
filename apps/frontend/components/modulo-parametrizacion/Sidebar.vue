@@ -27,14 +27,19 @@ export default {
                     route: '/modulo-parametrizacion',
                 },
                 {
+                    title: 'Productos',
+                    icon: 'mdi-package-variant-closed',
+                    route: '/modulo-parametrizacion/productos',
+                },
+                {
                     title: 'Categorías',
                     icon: 'mdi-format-list-bulleted-type',
                     route: '/modulo-parametrizacion/categorias',
                 },
                 {
-                    title: 'Productos',
-                    icon: 'mdi-package-variant-closed',
-                    route: '/modulo-parametrizacion/productos',
+                    title: 'Marcas',
+                    icon: 'mdi-tag-multiple-outline',
+                    route: '/modulo-parametrizacion/marcas',
                 },
                 {
                     title: 'Gestion de Contenido',
@@ -46,11 +51,7 @@ export default {
                     icon: 'mdi-account-group-outline',
                     route: '/modulo-parametrizacion/usuarios',
                 },
-                {
-                    title: 'Marcas',
-                    icon: 'mdi-tag-multiple-outline',
-                    route: '/modulo-parametrizacion/marcas',
-                },
+
             ],
         }
     },

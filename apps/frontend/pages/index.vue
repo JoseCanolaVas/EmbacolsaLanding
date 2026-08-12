@@ -1,38 +1,6 @@
 <template>
   <v-app class="storefront">
-    <header class="store-header">
-      <v-container class="header-inner">
-        <a href="#inicio" class="brand-link">
-          <img :src="logoActual" alt="Embacolsa" class="brand-logo">
-        </a>
-
-        <nav class="header-links d-none d-lg-flex">
-          <a v-for="link in links" :key="link.label" :href="link.href">
-            {{ link.label }}
-          </a>
-        </nav>
-
-        <v-btn icon color="primary" class="d-lg-none" @click="drawer = true">
-          <v-icon>mdi-menu</v-icon>
-        </v-btn>
-      </v-container>
-    </header>
-
-    <v-navigation-drawer v-model="drawer" temporary right fixed>
-      <div class="pa-4">
-        <img :src="logoActual" alt="Embacolsa" class="drawer-logo">
-      </div>
-      <v-list nav>
-        <v-list-item v-for="link in links" :key="link.label" :href="link.href" @click="drawer = false">
-          <v-list-item-icon>
-            <v-icon>{{ link.icon }}</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>{{ link.label }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
+    <store-header :logo-src="logoActual" active-section="inicio" />
 
     <main>
       <section id="inicio" class="hero-section">
@@ -114,7 +82,7 @@
         <v-container>
           <v-row align="center">
             <v-col cols="12" md="5">
-              <span class="eyebrow blue">OPERACION SIN ENREDOS</span>
+              <span>OPERACION SIN ENREDOS</span>
               <h2>Acompañamiento para comprar mejor, no solo comprar mas.</h2>
               <p>
                 Te ayudamos a escoger materiales segun carga, rotacion, presupuesto y presentacion final.
@@ -143,7 +111,8 @@
             <p>Armamos una cotizacion clara para tu empresa.</p>
           </div>
           <div class="contact-actions">
-            <v-btn x-large rounded color="white" class="primary--text" href="https://wa.me/573218720375" target="_blank">
+            <v-btn x-large rounded color="white" class="primary--text" href="https://wa.me/573218720375"
+              target="_blank">
               <v-icon left>mdi-whatsapp</v-icon>
               WhatsApp
             </v-btn>
@@ -170,15 +139,6 @@ export default {
 
   data() {
     return {
-      drawer: false,
-      links: [
-        { label: 'Inicio', href: '#inicio', icon: 'mdi-home-outline' },
-        { label: 'Productos', href: '#productos', icon: 'mdi-package-variant-closed' },
-        { label: 'Catálogo', href: '/catalogo', icon: 'mdi-storefront-outline' },
-        { label: 'Beneficios', href: '#beneficios', icon: 'mdi-shield-check-outline' },
-        { label: 'Contacto', href: '#contacto', icon: 'mdi-phone-outline' },
-        { label: 'Panel', href: '/login', icon: 'mdi-view-dashboard-outline' },
-      ],
       categories: [
         { id: 'cintas', name: 'Cintas', icon: 'mdi-tape-measure' },
         { id: 'stretch', name: 'Stretch film', icon: 'mdi-rollup' },
@@ -408,59 +368,6 @@ export default {
   font-family: Arial, sans-serif;
 }
 
-.store-header {
-  background: rgba(255, 255, 255, .96);
-  border-bottom: 1px solid #e6edf5;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.header-inner {
-  align-items: center;
-  display: flex;
-  gap: 22px;
-  min-height: 84px;
-}
-
-.brand-link {
-  display: block;
-  flex: 0 0 auto;
-  height: 64px;
-  overflow: hidden;
-  width: 235px;
-}
-
-.brand-logo {
-  display: block;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  width: 100%;
-}
-
-.header-links {
-  align-items: center;
-  margin-left: auto;
-  gap: 24px;
-}
-
-.header-links a {
-  color: #17365d;
-  font-size: 14px;
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.drawer-logo {
-  display: block;
-  height: 72px;
-  object-fit: cover;
-  object-position: center;
-  overflow: hidden;
-  width: 220px;
-}
-
 .hero-section {
   background:
     radial-gradient(circle at 78% 14%, rgba(114, 237, 240, .2), transparent 28%),
@@ -483,7 +390,7 @@ export default {
 }
 
 .eyebrow {
-  color: #72edf0;
+  color: #edf3f3;
   display: inline-block;
   font-size: 12px;
   font-weight: 900;
@@ -491,7 +398,7 @@ export default {
 }
 
 .eyebrow.blue {
-  color: #159eab;
+  color: #fbffff;
 }
 
 .hero-copy h1 {
@@ -756,11 +663,6 @@ export default {
 }
 
 @media (max-width: 600px) {
-  .brand-link {
-    height: 56px;
-    width: 190px;
-  }
-
   .hero-inner {
     min-height: auto;
     padding-top: 62px;

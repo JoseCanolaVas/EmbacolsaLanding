@@ -1,139 +1,563 @@
 <template>
   <v-app class="catalog-page">
-    <header class="catalog-header">
-      <v-container class="header-inner">
-        <a href="/" class="brand-link">
-          <img :src="logoActual" alt="Embacolsa" class="brand-logo">
-        </a>
-
-        <nav class="header-links d-none d-md-flex">
-          <a href="/">Inicio</a>
-          <a href="/#productos">Productos</a>
-          <a href="/#beneficios">Beneficios</a>
-          <a href="/#contacto">Contacto</a>
-          <a href="/login">Panel</a>
-        </nav>
-
-        <v-btn icon color="primary" class="d-md-none" @click="drawer = true">
-          <v-icon>mdi-menu</v-icon>
-        </v-btn>
-      </v-container>
-    </header>
-
-    <v-navigation-drawer v-model="drawer" temporary right fixed>
-      <div class="pa-4">
-        <img :src="logoActual" alt="Embacolsa" class="drawer-logo">
-      </div>
-
-      <v-list nav>
-        <v-list-item v-for="link in links" :key="link.label" :href="link.href" @click="drawer = false">
-          <v-list-item-icon>
-            <v-icon>{{ link.icon }}</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>{{ link.label }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
+    <store-header :logo-src="logoActual" active-section="catalogo" />
 
     <main>
+
+      <!-- HERO -->
       <section class="catalog-hero">
         <v-container>
           <v-row align="center">
+
             <v-col cols="12" md="7">
-              <span class="eyebrow">CATÁLOGO COMPLETO</span>
-              <h1>Todos los productos en un solo panel.</h1>
-              <!-- <p>
-                Busca por nombre, categoría o marca. Esta vista queda separada del inicio
-                para que la landing sea limpia y el catálogo sí sea potente.
-              </p> -->
+              <div class="text-overline font-weight-bold cyan--text text--lighten-2">
+                CATÁLOGO COMPLETO
+              </div>
+
+              <h1 class="catalog-title">
+                Todos los productos en un solo panel.
+              </h1>
             </v-col>
 
             <v-col cols="12" md="5">
-              <v-card class="catalog-count-card" elevation="0">
-                <v-icon color="primary" size="42">
+              <v-card
+                flat
+                class="pa-7 text-center rounded-lg"
+              >
+                <v-icon
+                  color="primary"
+                  size="44"
+                >
                   mdi-store-search-outline
                 </v-icon>
-                <strong>{{ productosCatalogo.length }}</strong>
-                <span>productos encontrados</span>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-container>
-      </section>
 
-      <section class="catalog-content">
-        <v-container>
-          <v-card outlined class="catalog-search-panel">
-            <v-row dense align="center">
-              <v-col cols="12" md="5">
-                <v-text-field v-model="catalogoBusqueda" label="Nombre o descripción" outlined dense rounded clearable
-                  hide-details prepend-inner-icon="mdi-magnify" />
-              </v-col>
+                <div class="text-h2 font-weight-black primary--text mt-2">
+                  {{ productosCatalogo.length }}
+                </div>
 
-              <v-col cols="12" md="3">
-                <v-select v-model="catalogoCategoria" :items="opcionesCategorias" item-text="name" item-value="id"
-                  label="Categoría" outlined dense rounded clearable hide-details prepend-inner-icon="mdi-filter-outline" />
-              </v-col>
-
-              <v-col cols="12" md="3">
-                <v-select v-model="catalogoMarca" :items="opcionesMarcas" item-text="nombre" item-value="id"
-                  label="Marca" outlined dense rounded clearable hide-details prepend-inner-icon="mdi-tag-outline" />
-              </v-col>
-
-              <v-col cols="12" md="1" class="text-md-right">
-                <v-btn v-if="hayFiltrosCatalogo" icon color="error" @click="limpiarPanelCatalogo">
-                  <v-icon>mdi-broom</v-icon>
-                </v-btn>
-              </v-col>
-            </v-row>
-          </v-card>
-
-          <v-row class="mt-5">
-            <v-col v-for="product in productosCatalogo" :key="`catalogo-${product.id || product.title}`" cols="12" md="6">
-              <v-card outlined class="catalog-product-row">
-                <v-avatar tile size="104" class="catalog-product-image">
-                  <v-img v-if="product.image" :src="product.image" cover />
-                  <v-icon v-else color="primary" size="46">
-                    {{ product.icon }}
-                  </v-icon>
-                </v-avatar>
-
-                <div class="catalog-product-info">
-                  <div class="catalog-product-meta">
-                    <v-chip x-small color="primary" outlined>
-                      {{ product.type }}
-                    </v-chip>
-                    <v-chip v-if="product.brand" x-small color="secondary" outlined>
-                      {{ product.brand }}
-                    </v-chip>
-                  </div>
-
-                  <h3>{{ product.title }}</h3>
-                  <p>{{ product.text }}</p>
-
-                  <div class="catalog-product-bottom">
-                    <span>{{ product.unit || 'Unidad según referencia' }}</span>
-                    <strong>{{ product.price || 'Cotizar' }}</strong>
-                  </div>
+                <div class="text-caption font-weight-bold text-uppercase grey--text">
+                  productos encontrados
                 </div>
               </v-card>
             </v-col>
 
-            <v-col v-if="!productosCatalogo.length" cols="12">
-              <div class="empty-products">
-                <v-icon size="64" color="grey lighten-1">
-                  mdi-database-search-outline
-                </v-icon>
-                <h3>No encontramos productos</h3>
-                <p>Cambia el nombre, la categoría o la marca para ver más resultados.</p>
-              </div>
-            </v-col>
           </v-row>
         </v-container>
       </section>
+
+      <!-- CONTENIDO -->
+      <section class="py-12">
+        <v-container>
+
+          <!-- FILTROS -->
+          <v-card
+            outlined
+            class="pa-4 rounded-lg"
+          >
+            <v-row dense align="center">
+
+              <v-col cols="12" md="5">
+                <v-text-field
+                  v-model="catalogoBusqueda"
+                  label="Nombre o descripción"
+                  outlined
+                  dense
+                  rounded
+                  clearable
+                  hide-details
+                  prepend-inner-icon="mdi-magnify"
+                />
+              </v-col>
+
+              <v-col cols="12" md="3">
+                <v-select
+                  v-model="catalogoCategoria"
+                  :items="opcionesCategorias"
+                  item-text="name"
+                  item-value="id"
+                  label="Categoría"
+                  outlined
+                  dense
+                  rounded
+                  clearable
+                  hide-details
+                  prepend-inner-icon="mdi-filter-outline"
+                />
+              </v-col>
+
+              <v-col cols="12" md="3">
+                <v-select
+                  v-model="catalogoMarca"
+                  :items="opcionesMarcas"
+                  item-text="nombre"
+                  item-value="id"
+                  label="Marca"
+                  outlined
+                  dense
+                  rounded
+                  clearable
+                  hide-details
+                  prepend-inner-icon="mdi-tag-outline"
+                />
+              </v-col>
+
+              <v-col
+                cols="12"
+                md="1"
+                class="text-center"
+              >
+                <v-tooltip bottom v-if="hayFiltrosCatalogo">
+                  <template #activator="{ on, attrs }">
+                    <v-btn
+                      icon
+                      color="error"
+                      v-bind="attrs"
+                      v-on="on"
+                      @click="limpiarPanelCatalogo"
+                    >
+                      <v-icon>mdi-broom</v-icon>
+                    </v-btn>
+                  </template>
+
+                  <span>Limpiar filtros</span>
+                </v-tooltip>
+              </v-col>
+
+            </v-row>
+          </v-card>
+
+          <!-- LOADER -->
+          <div
+            v-if="cargandoProductos"
+            class="text-center py-16"
+          >
+            <v-progress-circular
+              indeterminate
+              color="primary"
+              size="54"
+              width="5"
+            />
+
+            <div class="mt-4 grey--text text--darken-1">
+              Cargando productos...
+            </div>
+          </div>
+
+          <!-- PRODUCTOS -->
+          <v-row
+            v-else
+            class="mt-5"
+          >
+            <v-col
+              v-for="product in productosCatalogo"
+              :key="`catalogo-${product.id}`"
+              cols="12"
+              md="6"
+            >
+              <v-card
+                outlined
+                hover
+                height="100%"
+                class="rounded-lg overflow-hidden"
+              >
+                <v-row
+                  no-gutters
+                  class="fill-height"
+                >
+                  <!-- IMAGEN -->
+                  <v-col
+                    cols="12"
+                    sm="4"
+                    class="grey lighten-5"
+                  >
+                    <v-responsive
+                      :aspect-ratio="1"
+                      class="fill-height"
+                    >
+                      <v-img
+                        v-if="product.image"
+                        :src="product.image"
+                        height="100%"
+                        contain
+                        class="pa-3"
+                      >
+                        <template #placeholder>
+                          <v-row
+                            class="fill-height ma-0"
+                            align="center"
+                            justify="center"
+                          >
+                            <v-progress-circular
+                              indeterminate
+                              color="primary"
+                            />
+                          </v-row>
+                        </template>
+                      </v-img>
+
+                      <div
+                        v-else
+                        class="fill-height d-flex align-center justify-center"
+                      >
+                        <v-icon
+                          color="primary"
+                          size="64"
+                        >
+                          {{ product.icon }}
+                        </v-icon>
+                      </div>
+                    </v-responsive>
+                  </v-col>
+
+                  <!-- INFO -->
+                  <v-col cols="12" sm="8">
+                    <div class="pa-5 d-flex flex-column fill-height">
+
+                      <div class="mb-2">
+                        <v-chip
+                          small
+                          color="primary"
+                          outlined
+                          class="mr-1 mb-1"
+                        >
+                          {{ product.type }}
+                        </v-chip>
+
+                        <v-chip
+                          v-if="product.brand"
+                          small
+                          color="secondary"
+                          outlined
+                          class="mb-1"
+                        >
+                          {{ product.brand }}
+                        </v-chip>
+                      </div>
+
+                      <div
+                        class="text-h6 font-weight-black mb-2"
+                        style="color: #17365d;"
+                      >
+                        {{ product.title }}
+                      </div>
+
+                      <div
+                        class="text-body-2 grey--text text--darken-1 mb-4"
+                      >
+                        {{ limitarTexto(product.text, 120) }}
+                      </div>
+
+                      <v-spacer />
+
+                      <div class="d-flex align-center justify-space-between mb-4">
+                        <span class="text-caption grey--text text--darken-1">
+                          {{ product.unit || 'Unidad según referencia' }}
+                        </span>
+
+                        <span
+                          v-if="product.price"
+                          class="text-subtitle-1 font-weight-black primary--text"
+                        >
+                          {{ product.price }}
+                        </span>
+
+                        <v-chip
+                          v-else
+                          small
+                          color="orange"
+                          text-color="white"
+                        >
+                          Precio a cotizar
+                        </v-chip>
+                      </div>
+
+                      <v-divider class="mb-4" />
+
+                      <!-- ACCIONES -->
+                      <div class="d-flex flex-wrap">
+                        <v-btn
+                          outlined
+                          rounded
+                          color="primary"
+                          class="mr-2 mb-2"
+                          @click="verDetalle(product)"
+                        >
+                          <v-icon left small>
+                            mdi-eye-outline
+                          </v-icon>
+
+                          Ver detalle
+                        </v-btn>
+
+                        <v-btn
+                          rounded
+                          color="success"
+                          dark
+                          class="mb-2"
+                          @click="cotizarProducto(product)"
+                        >
+                          <v-icon left>
+                            mdi-whatsapp
+                          </v-icon>
+
+                          Cotizar
+                        </v-btn>
+                      </div>
+
+                    </div>
+                  </v-col>
+                </v-row>
+              </v-card>
+            </v-col>
+
+            <!-- SIN RESULTADOS -->
+            <v-col
+              v-if="!productosCatalogo.length"
+              cols="12"
+            >
+              <v-sheet
+                outlined
+                rounded="lg"
+                class="pa-12 text-center"
+              >
+                <v-icon
+                  size="72"
+                  color="grey lighten-1"
+                >
+                  mdi-database-search-outline
+                </v-icon>
+
+                <div
+                  class="text-h5 font-weight-black mt-4"
+                  style="color: #17365d;"
+                >
+                  No encontramos productos
+                </div>
+
+                <div class="grey--text mt-2">
+                  Cambia el nombre, la categoría o la marca para ver más resultados.
+                </div>
+
+                <v-btn
+                  v-if="hayFiltrosCatalogo"
+                  color="primary"
+                  outlined
+                  rounded
+                  class="mt-5"
+                  @click="limpiarPanelCatalogo"
+                >
+                  Limpiar filtros
+                </v-btn>
+              </v-sheet>
+            </v-col>
+
+          </v-row>
+
+        </v-container>
+      </section>
+
     </main>
+
+    <!-- MODAL DETALLE -->
+    <v-dialog
+      v-model="modalDetalle"
+      max-width="900"
+      scrollable
+    >
+      <v-card
+        v-if="productoSeleccionado"
+        class="rounded-lg"
+      >
+        <v-card-title class="d-flex align-center">
+          <v-icon
+            color="primary"
+            class="mr-2"
+          >
+            mdi-package-variant-closed
+          </v-icon>
+
+          <span class="font-weight-black">
+            Detalle del producto
+          </span>
+
+          <v-spacer />
+
+          <v-btn
+            icon
+            @click="modalDetalle = false"
+          >
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <v-divider />
+
+        <v-card-text class="pa-0">
+          <v-row no-gutters>
+
+            <!-- IMAGEN GRANDE -->
+            <v-col
+              cols="12"
+              md="5"
+              class="grey lighten-5"
+            >
+              <div
+                class="pa-6 d-flex align-center justify-center"
+                style="min-height: 390px;"
+              >
+                <v-img
+                  v-if="productoSeleccionado.image"
+                  :src="productoSeleccionado.image"
+                  contain
+                  max-height="350"
+                />
+
+                <v-icon
+                  v-else
+                  color="primary"
+                  size="120"
+                >
+                  {{ productoSeleccionado.icon }}
+                </v-icon>
+              </div>
+            </v-col>
+
+            <!-- DETALLE -->
+            <v-col cols="12" md="7">
+              <div class="pa-7">
+
+                <div class="mb-3">
+                  <v-chip
+                    color="primary"
+                    outlined
+                    small
+                    class="mr-2"
+                  >
+                    {{ productoSeleccionado.type }}
+                  </v-chip>
+
+                  <v-chip
+                    v-if="productoSeleccionado.brand"
+                    color="secondary"
+                    outlined
+                    small
+                  >
+                    {{ productoSeleccionado.brand }}
+                  </v-chip>
+                </div>
+
+                <h2
+                  class="text-h4 font-weight-black mb-4"
+                  style="color: #17365d;"
+                >
+                  {{ productoSeleccionado.title }}
+                </h2>
+
+                <div
+                  class="text-body-1 grey--text text--darken-2 mb-6"
+                  style="line-height: 1.7;"
+                >
+                  {{ productoSeleccionado.text }}
+                </div>
+
+                <v-divider />
+
+                <v-list class="transparent">
+
+                  <v-list-item>
+                    <v-list-item-icon>
+                      <v-icon color="primary">
+                        mdi-ruler
+                      </v-icon>
+                    </v-list-item-icon>
+
+                    <v-list-item-content>
+                      <v-list-item-subtitle>
+                        Unidad de medida
+                      </v-list-item-subtitle>
+
+                      <v-list-item-title class="font-weight-bold">
+                        {{ productoSeleccionado.unit || 'No especificada' }}
+                      </v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+
+                  <v-list-item>
+                    <v-list-item-icon>
+                      <v-icon color="primary">
+                        mdi-cash
+                      </v-icon>
+                    </v-list-item-icon>
+
+                    <v-list-item-content>
+                      <v-list-item-subtitle>
+                        Precio
+                      </v-list-item-subtitle>
+
+                      <v-list-item-title
+                        class="font-weight-black primary--text"
+                      >
+                        {{ productoSeleccionado.price || 'Solicitar cotización' }}
+                      </v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+
+                  <v-list-item v-if="productoSeleccionado.brand">
+                    <v-list-item-icon>
+                      <v-icon color="primary">
+                        mdi-tag-outline
+                      </v-icon>
+                    </v-list-item-icon>
+
+                    <v-list-item-content>
+                      <v-list-item-subtitle>
+                        Marca
+                      </v-list-item-subtitle>
+
+                      <v-list-item-title class="font-weight-bold">
+                        {{ productoSeleccionado.brand }}
+                      </v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+
+                </v-list>
+
+              </div>
+            </v-col>
+
+          </v-row>
+        </v-card-text>
+
+        <v-divider />
+
+        <v-card-actions class="pa-4">
+          <v-spacer />
+
+          <v-btn
+            text
+            rounded
+            @click="modalDetalle = false"
+          >
+            Cerrar
+          </v-btn>
+
+          <v-btn
+            rounded
+            color="success"
+            dark
+            @click="cotizarProducto(productoSeleccionado)"
+          >
+            <v-icon left>
+              mdi-whatsapp
+            </v-icon>
+
+            Solicitar cotización
+          </v-btn>
+        </v-card-actions>
+
+      </v-card>
+    </v-dialog>
+
   </v-app>
 </template>
 
@@ -143,58 +567,15 @@ export default {
 
   data() {
     return {
-      drawer: false,
+      cargandoProductos: false,
+
       catalogoBusqueda: '',
       catalogoCategoria: null,
       catalogoMarca: null,
-      links: [
-        { label: 'Inicio', href: '/', icon: 'mdi-home-outline' },
-        { label: 'Productos', href: '/#productos', icon: 'mdi-package-variant-closed' },
-        { label: 'Beneficios', href: '/#beneficios', icon: 'mdi-shield-check-outline' },
-        { label: 'Contacto', href: '/#contacto', icon: 'mdi-phone-outline' },
-        { label: 'Panel', href: '/login', icon: 'mdi-view-dashboard-outline' },
-      ],
-      categories: [
-        { id: 'cintas', name: 'Cintas', icon: 'mdi-tape-measure' },
-        { id: 'stretch', name: 'Stretch film', icon: 'mdi-rollup' },
-        { id: 'cajas', name: 'Cajas', icon: 'mdi-package-variant' },
-        { id: 'zunchos', name: 'Zunchos', icon: 'mdi-link-variant' },
-        { id: 'seguridad', name: 'Seguridad', icon: 'mdi-hard-hat' },
-      ],
-      products: [
-        {
-          categoryId: 'cintas',
-          type: 'Sellado',
-          title: 'Cintas adhesivas',
-          text: 'Cierre fuerte, presentación limpia y medidas para distintos usos.',
-          icon: 'mdi-tape-measure',
-          class: 'visual-cyan',
-        },
-        {
-          categoryId: 'stretch',
-          type: 'Protección',
-          title: 'Stretch film',
-          text: 'Estabilidad para carga, inventario y despachos de alto movimiento.',
-          icon: 'mdi-rollup',
-          class: 'visual-blue',
-        },
-        {
-          categoryId: 'zunchos',
-          type: 'Carga',
-          title: 'Sunchos y zunchos',
-          text: 'Sujeción firme para cajas, paquetes y procesos industriales.',
-          icon: 'mdi-link-variant',
-          class: 'visual-gold',
-        },
-        {
-          categoryId: 'cajas',
-          type: 'Empaque',
-          title: 'Cajas de cartón',
-          text: 'Opciones resistentes para proteger lo que vendes y despachas.',
-          icon: 'mdi-package-variant-closed',
-          class: 'visual-green',
-        },
-      ],
+
+      modalDetalle: false,
+      productoSeleccionado: null,
+
       categoriasParametrizadas: [],
       productosParametrizados: [],
       imagenesParametrizadas: [],
@@ -203,24 +584,21 @@ export default {
   },
 
   computed: {
+
     logoActual() {
-      return this.obtenerImagenPorTipo('logo') || '/images/embacolsa-optimized.webp'
+      return (
+        this.obtenerImagenPorTipo('logo') ||
+        '/images/embacolsa-optimized.webp'
+      )
     },
 
-    categoriasIndex() {
-      const categoriasActivas = this.categoriasParametrizadas
+    opcionesCategorias() {
+      return this.categoriasParametrizadas
         .filter(categoria => this.estaActivo(categoria.estado))
         .map(categoria => ({
           id: categoria.id,
           name: categoria.nombre,
-          icon: 'mdi-format-list-bulleted-type',
         }))
-
-      return categoriasActivas.length ? categoriasActivas : this.categories
-    },
-
-    opcionesCategorias() {
-      return this.categoriasIndex
     },
 
     opcionesMarcas() {
@@ -233,130 +611,336 @@ export default {
     },
 
     productosNormalizados() {
-      if (!this.productosParametrizados.length) {
-        return this.products.map(producto => ({
-          ...producto,
-          brandId: null,
-          brand: null,
-          image: null,
-          price: null,
-          unit: null,
-        }))
-      }
-
       return this.productosParametrizados
         .filter(producto => this.estaActivo(producto.estado))
-        .map((producto, index) => ({
+        .map(producto => ({
           id: producto.id,
-          categoryId: producto.categoria_id || producto.categoria?.id || null,
-          brandId: producto.marca_id || producto.marca?.id || null,
-          brand: producto.marca?.nombre || producto.marca_nombre || null,
-          type: producto.categoria?.nombre || 'Producto',
+
+          categoryId:
+            producto.categoria_id ||
+            (producto.categoria ? producto.categoria.id : null),
+
+          brandId:
+            producto.marca_id ||
+            (producto.marca ? producto.marca.id : null),
+
+          brand:
+            (producto.marca ? producto.marca.nombre : null) ||
+            producto.marca_nombre ||
+            null,
+
+          type:
+            (producto.categoria ? producto.categoria.nombre : null) ||
+            producto.categoria_nombre ||
+            'Producto',
+
           title: producto.nombre,
-          text: producto.descripcion || 'Sin descripción por ahora',
-          icon: this.products[index % this.products.length].icon,
-          class: this.products[index % this.products.length].class,
+
+          text:
+            producto.descripcion ||
+            'Este producto no tiene una descripción registrada.',
+
+          icon: this.obtenerIconoProducto(producto),
+
           image: this.resolverImagen(producto.ruta_imagen),
-          unit: producto.unidad_medida,
+
+          unit: producto.unidad_medida || null,
+
           price: this.formatearPrecio(producto.precio),
+
+          precioOriginal: producto.precio,
         }))
     },
 
     productosCatalogo() {
-      const busqueda = (this.catalogoBusqueda || '').toLowerCase().trim()
+      const busqueda = String(this.catalogoBusqueda || '')
+        .toLowerCase()
+        .trim()
 
       return this.productosNormalizados
         .filter((producto) => {
-          if (!this.catalogoCategoria) {
+          if (
+            this.catalogoCategoria === null ||
+            this.catalogoCategoria === ''
+          ) {
             return true
           }
 
-          return producto.categoryId === this.catalogoCategoria
+          return (
+            String(producto.categoryId) ===
+            String(this.catalogoCategoria)
+          )
         })
+
         .filter((producto) => {
-          if (!this.catalogoMarca) {
+          if (
+            this.catalogoMarca === null ||
+            this.catalogoMarca === ''
+          ) {
             return true
           }
 
-          return producto.brandId === this.catalogoMarca
+          return (
+            String(producto.brandId) ===
+            String(this.catalogoMarca)
+          )
         })
+
         .filter((producto) => {
           if (!busqueda) {
             return true
           }
 
-          return `${producto.title} ${producto.text} ${producto.type} ${producto.brand || ''}`
+          const contenido = `
+            ${producto.title}
+            ${producto.text}
+            ${producto.type}
+            ${producto.brand || ''}
+          `
             .toLowerCase()
-            .includes(busqueda)
+
+          return contenido.includes(busqueda)
         })
     },
 
     hayFiltrosCatalogo() {
-      return Boolean(this.catalogoBusqueda || this.catalogoCategoria || this.catalogoMarca)
+      return Boolean(
+        this.catalogoBusqueda ||
+        this.catalogoCategoria ||
+        this.catalogoMarca
+      )
     },
   },
 
   mounted() {
-    this.catalogoBusqueda = this.$route.query.buscar || ''
+    this.catalogoBusqueda =
+      this.$route.query.buscar || ''
+
     this.cargarParametrizacion()
   },
 
   methods: {
+
     async cargarParametrizacion() {
-      await Promise.all([
-        this.listarCategorias(),
-        this.listarProductos(),
-        this.listarImagenes(),
-        this.listarMarcas(),
-      ])
+      this.cargandoProductos = true
+
+      try {
+        await Promise.all([
+          this.listarCategorias(),
+          this.listarProductos(),
+          this.listarImagenes(),
+          this.listarMarcas(),
+        ])
+      } finally {
+        this.cargandoProductos = false
+      }
     },
 
     async listarCategorias() {
       try {
-        const response = await this.$axios.get('/categorias/listar')
-        this.categoriasParametrizadas = response.data || []
+        const response = await this.$axios.get(
+          '/categorias/listar'
+        )
+
+        this.categoriasParametrizadas =
+          this.extraerLista(response.data)
       } catch (error) {
+        console.error(
+          'Error cargando categorías:',
+          error
+        )
+
         this.categoriasParametrizadas = []
       }
     },
 
     async listarProductos() {
       try {
-        const response = await this.$axios.post('/productos/listar', {
-          paginacion: null,
-        })
-        this.productosParametrizados = response.data || []
+        const response = await this.$axios.post(
+          '/productos/listar',
+          {
+            paginacion: null,
+          }
+        )
+
+        this.productosParametrizados =
+          this.extraerLista(response.data)
       } catch (error) {
+        console.error(
+          'Error cargando productos:',
+          error
+        )
+
         this.productosParametrizados = []
       }
     },
 
     async listarImagenes() {
       try {
-        const response = await this.$axios.get('/imagenes/listar')
-        this.imagenesParametrizadas = response.data || []
+        const response = await this.$axios.get(
+          '/imagenes/listar'
+        )
+
+        this.imagenesParametrizadas =
+          this.extraerLista(response.data)
       } catch (error) {
+        console.error(
+          'Error cargando imágenes:',
+          error
+        )
+
         this.imagenesParametrizadas = []
       }
     },
 
     async listarMarcas() {
       try {
-        const response = await this.$axios.get('/marcas/listar')
-        this.marcasParametrizadas = response.data || []
+        const response = await this.$axios.get(
+          '/marcas/listar'
+        )
+
+        this.marcasParametrizadas =
+          this.extraerLista(response.data)
       } catch (error) {
+        console.error(
+          'Error cargando marcas:',
+          error
+        )
+
         this.marcasParametrizadas = []
       }
     },
 
+    /**
+     * Soporta:
+     *
+     * response.data = []
+     *
+     * response.data = {
+     *   data: []
+     * }
+     *
+     * response.data = {
+     *   data: {
+     *     data: []
+     *   }
+     * }
+     */
+    extraerLista(data) {
+      if (Array.isArray(data)) {
+        return data
+      }
+
+      if (data && Array.isArray(data.data)) {
+        return data.data
+      }
+
+      if (
+        data &&
+        data.data &&
+        Array.isArray(data.data.data)
+      ) {
+        return data.data.data
+      }
+
+      return []
+    },
+
+    verDetalle(producto) {
+      this.productoSeleccionado = producto
+      this.modalDetalle = true
+    },
+
+    cotizarProducto(producto) {
+      if (!producto) {
+        return
+      }
+
+      const mensaje = [
+        'Hola Embacolsa, estoy interesado en cotizar el siguiente producto:',
+        '',
+        `Producto: ${producto.title}`,
+        `Categoría: ${producto.type}`,
+        producto.brand
+          ? `Marca: ${producto.brand}`
+          : null,
+        producto.unit
+          ? `Unidad: ${producto.unit}`
+          : null,
+        producto.price
+          ? `Precio publicado: ${producto.price}`
+          : 'Precio: Solicitar cotización',
+        '',
+        '¿Me pueden brindar más información?',
+      ]
+        .filter(Boolean)
+        .join('\n')
+
+      /**
+       * Puedes configurar:
+       *
+       * WHATSAPP_NUMBER=573001234567
+       *
+       * Sin +, espacios ni guiones.
+       */
+      const numero =
+        (
+          this.$config &&
+          this.$config.WHATSAPP_NUMBER
+        ) ||
+        process.env.WHATSAPP_NUMBER ||
+        ''
+
+      if (numero) {
+        const numeroLimpio = String(numero)
+          .replace(/\D/g, '')
+
+        const url =
+          `https://wa.me/${numeroLimpio}` +
+          `?text=${encodeURIComponent(mensaje)}`
+
+        window.open(
+          url,
+          '_blank',
+          'noopener,noreferrer'
+        )
+
+        return
+      }
+
+      /**
+       * Si todavía no has configurado WhatsApp,
+       * enviamos al usuario al contacto.
+       */
+      const productoQuery =
+        encodeURIComponent(producto.title)
+
+      window.location.href =
+        `/?producto=${productoQuery}#contacto`
+    },
+
     obtenerImagenPorTipo(tipoBuscado) {
-      const imagen = this.imagenesParametrizadas.find((item) => {
-        const nombreTipo = item.tipo_imagen?.nombre || item.tipoImagen?.nombre || ''
+      const imagen =
+        this.imagenesParametrizadas.find((item) => {
+          const nombreTipo =
+            (item.tipo_imagen
+              ? item.tipo_imagen.nombre
+              : '') ||
+            (item.tipoImagen
+              ? item.tipoImagen.nombre
+              : '') ||
+            ''
 
-        return nombreTipo.toLowerCase().includes(tipoBuscado)
-      })
+          return nombreTipo
+            .toLowerCase()
+            .includes(
+              String(tipoBuscado).toLowerCase()
+            )
+        })
 
-      return imagen ? this.resolverImagen(imagen.ruta) : null
+      return imagen
+        ? this.resolverImagen(imagen.ruta)
+        : null
     },
 
     resolverImagen(rutaImagen) {
@@ -364,25 +948,95 @@ export default {
         return null
       }
 
-      if (rutaImagen.startsWith('http') || rutaImagen.startsWith('blob:')) {
+      if (
+        rutaImagen.startsWith('http://') ||
+        rutaImagen.startsWith('https://') ||
+        rutaImagen.startsWith('blob:')
+      ) {
         return rutaImagen
       }
 
-      const apiUrl = this.$axios?.defaults?.baseURL ||
-        this.$config?.API_URL ||
+      const apiUrl =
+        (this.$axios &&this.$axios.defaults &&
+this.$axios.defaults.baseURL
+        ) ||
+        (
+          this.$config &&
+          this.$config.API_URL
+        ) ||
         'http://localhost:8000/api'
-      const backendUrl = apiUrl.replace(/\/api\/?$/, '').replace(/\/$/, '')
-      const ruta = rutaImagen.startsWith('/') ? rutaImagen : `/${rutaImagen}`
+
+      const backendUrl = apiUrl
+        .replace(/\/api\/?$/, '')
+        .replace(/\/$/, '')
+
+      const ruta = rutaImagen.startsWith('/')
+        ? rutaImagen
+        : `/${rutaImagen}`
 
       return `${backendUrl}${ruta}`
     },
 
+    obtenerIconoProducto(producto) {
+      const categoria =
+        (
+          producto.categoria &&
+          producto.categoria.nombre
+        ) ||
+        producto.categoria_nombre ||
+        ''
+
+      const nombre = categoria.toLowerCase()
+
+      if (nombre.includes('cinta')) {
+        return 'mdi-tape-measure'
+      }
+
+      if (
+        nombre.includes('caja') ||
+        nombre.includes('cartón') ||
+        nombre.includes('carton')
+      ) {
+        return 'mdi-package-variant-closed'
+      }
+
+      if (
+        nombre.includes('zuncho') ||
+        nombre.includes('suncho')
+      ) {
+        return 'mdi-link-variant'
+      }
+
+      if (
+        nombre.includes('seguridad')
+      ) {
+        return 'mdi-shield-check-outline'
+      }
+
+      if (
+        nombre.includes('stretch') ||
+        nombre.includes('film')
+      ) {
+        return 'mdi-rollup'
+      }
+
+      return 'mdi-package-variant'
+    },
+
     estaActivo(estado) {
-      return estado === true || estado === 1 || estado === '1'
+      return (
+        estado === true ||
+        estado === 1 ||
+        estado === '1'
+      )
     },
 
     formatearPrecio(precio) {
-      if (precio === null || precio === undefined || precio === '') {
+      if (
+        precio === null ||
+        precio === undefined ||
+        precio === ''
+      ) {
         return null
       }
 
@@ -392,11 +1046,26 @@ export default {
         return precio
       }
 
-      return new Intl.NumberFormat('es-CO', {
-        style: 'currency',
-        currency: 'COP',
-        minimumFractionDigits: 0,
-      }).format(valor)
+      return new Intl.NumberFormat(
+        'es-CO',
+        {
+          style: 'currency',
+          currency: 'COP',
+          minimumFractionDigits: 0,
+        }
+      ).format(valor)
+    },
+
+    limitarTexto(texto, limite = 120) {
+      if (!texto) {
+        return ''
+      }
+
+      if (texto.length <= limite) {
+        return texto
+      }
+
+      return `${texto.substring(0, limite)}...`
     },
 
     limpiarPanelCatalogo() {
@@ -412,233 +1081,47 @@ export default {
 .catalog-page {
   background: #f4f8fb;
   color: #102b5c;
-  font-family: Arial, sans-serif;
-}
-
-.catalog-header {
-  background: rgba(255, 255, 255, .96);
-  border-bottom: 1px solid #e6edf5;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.header-inner {
-  align-items: center;
-  display: flex;
-  gap: 22px;
-  min-height: 84px;
-}
-
-.brand-link {
-  display: block;
-  flex: 0 0 auto;
-  height: 64px;
-  overflow: hidden;
-  width: 235px;
-}
-
-.brand-logo,
-.drawer-logo {
-  display: block;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  width: 100%;
-}
-
-.drawer-logo {
-  height: 72px;
-  width: 220px;
-}
-
-.header-links {
-  align-items: center;
-  display: flex;
-  gap: 24px;
-  margin-left: auto;
-}
-
-.header-links a {
-  color: #17365d;
-  font-size: 14px;
-  font-weight: 800;
-  text-decoration: none;
 }
 
 .catalog-hero {
   background:
-    radial-gradient(circle at 85% 15%, rgba(114, 237, 240, .22), transparent 28%),
-    linear-gradient(110deg, #061d43 0%, #073b60 48%, #0d7880 100%);
-  color: #fff;
+    radial-gradient(
+      circle at 85% 15%,
+      rgba(114, 237, 240, .22),
+      transparent 28%
+    ),
+    linear-gradient(
+      110deg,
+      #061d43 0%,
+      #073b60 48%,
+      #0d7880 100%
+    );
+  color: white;
   padding: 74px 0;
 }
 
-.eyebrow {
-  color: #72edf0;
-  display: inline-block;
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 1px;
-}
-
-.catalog-hero h1 {
-  color: #fff;
+.catalog-title {
+  color: white;
   font-size: 54px;
   font-weight: 900;
-  line-height: 1;
-  margin: 14px 0;
-}
-
-.catalog-hero p {
-  color: #e5f4fb;
-  font-size: 18px;
-  line-height: 1.7;
-  max-width: 640px;
-}
-
-.catalog-count-card {
-  align-items: center;
-  background: rgba(255, 255, 255, .94) !important;
-  border: 1px solid rgba(255, 255, 255, .5);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 34px;
-}
-
-.catalog-count-card strong {
-  color: #0f8e9a;
-  font-size: 54px;
-  line-height: 1;
-}
-
-.catalog-count-card span {
-  color: #65758d;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
-.catalog-content {
-  padding: 54px 0 78px;
-}
-
-.catalog-search-panel,
-.catalog-product-row {
-  border-color: #dfe9f2 !important;
-  border-radius: 8px;
-}
-
-.catalog-search-panel {
-  padding: 18px;
-}
-
-.catalog-product-row {
-  align-items: stretch;
-  display: flex;
-  gap: 16px;
-  height: 100%;
-  padding: 14px;
-}
-
-.catalog-product-image {
-  background: #f4f8fb;
-  border: 1px solid #e1e8f0;
-  border-radius: 8px;
-  flex: 0 0 auto;
-}
-
-.catalog-product-info {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.catalog-product-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 7px;
-}
-
-.catalog-product-info h3 {
-  color: #17365d;
-  font-size: 18px;
-  font-weight: 900;
-  line-height: 1.2;
-  margin: 0 0 6px;
-  overflow-wrap: anywhere;
-}
-
-.catalog-product-info p,
-.empty-products p {
-  color: #65758d;
-  line-height: 1.45;
-  margin: 0;
-}
-
-.catalog-product-bottom {
-  align-items: center;
-  display: flex;
-  gap: 12px;
-  justify-content: space-between;
-  margin-top: auto;
-  padding-top: 12px;
-}
-
-.catalog-product-bottom span {
-  color: #6b7a90;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.catalog-product-bottom strong {
-  color: #0f8e9a;
-  font-size: 16px;
-}
-
-.empty-products {
-  align-items: center;
-  background: #fff;
-  border: 1px dashed #cbd8e6;
-  color: #17365d;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 260px;
-  padding: 32px;
-  text-align: center;
-}
-
-.empty-products h3 {
-  font-size: 22px;
-  font-weight: 900;
-  margin: 12px 0 4px;
+  line-height: 1.05;
+  margin-top: 12px;
+  max-width: 700px;
 }
 
 @media (max-width: 960px) {
-  .catalog-hero h1 {
+  .catalog-title {
     font-size: 42px;
-  }
-
-  .catalog-product-row {
-    flex-direction: column;
   }
 }
 
 @media (max-width: 600px) {
-  .brand-link {
-    height: 56px;
-    width: 190px;
-  }
-
   .catalog-hero {
     padding: 48px 0;
   }
 
-  .catalog-hero h1 {
-    font-size: 35px;
+  .catalog-title {
+    font-size: 34px;
   }
 }
 </style>

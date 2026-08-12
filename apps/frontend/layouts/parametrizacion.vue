@@ -22,7 +22,7 @@
       </v-btn>
 
       <div class="topbar-title">
-        <span>Panel de parametrización</span>
+        <span>Panel de parametrizaciónES</span>
         <small>Gestión de contenido y catálogo</small>
       </div>
 
