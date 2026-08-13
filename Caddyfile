@@ -1,0 +1,7 @@
+embacolsa.com.co, www.embacolsa.com.co {
+    reverse_proxy frontend:80
+}
+
+login.embacolsa.com.co {
+    redir https://embacolsa.com.co/login 302
+}
