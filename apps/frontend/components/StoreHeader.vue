@@ -11,14 +11,33 @@
         </a>
       </nav>
 
-      <v-btn icon color="primary" class="menu-button d-lg-none" aria-label="Abrir menú" @click="drawer = true">
+      <v-btn
+        fab
+        small
+        depressed
+        color="primary"
+        class="menu-button d-lg-none"
+        aria-label="Abrir menú de navegación"
+        @click="drawer = true"
+      >
         <v-icon>mdi-menu</v-icon>
       </v-btn>
     </v-container>
 
-    <v-navigation-drawer v-model="drawer" temporary right fixed>
+    <v-navigation-drawer
+      v-model="drawer"
+      temporary
+      right
+      fixed
+      width="292"
+      class="mobile-drawer"
+    >
       <div class="drawer-brand">
         <img :src="logoSrc" alt="Embacolsa" class="drawer-logo">
+
+        <v-btn icon color="primary" aria-label="Cerrar menú" @click="drawer = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
       </div>
 
       <v-divider />
@@ -134,6 +153,12 @@ export default {
       ]
     },
   },
+
+  watch: {
+    $route() {
+      this.drawer = false
+    },
+  },
 }
 </script>
 
@@ -145,7 +170,7 @@ export default {
   box-shadow: 0 12px 35px rgba(9, 35, 73, .06);
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 80;
 }
 
 .header-inner {
@@ -200,9 +225,19 @@ export default {
 
 .menu-button {
   margin-left: auto;
+  min-width: 40px;
+  position: relative;
+  z-index: 90;
+}
+
+.mobile-drawer {
+  z-index: 220 !important;
 }
 
 .drawer-brand {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
   padding: 22px 20px 14px;
 }
 
@@ -221,7 +256,7 @@ export default {
 
   .brand-link {
     height: 56px;
-    width: 198px;
+    width: 184px;
   }
 }
 </style>

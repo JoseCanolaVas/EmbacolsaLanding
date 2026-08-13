@@ -8,6 +8,12 @@
       width="245"
       class="admin-drawer"
     >
+      <div class="drawer-mobile-close d-md-none">
+        <v-btn icon color="white" aria-label="Cerrar menú" @click="drawer = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </div>
+
       <div class="drawer-brand">
         <img src="/images/softnova-optimized.webp" alt="Softnova">
       </div>
@@ -17,12 +23,20 @@
     </v-navigation-drawer>
 
     <v-app-bar app color="white" light elevation="1" height="64">
-      <v-btn icon color="primary" class="mr-2 d-md-none" @click="drawer = true">
+      <v-btn
+        fab
+        small
+        depressed
+        color="primary"
+        class="mr-3 d-md-none"
+        aria-label="Abrir menú de parametrización"
+        @click="drawer = true"
+      >
         <v-icon>mdi-menu</v-icon>
       </v-btn>
 
       <div class="topbar-title">
-        <span>Panel de parametrizaciónES</span>
+        <span>Panel de parametrización</span>
         <small>Gestión de contenido y catálogo</small>
       </div>
 
@@ -62,6 +76,21 @@ export default {
       drawer: false,
     }
   },
+
+  watch: {
+    '$vuetify.breakpoint.mdAndUp': {
+      immediate: true,
+      handler(isDesktop) {
+        this.drawer = isDesktop
+      },
+    },
+
+    $route() {
+      if (this.$vuetify.breakpoint.smAndDown) {
+        this.drawer = false
+      }
+    },
+  },
 }
 </script>
 
@@ -76,6 +105,13 @@ export default {
     linear-gradient(180deg, #0f2c61 0%, #155f56 42%, #0c5a4f 100%) !important;
   border-right: 1px solid rgba(255, 255, 255, .12) !important;
   box-shadow: 12px 0 34px rgba(8, 37, 63, .16);
+  z-index: 210 !important;
+}
+
+.drawer-mobile-close {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 10px 0;
 }
 
 .drawer-brand {
