@@ -24,40 +24,44 @@
       </v-btn>
     </v-container>
 
-    <v-navigation-drawer
-      v-model="drawer"
-      temporary
-      right
-      fixed
-      width="292"
-      class="mobile-drawer"
-    >
-      <div class="drawer-brand">
-        <img :src="logoSrc" alt="Embacolsa" class="drawer-logo">
+    <transition name="mobile-menu-fade">
+      <div v-if="drawer" class="mobile-menu-shell d-lg-none">
+        <button class="mobile-menu-backdrop" type="button" aria-label="Cerrar menú" @click="drawer = false" />
 
-        <v-btn icon color="primary" aria-label="Cerrar menú" @click="drawer = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
+        <aside class="mobile-menu-panel" aria-label="Menú de navegación móvil">
+          <div class="drawer-brand">
+            <img :src="logoSrc" alt="Embacolsa" class="drawer-logo">
+
+            <v-btn icon color="primary" aria-label="Cerrar menú" @click="drawer = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </div>
+
+          <nav class="mobile-menu-links">
+            <a
+              v-for="link in drawerLinks"
+              :key="link.label"
+              :href="link.href"
+              class="mobile-menu-link"
+              @click="drawer = false"
+            >
+              <span class="mobile-menu-icon">
+                <v-icon color="primary">{{ link.icon }}</v-icon>
+              </span>
+              <span>{{ link.label }}</span>
+              <v-icon small color="#8aa0b8">mdi-chevron-right</v-icon>
+            </a>
+          </nav>
+
+          <div class="mobile-menu-cta">
+            <v-btn block rounded color="primary" href="https://wa.me/573218720375" target="_blank">
+              <v-icon left>mdi-whatsapp</v-icon>
+              Cotizar por WhatsApp
+            </v-btn>
+          </div>
+        </aside>
       </div>
-
-      <v-divider />
-
-      <v-list nav class="mt-2">
-        <v-list-item v-for="link in drawerLinks" :key="link.label" :href="link.href" @click="drawer = false">
-          <v-list-item-icon>
-            <v-icon color="primary">
-              {{ link.icon }}
-            </v-icon>
-          </v-list-item-icon>
-
-          <v-list-item-content>
-            <v-list-item-title class="font-weight-bold">
-              {{ link.label }}
-            </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
+    </transition>
   </header>
 </template>
 
@@ -230,23 +234,115 @@ export default {
   z-index: 90;
 }
 
-.mobile-drawer {
-  z-index: 220 !important;
+.mobile-menu-shell {
+  bottom: 0;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 500;
+}
+
+.mobile-menu-backdrop {
+  background: rgba(6, 24, 48, .56);
+  border: 0;
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  padding: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 100%;
+}
+
+.mobile-menu-panel {
+  background:
+    radial-gradient(circle at 10% 0%, rgba(112, 221, 224, .24), transparent 34%),
+    #fff;
+  bottom: 0;
+  box-shadow: -24px 0 50px rgba(5, 31, 62, .28);
+  display: flex;
+  flex-direction: column;
+  max-width: 340px;
+  overflow-y: auto;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: min(86vw, 340px);
 }
 
 .drawer-brand {
   align-items: center;
   display: flex;
   justify-content: space-between;
-  padding: 22px 20px 14px;
+  padding: 18px 18px 14px;
 }
 
 .drawer-logo {
   display: block;
-  height: 72px;
+  height: 62px;
   object-fit: contain;
   object-position: left center;
-  width: 220px;
+  width: 190px;
+}
+
+.mobile-menu-links {
+  border-top: 1px solid #e5edf5;
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+}
+
+.mobile-menu-link {
+  align-items: center;
+  background: #f6f9fc;
+  border: 1px solid #e2ebf3;
+  border-radius: 18px;
+  color: #17365d;
+  display: grid;
+  font-size: 15px;
+  font-weight: 900;
+  gap: 12px;
+  grid-template-columns: 42px 1fr auto;
+  min-height: 58px;
+  padding: 8px 12px 8px 8px;
+  text-decoration: none;
+}
+
+.mobile-menu-icon {
+  align-items: center;
+  background: #eaf5ff;
+  border-radius: 14px;
+  display: flex;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
+}
+
+.mobile-menu-cta {
+  margin-top: auto;
+  padding: 16px;
+}
+
+.mobile-menu-fade-enter-active,
+.mobile-menu-fade-leave-active {
+  transition: opacity .18s ease;
+}
+
+.mobile-menu-fade-enter-active .mobile-menu-panel,
+.mobile-menu-fade-leave-active .mobile-menu-panel {
+  transition: transform .22s ease;
+}
+
+.mobile-menu-fade-enter,
+.mobile-menu-fade-leave-to {
+  opacity: 0;
+}
+
+.mobile-menu-fade-enter .mobile-menu-panel,
+.mobile-menu-fade-leave-to .mobile-menu-panel {
+  transform: translateX(100%);
 }
 
 @media (max-width: 600px) {
