@@ -13,11 +13,11 @@
             </p>
 
             <div class="hero-actions">
-              <v-btn x-large rounded depressed color="primary" href="#productos">
+              <v-btn x-large rounded depressed color="primary" :to="{ path: '/', hash: '#productos' }">
                 Ver productos
                 <v-icon right>mdi-arrow-right</v-icon>
               </v-btn>
-              <v-btn x-large rounded outlined color="white" href="/catalogo">
+              <v-btn x-large rounded outlined color="white" :to="{ path: '/catalogo' }">
                 Ver catálogo completo
               </v-btn>
               <v-btn x-large rounded outlined color="white" href="https://wa.me/573218720375" target="_blank">

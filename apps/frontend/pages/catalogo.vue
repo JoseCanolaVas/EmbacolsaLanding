@@ -912,11 +912,13 @@ export default {
        * Si todavía no has configurado WhatsApp,
        * enviamos al usuario al contacto.
        */
-      const productoQuery =
-        encodeURIComponent(producto.title)
-
-      window.location.href =
-        `/?producto=${productoQuery}#contacto`
+      this.$router.push({
+        path: '/',
+        query: {
+          producto: producto.title,
+        },
+        hash: '#contacto',
+      })
     },
 
     obtenerImagenPorTipo(tipoBuscado) {

@@ -1,14 +1,14 @@
 <template>
   <header class="store-header">
     <v-container class="header-inner">
-      <a :href="homeHref" class="brand-link" aria-label="Ir al inicio">
+      <nuxt-link :to="homeTo" class="brand-link" aria-label="Ir al inicio">
         <img :src="logoSrc" alt="Embacolsa" class="brand-logo">
-      </a>
+      </nuxt-link>
 
       <nav class="header-links d-none d-lg-flex" aria-label="Navegación principal">
-        <a v-for="link in navigationLinks" :key="link.label" :href="link.href" :class="{ active: link.active }">
+        <nuxt-link v-for="link in navigationLinks" :key="link.label" :to="link.to" :class="{ active: link.active }">
           {{ link.label }}
-        </a>
+        </nuxt-link>
       </nav>
 
       <v-btn
@@ -38,10 +38,10 @@
           </div>
 
           <nav class="mobile-menu-links">
-            <a
+            <nuxt-link
               v-for="link in drawerLinks"
               :key="link.label"
-              :href="link.href"
+              :to="link.to"
               class="mobile-menu-link"
               @click="drawer = false"
             >
@@ -50,7 +50,7 @@
               </span>
               <span>{{ link.label }}</span>
               <v-icon small color="#8aa0b8">mdi-chevron-right</v-icon>
-            </a>
+            </nuxt-link>
           </nav>
 
           <div class="mobile-menu-cta">
@@ -92,35 +92,37 @@ export default {
       return this.activeSection === 'inicio'
     },
 
-    homeHref() {
-      return this.isHome ? '#inicio' : '/'
+    homeTo() {
+      return this.isHome
+        ? { path: '/', hash: '#inicio' }
+        : { path: '/' }
     },
 
     navigationLinks() {
       return [
         {
           label: 'Inicio',
-          href: this.isHome ? '#inicio' : '/',
+          to: this.isHome ? { path: '/', hash: '#inicio' } : { path: '/' },
           active: this.activeSection === 'inicio',
         },
         {
           label: 'Productos',
-          href: this.isHome ? '#productos' : '/#productos',
+          to: { path: '/', hash: '#productos' },
           active: this.activeSection === 'productos',
         },
         {
           label: 'Catálogo',
-          href: '/catalogo',
+          to: { path: '/catalogo' },
           active: this.activeSection === 'catalogo',
         },
         {
           label: 'Beneficios',
-          href: this.isHome ? '#beneficios' : '/#beneficios',
+          to: { path: '/', hash: '#beneficios' },
           active: this.activeSection === 'beneficios',
         },
         {
           label: 'Contacto',
-          href: this.isHome ? '#contacto' : '/#contacto',
+          to: { path: '/', hash: '#contacto' },
           active: this.activeSection === 'contacto',
         },
       ]
@@ -130,27 +132,27 @@ export default {
       return [
         {
           label: 'Inicio',
-          href: this.isHome ? '#inicio' : '/',
+          to: this.isHome ? { path: '/', hash: '#inicio' } : { path: '/' },
           icon: 'mdi-home-outline',
         },
         {
           label: 'Productos',
-          href: this.isHome ? '#productos' : '/#productos',
+          to: { path: '/', hash: '#productos' },
           icon: 'mdi-package-variant-closed',
         },
         {
           label: 'Catálogo',
-          href: '/catalogo',
+          to: { path: '/catalogo' },
           icon: 'mdi-storefront-outline',
         },
         {
           label: 'Beneficios',
-          href: this.isHome ? '#beneficios' : '/#beneficios',
+          to: { path: '/', hash: '#beneficios' },
           icon: 'mdi-shield-check-outline',
         },
         {
           label: 'Contacto',
-          href: this.isHome ? '#contacto' : '/#contacto',
+          to: { path: '/', hash: '#contacto' },
           icon: 'mdi-phone-outline',
         },
 
