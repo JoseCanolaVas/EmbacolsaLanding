@@ -236,7 +236,11 @@ export default {
 
 .mobile-menu-shell {
   bottom: 0;
+  height: 100vh;
+  height: 100dvh;
   left: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
   position: fixed;
   right: 0;
   top: 0;
@@ -264,7 +268,11 @@ export default {
   box-shadow: -24px 0 50px rgba(5, 31, 62, .28);
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
   max-width: 340px;
+  min-height: 100vh;
+  min-height: 100dvh;
   overflow-y: auto;
   position: absolute;
   right: 0;
