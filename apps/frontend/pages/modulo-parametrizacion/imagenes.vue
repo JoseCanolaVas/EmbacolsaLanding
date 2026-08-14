@@ -9,7 +9,7 @@
                 </p>
             </div>
 
-            <v-btn rounded depressed color="primary" @click="prepararNuevaImagen">
+            <v-btn v-if="$can('imagenes.crear')" rounded depressed color="primary" @click="prepararNuevaImagen">
                 <v-icon left>mdi-cloud-upload-outline</v-icon>
                 Subir imagen
             </v-btn>
@@ -68,7 +68,7 @@
                                 <v-btn rounded outlined color="error" @click="limpiarFormularioImagen">
                                     {{ imagenSeleccionada.id ? 'Cancelar' : 'Limpiar' }}
                                 </v-btn>
-                                <v-btn rounded depressed color="primary" :loading="loading.guardandoImagen"
+                                <v-btn v-if="puedeGuardarImagen" rounded depressed color="primary" :loading="loading.guardandoImagen"
                                     @click="guardarImagen">
                                     {{ imagenSeleccionada.id ? 'Actualizar' : 'Guardar' }}
                                 </v-btn>
@@ -101,11 +101,11 @@
 
                                 <template v-slot:item.acciones="{ item }">
                                     <div class="table-actions">
-                                        <v-btn icon color="primary" @click="editarImagen(item)">
+                                        <v-btn v-if="$can('imagenes.editar')" icon color="primary" @click="editarImagen(item)">
                                             <v-icon>mdi-pencil-outline</v-icon>
                                         </v-btn>
 
-                                        <v-btn icon color="error" @click="confirmarEliminarImagen(item)">
+                                        <v-btn v-if="$can('imagenes.eliminar')" icon color="error" @click="confirmarEliminarImagen(item)">
                                             <v-icon>mdi-delete-outline</v-icon>
                                         </v-btn>
                                     </div>
@@ -121,7 +121,7 @@
                     <v-card-title class="table-title">
                         Tipos de imagen
                         <v-spacer />
-                        <v-btn color="primary" rounded depressed @click="abrirModalCrearTipoImagen()">
+                        <v-btn v-if="$can('imagenes.crear')" color="primary" rounded depressed @click="abrirModalCrearTipoImagen()">
                             <v-icon left>mdi-plus</v-icon>
                             Crear tipo
                         </v-btn>
@@ -146,7 +146,7 @@
                             </template>
 
                             <template v-slot:item.acciones="{ item }">
-                                <v-btn icon color="primary" @click="abrirModalCrearTipoImagen(item)">
+                                <v-btn v-if="$can('imagenes.editar')" icon color="primary" @click="abrirModalCrearTipoImagen(item)">
                                     <v-icon>mdi-pencil-outline</v-icon>
                                 </v-btn>
                             </template>
@@ -265,6 +265,12 @@ export default {
 
         reglasImagenArchivo() {
             return this.imagenSeleccionada.id ? [] : [this.rules.required]
+        },
+
+        puedeGuardarImagen() {
+            return this.imagenSeleccionada.id
+                ? this.$can('imagenes.editar')
+                : this.$can('imagenes.crear')
         },
     },
 

@@ -46,6 +46,7 @@ export default {
 
     plugins: [
         '~/plugins/axios.js',
+        '~/plugins/permissions.js',
         '~/plugins/toast.js',
         '~/plugins/preload.js'
     ],

@@ -39,7 +39,7 @@
 
                     <v-card-text>
                         <v-row dense>
-                            <v-col v-for="item in accesos" :key="item.title" cols="12" sm="6">
+                            <v-col v-for="item in accesosFiltrados" :key="item.title" cols="12" sm="6">
                                 <v-card outlined class="access-card" :to="item.route">
                                     <v-icon :color="item.color">
                                         {{ item.icon }}
@@ -91,11 +91,20 @@ export default {
             usuarios: [],
             accesos: [
                 {
+                    title: 'Sitio público',
+                    text: 'Edita textos, colores, WhatsApp, correo y beneficios del index.',
+                    icon: 'mdi-palette-outline',
+                    color: 'cyan darken-1',
+                    route: '/modulo-parametrizacion/sitio-publico',
+                    permiso: 'administrar-sitio',
+                },
+                {
                     title: 'Productos',
                     text: 'Crea productos con categoría, marca, imagen, precio y estado.',
                     icon: 'mdi-package-variant-closed',
                     color: 'primary',
                     route: '/modulo-parametrizacion/productos',
+                    permiso: 'productos.ver',
                 },
                 {
                     title: 'Categorías',
@@ -103,6 +112,7 @@ export default {
                     icon: 'mdi-format-list-bulleted-type',
                     color: 'teal',
                     route: '/modulo-parametrizacion/categorias',
+                    permiso: 'categorias.ver',
                 },
                 {
                     title: 'Marcas',
@@ -110,6 +120,7 @@ export default {
                     icon: 'mdi-tag-multiple-outline',
                     color: 'amber darken-2',
                     route: '/modulo-parametrizacion/marcas',
+                    permiso: 'marcas.ver',
                 },
                 {
                     title: 'Imágenes',
@@ -117,20 +128,21 @@ export default {
                     icon: 'mdi-image-multiple-outline',
                     color: 'indigo',
                     route: '/modulo-parametrizacion/imagenes',
+                    permiso: 'imagenes.ver',
                 },
             ],
             pasos: [
                 {
-                    title: 'Configura imágenes',
-                    text: 'Define logo y banner para que el sitio público cambie sin tocar código.',
+                    title: 'Define marca y mensajes',
+                    text: 'Configura textos, colores, WhatsApp, correo y beneficios del sitio público.',
                 },
                 {
-                    title: 'Crea categorías y marcas',
-                    text: 'Son la base para navegar y filtrar productos como ecommerce.',
+                    title: 'Carga imágenes principales',
+                    text: 'Define logo, banner y piezas visuales para darle personalidad al index.',
                 },
                 {
-                    title: 'Publica productos',
-                    text: 'Cada producto activo se refleja en el inicio o en el catálogo.',
+                    title: 'Crea categorías, marcas y productos',
+                    text: 'Cada producto activo alimenta el inicio y el catálogo tipo ecommerce.',
                 },
             ],
         }
@@ -164,6 +176,10 @@ export default {
                     color: 'indigo',
                 },
             ]
+        },
+
+        accesosFiltrados() {
+            return this.accesos.filter(item => !item.permiso || this.$can(item.permiso))
         },
     },
 

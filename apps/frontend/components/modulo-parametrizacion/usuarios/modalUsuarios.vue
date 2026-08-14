@@ -38,6 +38,27 @@
                     <v-col cols="12" md="6">
                         <v-switch v-model="form.es_super_admin" label="Super administrador" inset />
                     </v-col>
+
+                    <v-col cols="12" md="6">
+                        <v-select v-model="form.rol" :items="roles" label="Rol operativo" outlined dense rounded
+                            prepend-inner-icon="mdi-account-key-outline" />
+                    </v-col>
+
+                    <v-col v-if="!form.es_super_admin" cols="12">
+                        <v-card outlined class="permissions-card">
+                            <v-card-title class="py-3">
+                                Permisos del panel
+                            </v-card-title>
+                            <v-card-text>
+                                <v-row dense>
+                                    <v-col v-for="permiso in permisosDisponibles" :key="permiso.value" cols="12" md="6">
+                                        <v-checkbox v-model="form.permisos" :value="permiso.value" dense hide-details
+                                            :label="permiso.label" />
+                                    </v-col>
+                                </v-row>
+                            </v-card-text>
+                        </v-card>
+                    </v-col>
                 </v-row>
 
                 <v-card-actions class="justify-center mt-4">
@@ -69,6 +90,33 @@ export default {
             guardando: false,
             verPassword: false,
             form: this.formInicial(),
+            roles: [
+                { text: 'Super administrador', value: 'super_admin' },
+                { text: 'Administrador', value: 'administrador' },
+                { text: 'Editor de catálogo', value: 'editor_catalogo' },
+                { text: 'Comercial', value: 'comercial' },
+                { text: 'Solo consulta', value: 'consulta' },
+            ],
+            permisosDisponibles: [
+                { label: 'Ver panel', value: 'panel.ver' },
+                { label: 'Ver productos', value: 'productos.ver' },
+                { label: 'Crear productos', value: 'productos.crear' },
+                { label: 'Editar productos', value: 'productos.editar' },
+                { label: 'Ver categorías', value: 'categorias.ver' },
+                { label: 'Crear categorías', value: 'categorias.crear' },
+                { label: 'Editar categorías', value: 'categorias.editar' },
+                { label: 'Ver marcas', value: 'marcas.ver' },
+                { label: 'Crear marcas', value: 'marcas.crear' },
+                { label: 'Editar marcas', value: 'marcas.editar' },
+                { label: 'Ver imágenes', value: 'imagenes.ver' },
+                { label: 'Crear imágenes', value: 'imagenes.crear' },
+                { label: 'Editar imágenes', value: 'imagenes.editar' },
+                { label: 'Eliminar imágenes', value: 'imagenes.eliminar' },
+                { label: 'Ver usuarios', value: 'usuarios.ver' },
+                { label: 'Crear usuarios', value: 'usuarios.crear' },
+                { label: 'Editar usuarios', value: 'usuarios.editar' },
+                { label: 'Administrar sitio público', value: 'administrar-sitio' },
+            ],
             rules: {
                 required: value => !!value || 'Este campo es requerido',
                 email: value => /.+@.+\..+/.test(value) || 'Ingrese un correo válido',
@@ -107,6 +155,8 @@ export default {
                     telefono: usuario.telefono || null,
                     password: null,
                     es_super_admin: Boolean(usuario.es_super_admin),
+                    rol: usuario.rol || (usuario.es_super_admin ? 'super_admin' : 'editor_catalogo'),
+                    permisos: usuario.permisos || [],
                 }
             },
         },
@@ -121,6 +171,15 @@ export default {
                 telefono: null,
                 password: null,
                 es_super_admin: false,
+                rol: 'editor_catalogo',
+                permisos: [
+                    'panel.ver',
+                    'productos.ver',
+                    'categorias.ver',
+                    'marcas.ver',
+                    'imagenes.ver',
+                    'administrar-sitio',
+                ],
             }
         },
 
@@ -138,6 +197,11 @@ export default {
 
                 if (this.usuarioSeleccionado?.id && !payload.password) {
                     delete payload.password
+                }
+
+                if (payload.es_super_admin) {
+                    payload.rol = 'super_admin'
+                    payload.permisos = []
                 }
 
                 const method = this.usuarioSeleccionado?.id ? 'post' : 'post'
@@ -171,3 +235,17 @@ export default {
     },
 }
 </script>
+
+<style scoped>
+.permissions-card {
+    background: linear-gradient(145deg, #ffffff, #f6f9fc);
+    border-color: #dfe8f0 !important;
+    border-radius: 16px !important;
+}
+
+.permissions-card .v-card__title {
+    color: #17365d;
+    font-size: 16px;
+    font-weight: 900;
+}
+</style>

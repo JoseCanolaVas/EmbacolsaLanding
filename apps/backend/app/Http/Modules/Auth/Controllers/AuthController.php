@@ -64,6 +64,8 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'telefono' => $user->telefono,
                 'es_super_admin' => $user->es_super_admin,
+                'rol' => $user->rol,
+                'permisos' => $user->permisosDisponibles(),
             ],
         ]);
     }
@@ -72,7 +74,10 @@ class AuthController extends Controller
     {
         return response()->json([
             'success' => true,
-            'user' => $request->user(),
+            'user' => array_merge(
+                $request->user()->toArray(),
+                ['permisos' => $request->user()->permisosDisponibles()]
+            ),
         ]);
     }
 

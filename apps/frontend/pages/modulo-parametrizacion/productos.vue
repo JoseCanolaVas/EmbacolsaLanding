@@ -58,7 +58,7 @@
                     <v-btn @click="limpiarFiltros()" color="error" rounded>
                         Limpiar filtros <v-icon right>mdi-broom</v-icon>
                     </v-btn>
-                    <v-btn @click="abrirModalProducto()" rounded color="primary">
+                    <v-btn v-if="$can('productos.crear')" @click="abrirModalProducto()" rounded color="primary">
                         Crear <v-icon right>mdi-plus</v-icon>
                     </v-btn>
                 </v-card-actions>
@@ -111,7 +111,7 @@
 
                     <v-tooltip bottom>
                         <template v-slot:activator="{ on, attrs }">
-                            <v-btn icon color="primary" v-bind="attrs" v-on="on" @click="abrirModalProducto(item)">
+                            <v-btn v-if="$can('productos.editar')" icon color="primary" v-bind="attrs" v-on="on" @click="abrirModalProducto(item)">
                                 <v-icon>
                                     mdi-pencil-outline
                                 </v-icon>

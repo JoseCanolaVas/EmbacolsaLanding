@@ -11,7 +11,7 @@ Route::prefix('auth')->group(function () {
         Route::post('/login', 'login');
 
 
-        Route::get('/me', 'me');
-        Route::post('/logout', 'logout');
+        Route::get('/me', 'me')->middleware('auth:api');
+        Route::post('/logout', 'logout')->middleware('auth:api');
     });
 });

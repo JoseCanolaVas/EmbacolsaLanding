@@ -28,7 +28,7 @@
                 </v-col>
 
                 <v-col cols="6" md="6" sm="6">
-                    <v-btn color="primary" @click="abrirModalCrearCategoria()" rounded>
+                    <v-btn v-if="$can('categorias.crear')" color="primary" @click="abrirModalCrearCategoria()" rounded>
                         <v-icon left>mdi-plus</v-icon>
                         Crear Categoría
                     </v-btn>
@@ -47,7 +47,7 @@
                 </template>
 
                 <template v-slot:[`item.acciones`]="{ item }">
-                    <v-icon color="teal" @click="abrirModalCrearCategoria(item)">
+                    <v-icon v-if="$can('categorias.editar')" color="teal" @click="abrirModalCrearCategoria(item)">
                         mdi-pencil
                     </v-icon>
                 </template>

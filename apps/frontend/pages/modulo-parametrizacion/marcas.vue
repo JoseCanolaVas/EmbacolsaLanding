@@ -31,7 +31,7 @@
                 </v-col>
 
                 <v-col cols="12" md="6" class="text-md-right">
-                    <v-btn color="primary" rounded @click="abrirModalMarca()">
+                    <v-btn v-if="$can('marcas.crear')" color="primary" rounded @click="abrirModalMarca()">
                         <v-icon left>mdi-plus</v-icon>
                         Crear marca
                     </v-btn>
@@ -49,7 +49,7 @@
                 </template>
 
                 <template v-slot:item.acciones="{ item }">
-                    <v-icon color="teal" @click="abrirModalMarca(item)">
+                    <v-icon v-if="$can('marcas.editar')" color="teal" @click="abrirModalMarca(item)">
                         mdi-pencil
                     </v-icon>
                 </template>

@@ -31,7 +31,7 @@
                 </v-col>
 
                 <v-col cols="12" md="6" class="text-md-right">
-                    <v-btn color="primary" rounded @click="abrirModalUsuario()">
+                    <v-btn v-if="$can('usuarios.crear')" color="primary" rounded @click="abrirModalUsuario()">
                         <v-icon left>mdi-plus</v-icon>
                         Crear usuario
                     </v-btn>
@@ -53,7 +53,7 @@
                 </template>
 
                 <template v-slot:item.acciones="{ item }">
-                    <v-icon color="teal" @click="abrirModalUsuario(item)">
+                    <v-icon v-if="$can('usuarios.editar')" color="teal" @click="abrirModalUsuario(item)">
                         mdi-pencil
                     </v-icon>
                 </template>

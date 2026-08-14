@@ -1,33 +1,45 @@
 <template>
-  <v-app class="storefront">
+  <v-app class="storefront" :style="variablesMarca">
     <store-header :logo-src="logoActual" active-section="inicio" />
 
     <main>
       <section id="inicio" class="hero-section">
         <v-container class="hero-inner">
           <div class="hero-copy">
-            <span class="eyebrow">EMPAQUES, EMBALAJES Y SUMINISTROS</span>
-            <h1>Embacolsa</h1>
-            <p> Soluciones listas para empacar, proteger y despachar tu operacion con mejor imagen,
-              menos vueltas y respuesta comercial rapida.
-            </p>
+            <span class="eyebrow">{{ configuracionSitio.eyebrow }}</span>
+            <h1>{{ configuracionSitio.titulo }}</h1>
+            <p>{{ configuracionSitio.descripcion }}</p>
 
             <div class="hero-actions">
-              <v-btn x-large rounded depressed color="primary" :to="{ path: '/', hash: '#productos' }">
+              <v-btn x-large rounded depressed class="brand-primary-btn" :to="{ path: '/', hash: '#productos' }">
                 Ver productos
                 <v-icon right>mdi-arrow-right</v-icon>
               </v-btn>
               <v-btn x-large rounded outlined color="white" :to="{ path: '/catalogo' }">
                 Ver catálogo completo
               </v-btn>
-              <v-btn x-large rounded outlined color="white" href="https://wa.me/573218720375" target="_blank">
+              <v-btn x-large rounded outlined color="white" :href="whatsappUrl" target="_blank">
                 Cotizar por WhatsApp
               </v-btn>
+            </div>
+
+            <div class="hero-trust-strip">
+              <div v-for="metric in metricasHero" :key="metric.label">
+                <strong>{{ metric.value }}</strong>
+                <span>{{ metric.label }}</span>
+              </div>
             </div>
           </div>
 
           <div class="hero-products-figure">
             <img :src="bannerActual" alt="Banner Embacolsa">
+            <div class="hero-floating-card">
+              <v-icon color="#1e88e5">mdi-package-check</v-icon>
+              <div>
+                <strong>Catálogo industrial</strong>
+                <span>Listo para cotizar</span>
+              </div>
+            </div>
           </div>
         </v-container>
       </section>
@@ -36,8 +48,9 @@
         <v-container>
           <div class="section-heading products-heading">
             <div>
-              <span class="eyebrow blue">CATALOGO PARAMETRIZADO</span>
+              <span class="eyebrow blue">{{ configuracionSitio.subtitulo_productos }}</span>
               <h2>{{ tituloProductos }}</h2>
+              <p class="section-lead">Productos reales del panel, organizados para vender sin enredos.</p>
             </div>
             <v-chip color="primary" outlined>
               {{ productosIndex.length }} visibles
@@ -82,15 +95,13 @@
         <v-container>
           <v-row align="center">
             <v-col cols="12" md="5">
-              <span>OPERACION SIN ENREDOS</span>
-              <h2>Acompañamiento para comprar mejor, no solo comprar mas.</h2>
-              <p>
-                Te ayudamos a escoger materiales segun carga, rotacion, presupuesto y presentacion final.
-              </p>
+              <span>OPERACIÓN SIN ENREDOS</span>
+              <h2>{{ configuracionSitio.titulo_beneficios }}</h2>
+              <p>{{ configuracionSitio.descripcion_beneficios }}</p>
             </v-col>
             <v-col cols="12" md="7">
               <div class="benefit-grid">
-                <div v-for="benefit in benefits" :key="benefit.title" class="benefit-item">
+                <div v-for="benefit in benefitsActuales" :key="benefit.title" class="benefit-item">
                   <v-icon color="primary">{{ benefit.icon }}</v-icon>
                   <div>
                     <strong>{{ benefit.title }}</strong>
@@ -107,16 +118,16 @@
         <v-container class="contact-inner">
           <div>
             <span class="eyebrow">HABLEMOS DE TU PEDIDO</span>
-            <h2>Cuéntanos qué necesitas empacar.</h2>
-            <p>Armamos una cotizacion clara para tu empresa.</p>
+            <h2>{{ configuracionSitio.titulo_contacto }}</h2>
+            <p>{{ configuracionSitio.descripcion_contacto }}</p>
           </div>
           <div class="contact-actions">
-            <v-btn x-large rounded color="white" class="primary--text" href="https://wa.me/573218720375"
+            <v-btn x-large rounded color="white" class="primary--text" :href="whatsappUrl"
               target="_blank">
               <v-icon left>mdi-whatsapp</v-icon>
               WhatsApp
             </v-btn>
-            <v-btn x-large rounded outlined color="white" href="mailto:comercial@embacolsa.com.co">
+            <v-btn x-large rounded outlined color="white" :href="correoUrl">
               Correo
             </v-btn>
           </div>
@@ -126,7 +137,7 @@
 
     <footer class="store-footer">
       <v-container class="footer-inner">
-        <span>© {{ new Date().getFullYear() }} Embacolsa</span>
+        <span>© {{ new Date().getFullYear() }} {{ configuracionSitio.nombre_sitio }}</span>
         <span>Desarrollado por SOFTNOVA SOLUTIONS</span>
       </v-container>
     </footer>
@@ -189,6 +200,37 @@ export default {
       categoriasParametrizadas: [],
       productosParametrizados: [],
       imagenesParametrizadas: [],
+      configuracionSitio: {
+        nombre_sitio: 'Embacolsa',
+        eyebrow: 'EMPAQUES, EMBALAJES Y SUMINISTROS',
+        titulo: 'Embacolsa',
+        descripcion: 'Soluciones listas para empacar, proteger y despachar tu operación con mejor imagen, menos vueltas y respuesta comercial rápida.',
+        titulo_productos: 'Una muestra por cada categoría activa',
+        subtitulo_productos: 'Catálogo parametrizado',
+        titulo_beneficios: 'Acompañamiento para comprar mejor, no solo comprar más.',
+        descripcion_beneficios: 'Te ayudamos a escoger materiales según carga, rotación, presupuesto y presentación final.',
+        titulo_contacto: 'Cuéntanos qué necesitas empacar.',
+        descripcion_contacto: 'Armamos una cotización clara para tu empresa.',
+        telefono_whatsapp: '573218720375',
+        correo_contacto: 'comercial@embacolsa.com.co',
+        beneficios: [
+          { icon: 'mdi-truck-fast-outline', title: 'Despacho confiable', text: 'Coordinación para que tu operación no se frene.' },
+          { icon: 'mdi-account-tie-outline', title: 'Asesoría real', text: 'Recomendaciones según el producto y el volumen.' },
+          { icon: 'mdi-layers-triple-outline', title: 'Portafolio completo', text: 'Compra lo esencial desde un solo proveedor.' },
+          { icon: 'mdi-message-reply-text-outline', title: 'Atención directa', text: 'Cotizaciones claras y respuesta sin tanta vuelta.' },
+        ],
+        colores: {
+          primario: '#0f2c61',
+          secundario: '#0d7880',
+          acento: '#1e88e5',
+          fondo: '#f4f8fb',
+        },
+      },
+      metricasHero: [
+        { value: '24/7', label: 'Catálogo disponible' },
+        { value: '+100', label: 'Soluciones de empaque' },
+        { value: 'B2B', label: 'Atención comercial' },
+      ],
     }
   },
 
@@ -252,7 +294,43 @@ export default {
     },
 
     tituloProductos() {
-      return 'Una muestra por cada categoria activa'
+      return this.configuracionSitio.titulo_productos || 'Una muestra por cada categoría activa'
+    },
+
+    benefitsActuales() {
+      return this.configuracionSitio.beneficios?.length
+        ? this.configuracionSitio.beneficios
+        : this.benefits
+    },
+
+    coloresMarca() {
+      return {
+        primario: '#0f2c61',
+        secundario: '#0d7880',
+        acento: '#1e88e5',
+        fondo: '#f4f8fb',
+        ...(this.configuracionSitio.colores || {}),
+      }
+    },
+
+    variablesMarca() {
+      return {
+        '--brand-primary': this.coloresMarca.primario,
+        '--brand-secondary': this.coloresMarca.secundario,
+        '--brand-accent': this.coloresMarca.acento,
+        '--brand-bg': this.coloresMarca.fondo,
+      }
+    },
+
+    whatsappUrl() {
+      const telefono = this.configuracionSitio.telefono_whatsapp || '573218720375'
+      const mensaje = `Hola, quiero cotizar productos de ${this.configuracionSitio.nombre_sitio || 'Embacolsa'}`
+
+      return `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`
+    },
+
+    correoUrl() {
+      return `mailto:${this.configuracionSitio.correo_contacto || 'comercial@embacolsa.com.co'}`
     },
   },
 
@@ -266,7 +344,52 @@ export default {
         this.listarCategorias(),
         this.listarProductos(),
         this.listarImagenes(),
+        this.obtenerConfiguracionSitio(),
       ])
+    },
+
+    configuracionPorDefecto() {
+      return {
+        nombre_sitio: 'Embacolsa',
+        eyebrow: 'EMPAQUES, EMBALAJES Y SUMINISTROS',
+        titulo: 'Embacolsa',
+        descripcion: 'Soluciones listas para empacar, proteger y despachar tu operación con mejor imagen, menos vueltas y respuesta comercial rápida.',
+        titulo_productos: 'Una muestra por cada categoría activa',
+        subtitulo_productos: 'Catálogo parametrizado',
+        titulo_beneficios: 'Acompañamiento para comprar mejor, no solo comprar más.',
+        descripcion_beneficios: 'Te ayudamos a escoger materiales según carga, rotación, presupuesto y presentación final.',
+        titulo_contacto: 'Cuéntanos qué necesitas empacar.',
+        descripcion_contacto: 'Armamos una cotización clara para tu empresa.',
+        telefono_whatsapp: '573218720375',
+        correo_contacto: 'comercial@embacolsa.com.co',
+        beneficios: this.benefits,
+        colores: {
+          primario: '#0f2c61',
+          secundario: '#0d7880',
+          acento: '#1e88e5',
+          fondo: '#f4f8fb',
+        },
+      }
+    },
+
+    async obtenerConfiguracionSitio() {
+      try {
+        const response = await this.$axios.get('/sitio-publico/configuracion')
+        const data = response.data || {}
+        const base = this.configuracionPorDefecto()
+
+        this.configuracionSitio = {
+          ...base,
+          ...data,
+          colores: {
+            ...base.colores,
+            ...(data.colores || {}),
+          },
+          beneficios: data.beneficios?.length ? data.beneficios : base.beneficios,
+        }
+      } catch (error) {
+        this.configuracionSitio = this.configuracionPorDefecto()
+      }
     },
 
     async listarCategorias() {
@@ -363,17 +486,34 @@ export default {
 
 <style scoped>
 .storefront {
-  background: #f4f8fb;
+  background: var(--brand-bg);
   color: #102b5c;
   font-family: Arial, sans-serif;
 }
 
 .hero-section {
   background:
-    radial-gradient(circle at 78% 14%, rgba(114, 237, 240, .2), transparent 28%),
-    linear-gradient(110deg, #061d43 0%, #073b60 48%, #0d7880 100%);
+    linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px),
+    radial-gradient(circle at 78% 14%, rgba(114, 237, 240, .25), transparent 28%),
+    radial-gradient(circle at 18% 68%, rgba(30, 136, 229, .23), transparent 32%),
+    linear-gradient(110deg, #061d43 0%, var(--brand-primary) 48%, var(--brand-secondary) 100%);
+  background-size: 42px 42px, 42px 42px, auto, auto, auto;
   color: #fff;
   overflow: hidden;
+  position: relative;
+}
+
+.hero-section::before {
+  background:
+    radial-gradient(circle, rgba(255,255,255,.18) 0 1px, transparent 1px),
+    linear-gradient(100deg, rgba(255,255,255,.12), transparent 42%);
+  background-size: 24px 24px, auto;
+  content: '';
+  inset: 0;
+  opacity: .32;
+  pointer-events: none;
+  position: absolute;
 }
 
 .hero-inner {
@@ -402,11 +542,12 @@ export default {
 }
 
 .hero-copy h1 {
-  font-size: 76px;
-  font-weight: 900;
-  letter-spacing: 0;
+  font-size: clamp(54px, 8vw, 96px);
+  font-weight: 950;
+  letter-spacing: -3px;
   line-height: .95;
   margin: 16px 0;
+  text-shadow: 0 20px 50px rgba(0, 0, 0, .24);
 }
 
 .hero-copy p {
@@ -421,6 +562,54 @@ export default {
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 28px;
+}
+
+.brand-primary-btn {
+  background: linear-gradient(135deg, var(--brand-accent), #25a8e0) !important;
+  box-shadow: 0 18px 38px rgba(30, 136, 229, .32) !important;
+  color: #fff !important;
+  font-weight: 950;
+}
+
+.hero-trust-strip {
+  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, .1);
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 22px;
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 34px;
+  overflow: hidden;
+  width: fit-content;
+}
+
+.hero-trust-strip div {
+  border-right: 1px solid rgba(255, 255, 255, .15);
+  min-width: 138px;
+  padding: 14px 18px;
+}
+
+.hero-trust-strip div:last-child {
+  border-right: 0;
+}
+
+.hero-trust-strip strong,
+.hero-trust-strip span {
+  display: block;
+}
+
+.hero-trust-strip strong {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 950;
+}
+
+.hero-trust-strip span {
+  color: rgba(255, 255, 255, .76);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  text-transform: uppercase;
 }
 
 .hero-products-figure {
@@ -440,19 +629,36 @@ export default {
   width: 100%;
 }
 
-.hero-product-badge {
+.hero-floating-card {
   align-items: center;
-  background: rgba(255, 255, 255, .96);
-  border: 1px solid rgba(255, 255, 255, .58);
-  bottom: 30px;
+  backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, .92);
+  border: 1px solid rgba(255, 255, 255, .68);
+  border-radius: 18px;
+  bottom: 18px;
+  box-shadow: 0 24px 52px rgba(0, 25, 60, .22);
   color: #12305e;
   display: flex;
-  font-size: 13px;
-  font-weight: 900;
-  gap: 8px;
-  padding: 11px 14px;
+  gap: 12px;
+  padding: 14px 16px;
   position: absolute;
-  right: 118px;
+  right: 130px;
+}
+
+.hero-floating-card strong,
+.hero-floating-card span {
+  display: block;
+}
+
+.hero-floating-card strong {
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.hero-floating-card span {
+  color: #72839a;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .products-section,
@@ -484,16 +690,24 @@ export default {
   margin: 8px 0 0;
 }
 
+.section-lead {
+  color: #6b7c92;
+  font-size: 16px;
+  line-height: 1.7;
+  margin: 10px 0 0;
+}
+
 .product-card {
   border-color: #dfe9f2 !important;
-  border-radius: 8px;
+  border-radius: 22px !important;
+  box-shadow: 0 8px 24px rgba(16, 43, 92, .055);
   overflow: hidden;
   transition: transform .2s, box-shadow .2s;
 }
 
 .product-card:hover {
-  box-shadow: 0 18px 36px rgba(16, 43, 92, .12);
-  transform: translateY(-4px);
+  box-shadow: 0 24px 52px rgba(16, 43, 92, .16);
+  transform: translateY(-7px);
 }
 
 .product-visual {
@@ -568,7 +782,9 @@ export default {
 }
 
 .operation-section {
-  background: #fff;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(13, 120, 128, .08), transparent 24%),
+    #fff;
 }
 
 .benefit-grid {
@@ -579,9 +795,10 @@ export default {
 
 .benefit-item {
   align-items: flex-start;
-  background: #f6f9fc;
+  background: linear-gradient(145deg, #ffffff, #f4f8fb);
   border: 1px solid #e2ebf3;
-  border-radius: 8px;
+  border-radius: 18px;
+  box-shadow: 0 12px 28px rgba(16, 43, 92, .06);
   display: flex;
   gap: 14px;
   min-height: 132px;
@@ -596,7 +813,9 @@ export default {
 }
 
 .contact-section {
-  background: linear-gradient(105deg, #0f2c61, #0fa5b1);
+  background:
+    radial-gradient(circle at 80% 20%, rgba(255,255,255,.22), transparent 26%),
+    linear-gradient(105deg, var(--brand-primary), var(--brand-secondary));
   color: #fff;
   padding: 54px 0;
 }
@@ -645,7 +864,7 @@ export default {
     z-index: 1;
   }
 
-  .hero-product-badge {
+  .hero-floating-card {
     bottom: 18px;
     right: 18px;
   }
@@ -681,7 +900,7 @@ export default {
     width: 112%;
   }
 
-  .hero-product-badge {
+  .hero-floating-card {
     font-size: 12px;
     padding: 9px 11px;
     right: 26px;
