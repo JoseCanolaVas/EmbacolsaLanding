@@ -52,6 +52,21 @@
                                 </v-col>
 
                                 <v-col cols="12" md="6">
+                                    <v-text-field v-model.trim="form.etiqueta_catalogo" label="Etiqueta catálogo" outlined dense rounded
+                                        prepend-inner-icon="mdi-store-search-outline" />
+                                </v-col>
+
+                                <v-col cols="12" md="6">
+                                    <v-text-field v-model.trim="form.titulo_catalogo" label="Título catálogo" outlined dense rounded
+                                        prepend-inner-icon="mdi-format-title" />
+                                </v-col>
+
+                                <v-col cols="12">
+                                    <v-textarea v-model.trim="form.descripcion_catalogo" label="Descripción catálogo" outlined rounded rows="2"
+                                        prepend-inner-icon="mdi-text-box-search-outline" />
+                                </v-col>
+
+                                <v-col cols="12" md="6">
                                     <v-text-field v-model.trim="form.titulo_beneficios" label="Título beneficios" outlined dense rounded />
                                 </v-col>
 
@@ -194,6 +209,9 @@ export default {
                 descripcion: 'Soluciones listas para empacar, proteger y despachar tu operación con mejor imagen, menos vueltas y respuesta comercial rápida.',
                 titulo_productos: 'Una muestra por cada categoría activa',
                 subtitulo_productos: 'Catálogo parametrizado',
+                etiqueta_catalogo: 'CATÁLOGO COMPLETO',
+                titulo_catalogo: 'Productos disponibles para cotizar.',
+                descripcion_catalogo: 'Explora el portafolio publicado desde parametrización y filtra por nombre, categoría o marca.',
                 titulo_beneficios: 'Acompañamiento para comprar mejor, no solo comprar más.',
                 descripcion_beneficios: 'Te ayudamos a escoger materiales según carga, rotación, presupuesto y presentación final.',
                 titulo_contacto: 'Cuéntanos qué necesitas empacar.',

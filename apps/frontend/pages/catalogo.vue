@@ -1,5 +1,5 @@
 <template>
-  <v-app class="catalog-page">
+  <v-app class="catalog-page" :style="variablesMarca">
     <store-header :logo-src="logoActual" active-section="catalogo" />
 
     <main>
@@ -10,19 +10,23 @@
           <v-row align="center">
 
             <v-col cols="12" md="7">
-              <div class="text-overline font-weight-bold cyan--text text--lighten-2">
-                CATÁLOGO COMPLETO
+              <div class="catalog-eyebrow">
+                {{ configuracionSitio.etiqueta_catalogo }}
               </div>
 
               <h1 class="catalog-title">
-                Todos los productos en un solo panel.
+                {{ configuracionSitio.titulo_catalogo }}
               </h1>
+
+              <p class="catalog-lead">
+                {{ configuracionSitio.descripcion_catalogo }}
+              </p>
             </v-col>
 
             <v-col cols="12" md="5">
               <v-card
                 flat
-                class="pa-7 text-center rounded-lg"
+                class="catalog-counter-card pa-7 text-center"
               >
                 <v-icon
                   color="primary"
@@ -52,7 +56,7 @@
           <!-- FILTROS -->
           <v-card
             outlined
-            class="pa-4 rounded-lg"
+            class="catalog-filter-card pa-4"
           >
             <v-row dense align="center">
 
@@ -153,12 +157,13 @@
               :key="`catalogo-${product.id}`"
               cols="12"
               md="6"
+              lg="4"
             >
               <v-card
                 outlined
                 hover
                 height="100%"
-                class="rounded-lg overflow-hidden"
+                class="catalog-product-card"
               >
                 <v-row
                   no-gutters
@@ -167,19 +172,17 @@
                   <!-- IMAGEN -->
                   <v-col
                     cols="12"
-                    sm="4"
-                    class="grey lighten-5"
+                    class="catalog-product-visual"
                   >
                     <v-responsive
-                      :aspect-ratio="1"
+                      :aspect-ratio="4 / 3"
                       class="fill-height"
                     >
                       <v-img
                         v-if="product.image"
                         :src="product.image"
                         height="100%"
-                        contain
-                        class="pa-3"
+                        cover
                       >
                         <template #placeholder>
                           <v-row
@@ -210,7 +213,7 @@
                   </v-col>
 
                   <!-- INFO -->
-                  <v-col cols="12" sm="8">
+                  <v-col cols="12">
                     <div class="pa-5 d-flex flex-column fill-height">
 
                       <div class="mb-2">
@@ -580,6 +583,7 @@ export default {
       productosParametrizados: [],
       imagenesParametrizadas: [],
       marcasParametrizadas: [],
+      configuracionSitio: this.configuracionPorDefecto(),
     }
   },
 
@@ -590,6 +594,25 @@ export default {
         this.obtenerImagenPorTipo('logo') ||
         '/images/embacolsa-optimized.webp'
       )
+    },
+
+    coloresMarca() {
+      return {
+        primario: '#0f2c61',
+        secundario: '#0d7880',
+        acento: '#1e88e5',
+        fondo: '#f4f8fb',
+        ...(this.configuracionSitio.colores || {}),
+      }
+    },
+
+    variablesMarca() {
+      return {
+        '--brand-primary': this.coloresMarca.primario,
+        '--brand-secondary': this.coloresMarca.secundario,
+        '--brand-accent': this.coloresMarca.acento,
+        '--brand-bg': this.coloresMarca.fondo,
+      }
     },
 
     opcionesCategorias() {
@@ -730,9 +753,45 @@ export default {
           this.listarProductos(),
           this.listarImagenes(),
           this.listarMarcas(),
+          this.obtenerConfiguracionSitio(),
         ])
       } finally {
         this.cargandoProductos = false
+      }
+    },
+
+    configuracionPorDefecto() {
+      return {
+        nombre_sitio: '',
+        etiqueta_catalogo: '',
+        titulo_catalogo: '',
+        descripcion_catalogo: '',
+        telefono_whatsapp: '',
+        colores: {
+          primario: '#0f2c61',
+          secundario: '#0d7880',
+          acento: '#1e88e5',
+          fondo: '#f4f8fb',
+        },
+      }
+    },
+
+    async obtenerConfiguracionSitio() {
+      try {
+        const response = await this.$axios.get('/sitio-publico/configuracion')
+        const data = response.data || {}
+        const base = this.configuracionPorDefecto()
+
+        this.configuracionSitio = {
+          ...base,
+          ...data,
+          colores: {
+            ...base.colores,
+            ...(data.colores || {}),
+          },
+        }
+      } catch (error) {
+        this.configuracionSitio = this.configuracionPorDefecto()
       }
     },
 
@@ -876,20 +935,7 @@ export default {
         .filter(Boolean)
         .join('\n')
 
-      /**
-       * Puedes configurar:
-       *
-       * WHATSAPP_NUMBER=573001234567
-       *
-       * Sin +, espacios ni guiones.
-       */
-      const numero =
-        (
-          this.$config &&
-          this.$config.WHATSAPP_NUMBER
-        ) ||
-        process.env.WHATSAPP_NUMBER ||
-        ''
+      const numero = this.configuracionSitio.telefono_whatsapp || ''
 
       if (numero) {
         const numeroLimpio = String(numero)
@@ -1081,12 +1127,14 @@ this.$axios.defaults.baseURL
 
 <style scoped>
 .catalog-page {
-  background: #f4f8fb;
+  background: var(--brand-bg);
   color: #102b5c;
 }
 
 .catalog-hero {
   background:
+    linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px),
     radial-gradient(
       circle at 85% 15%,
       rgba(114, 237, 240, .22),
@@ -1095,25 +1143,89 @@ this.$axios.defaults.baseURL
     linear-gradient(
       110deg,
       #061d43 0%,
-      #073b60 48%,
-      #0d7880 100%
+      var(--brand-primary) 48%,
+      var(--brand-secondary) 100%
     );
+  background-size: 42px 42px, 42px 42px, auto, auto;
   color: white;
   padding: 74px 0;
 }
 
+.catalog-eyebrow {
+  color: #72edf0;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
 .catalog-title {
   color: white;
-  font-size: 54px;
-  font-weight: 900;
+  font-size: clamp(44px, 6vw, 72px);
+  font-weight: 950;
   line-height: 1.05;
   margin-top: 12px;
   max-width: 700px;
 }
 
+.catalog-lead {
+  color: rgba(255, 255, 255, .82);
+  font-size: 18px;
+  line-height: 1.7;
+  margin-top: 18px;
+  max-width: 640px;
+}
+
+.catalog-counter-card,
+.catalog-filter-card,
+.catalog-product-card {
+  border-radius: 24px !important;
+}
+
+.catalog-counter-card {
+  backdrop-filter: blur(18px);
+  background: rgba(255, 255, 255, .92) !important;
+  box-shadow: 0 28px 70px rgba(0, 20, 54, .22) !important;
+}
+
+.catalog-filter-card {
+  border-color: #dfe9f2 !important;
+  box-shadow: 0 18px 42px rgba(16, 43, 92, .08);
+  margin-top: -42px;
+  position: relative;
+  z-index: 2;
+}
+
+.catalog-product-card {
+  border-color: #dfe9f2 !important;
+  box-shadow: 0 10px 28px rgba(16, 43, 92, .07);
+  overflow: hidden;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.catalog-product-card:hover {
+  box-shadow: 0 28px 58px rgba(16, 43, 92, .16);
+  transform: translateY(-6px);
+}
+
+.catalog-product-visual {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(30, 136, 229, .12), transparent 28%),
+    linear-gradient(145deg, #f8fbfe, #eaf2f8);
+  padding: 12px;
+}
+
+.catalog-product-visual .v-image {
+  border-radius: 18px;
+}
+
 @media (max-width: 960px) {
   .catalog-title {
     font-size: 42px;
+  }
+
+  .catalog-filter-card {
+    margin-top: -24px;
   }
 }
 

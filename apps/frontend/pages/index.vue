@@ -31,7 +31,7 @@
             </div>
           </div>
 
-          <div class="hero-products-figure">
+          <div v-if="bannerActual" class="hero-products-figure">
             <img :src="bannerActual" alt="Banner Embacolsa">
             <div class="hero-floating-card">
               <v-icon color="#1e88e5">mdi-package-check</v-icon>
@@ -150,75 +150,23 @@ export default {
 
   data() {
     return {
-      categories: [
-        { id: 'cintas', name: 'Cintas', icon: 'mdi-tape-measure' },
-        { id: 'stretch', name: 'Stretch film', icon: 'mdi-rollup' },
-        { id: 'cajas', name: 'Cajas', icon: 'mdi-package-variant' },
-        { id: 'zunchos', name: 'Zunchos', icon: 'mdi-link-variant' },
-        { id: 'seguridad', name: 'Seguridad', icon: 'mdi-hard-hat' },
-      ],
-      products: [
-        {
-          categoryId: 'cintas',
-          type: 'Sellado',
-          title: 'Cintas adhesivas',
-          text: 'Cierre fuerte, presentacion limpia y medidas para distintos usos.',
-          icon: 'mdi-tape-measure',
-          class: 'visual-cyan',
-        },
-        {
-          categoryId: 'stretch',
-          type: 'Proteccion',
-          title: 'Stretch film',
-          text: 'Estabilidad para carga, inventario y despachos de alto movimiento.',
-          icon: 'mdi-rollup',
-          class: 'visual-blue',
-        },
-        {
-          categoryId: 'zunchos',
-          type: 'Carga',
-          title: 'Sunchos y zunchos',
-          text: 'Sujecion firme para cajas, paquetes y procesos industriales.',
-          icon: 'mdi-link-variant',
-          class: 'visual-gold',
-        },
-        {
-          categoryId: 'cajas',
-          type: 'Empaque',
-          title: 'Cajas de carton',
-          text: 'Opciones resistentes para proteger lo que vendes y despachas.',
-          icon: 'mdi-package-variant-closed',
-          class: 'visual-green',
-        },
-      ],
-      benefits: [
-        { icon: 'mdi-truck-fast-outline', title: 'Despacho confiable', text: 'Coordinacion para que tu operacion no se frene.' },
-        { icon: 'mdi-account-tie-outline', title: 'Asesoria real', text: 'Recomendaciones segun el producto y el volumen.' },
-        { icon: 'mdi-layers-triple-outline', title: 'Portafolio completo', text: 'Compra lo esencial desde un solo proveedor.' },
-        { icon: 'mdi-message-reply-text-outline', title: 'Atencion directa', text: 'Cotizaciones claras y respuesta sin tanta vuelta.' },
-      ],
       categoriasParametrizadas: [],
       productosParametrizados: [],
       imagenesParametrizadas: [],
       configuracionSitio: {
-        nombre_sitio: 'Embacolsa',
-        eyebrow: 'EMPAQUES, EMBALAJES Y SUMINISTROS',
-        titulo: 'Embacolsa',
-        descripcion: 'Soluciones listas para empacar, proteger y despachar tu operación con mejor imagen, menos vueltas y respuesta comercial rápida.',
-        titulo_productos: 'Una muestra por cada categoría activa',
-        subtitulo_productos: 'Catálogo parametrizado',
-        titulo_beneficios: 'Acompañamiento para comprar mejor, no solo comprar más.',
-        descripcion_beneficios: 'Te ayudamos a escoger materiales según carga, rotación, presupuesto y presentación final.',
-        titulo_contacto: 'Cuéntanos qué necesitas empacar.',
-        descripcion_contacto: 'Armamos una cotización clara para tu empresa.',
-        telefono_whatsapp: '573218720375',
-        correo_contacto: 'comercial@embacolsa.com.co',
-        beneficios: [
-          { icon: 'mdi-truck-fast-outline', title: 'Despacho confiable', text: 'Coordinación para que tu operación no se frene.' },
-          { icon: 'mdi-account-tie-outline', title: 'Asesoría real', text: 'Recomendaciones según el producto y el volumen.' },
-          { icon: 'mdi-layers-triple-outline', title: 'Portafolio completo', text: 'Compra lo esencial desde un solo proveedor.' },
-          { icon: 'mdi-message-reply-text-outline', title: 'Atención directa', text: 'Cotizaciones claras y respuesta sin tanta vuelta.' },
-        ],
+        nombre_sitio: '',
+        eyebrow: '',
+        titulo: '',
+        descripcion: '',
+        titulo_productos: '',
+        subtitulo_productos: '',
+        titulo_beneficios: '',
+        descripcion_beneficios: '',
+        titulo_contacto: '',
+        descripcion_contacto: '',
+        telefono_whatsapp: '',
+        correo_contacto: '',
+        beneficios: [],
         colores: {
           primario: '#0f2c61',
           secundario: '#0d7880',
@@ -241,8 +189,7 @@ export default {
 
     bannerActual() {
       return this.obtenerImagenPorTipo('banner') ||
-        this.obtenerImagenPorTipo('principal') ||
-        '/images/hero-products-optimized.webp'
+        this.obtenerImagenPorTipo('principal')
     },
 
     categoriasIndex() {
@@ -254,7 +201,7 @@ export default {
           icon: 'mdi-format-list-bulleted-type',
         }))
 
-      return categoriasActivas.length ? categoriasActivas : this.categories
+      return categoriasActivas
     },
 
     opcionesCategorias() {
@@ -280,27 +227,21 @@ export default {
           categoryId: producto.categoria_id || producto.categoria?.id,
           type: producto.categoria?.nombre || 'Producto',
           title: producto.nombre,
-          text: producto.descripcion || 'Sin descripcion por ahora',
-          icon: this.products[index % this.products.length].icon,
-          class: this.products[index % this.products.length].class,
+          text: producto.descripcion || 'Sin descripción registrada.',
+          icon: this.obtenerIconoProducto(producto),
+          class: this.obtenerClaseVisual(index),
           image: this.resolverImagen(producto.ruta_imagen),
         }))
 
-      if (productosActivos.length || this.productosParametrizados.length) {
-        return productosActivos
-      }
-
-      return this.products
+      return productosActivos
     },
 
     tituloProductos() {
-      return this.configuracionSitio.titulo_productos || 'Una muestra por cada categoría activa'
+      return this.configuracionSitio.titulo_productos
     },
 
     benefitsActuales() {
-      return this.configuracionSitio.beneficios?.length
-        ? this.configuracionSitio.beneficios
-        : this.benefits
+      return this.configuracionSitio.beneficios || []
     },
 
     coloresMarca() {
@@ -350,19 +291,19 @@ export default {
 
     configuracionPorDefecto() {
       return {
-        nombre_sitio: 'Embacolsa',
-        eyebrow: 'EMPAQUES, EMBALAJES Y SUMINISTROS',
-        titulo: 'Embacolsa',
-        descripcion: 'Soluciones listas para empacar, proteger y despachar tu operación con mejor imagen, menos vueltas y respuesta comercial rápida.',
-        titulo_productos: 'Una muestra por cada categoría activa',
-        subtitulo_productos: 'Catálogo parametrizado',
-        titulo_beneficios: 'Acompañamiento para comprar mejor, no solo comprar más.',
-        descripcion_beneficios: 'Te ayudamos a escoger materiales según carga, rotación, presupuesto y presentación final.',
-        titulo_contacto: 'Cuéntanos qué necesitas empacar.',
-        descripcion_contacto: 'Armamos una cotización clara para tu empresa.',
-        telefono_whatsapp: '573218720375',
-        correo_contacto: 'comercial@embacolsa.com.co',
-        beneficios: this.benefits,
+        nombre_sitio: '',
+        eyebrow: '',
+        titulo: '',
+        descripcion: '',
+        titulo_productos: '',
+        subtitulo_productos: '',
+        titulo_beneficios: '',
+        descripcion_beneficios: '',
+        titulo_contacto: '',
+        descripcion_contacto: '',
+        telefono_whatsapp: '',
+        correo_contacto: '',
+        beneficios: [],
         colores: {
           primario: '#0f2c61',
           secundario: '#0d7880',
@@ -385,7 +326,7 @@ export default {
             ...base.colores,
             ...(data.colores || {}),
           },
-          beneficios: data.beneficios?.length ? data.beneficios : base.beneficios,
+          beneficios: data.beneficios || [],
         }
       } catch (error) {
         this.configuracionSitio = this.configuracionPorDefecto()
@@ -453,6 +394,37 @@ export default {
       return estado === true || estado === 1 || estado === '1'
     },
 
+    obtenerIconoProducto(producto) {
+      const categoria = producto.categoria?.nombre || producto.categoria_nombre || ''
+      const nombre = categoria.toLowerCase()
+
+      if (nombre.includes('cinta')) {
+        return 'mdi-tape-measure'
+      }
+
+      if (nombre.includes('caja') || nombre.includes('cartón') || nombre.includes('carton')) {
+        return 'mdi-package-variant-closed'
+      }
+
+      if (nombre.includes('zuncho') || nombre.includes('suncho')) {
+        return 'mdi-link-variant'
+      }
+
+      if (nombre.includes('seguridad')) {
+        return 'mdi-shield-check-outline'
+      }
+
+      if (nombre.includes('stretch') || nombre.includes('film')) {
+        return 'mdi-rollup'
+      }
+
+      return 'mdi-package-variant'
+    },
+
+    obtenerClaseVisual(index) {
+      return ['visual-cyan', 'visual-blue', 'visual-gold', 'visual-green'][index % 4]
+    },
+
     seleccionarProducto(product) {
       this.$router.push({
         path: '/catalogo',
@@ -517,6 +489,10 @@ export default {
 }
 
 .hero-inner {
+  align-items: center;
+  display: grid;
+  gap: 44px;
+  grid-template-columns: minmax(0, .92fr) minmax(360px, 1.08fr);
   min-height: 610px;
   padding-bottom: 72px;
   padding-top: 96px;
@@ -613,19 +589,19 @@ export default {
 }
 
 .hero-products-figure {
-  bottom: 52px;
-  position: absolute;
-  right: -86px;
-  width: min(54vw, 760px);
+  justify-self: end;
+  position: relative;
+  width: 100%;
   z-index: 1;
 }
 
 .hero-products-figure img {
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 30px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, .28);
   display: block;
-  filter: drop-shadow(0 28px 34px rgba(0, 0, 0, .32));
-  height: auto;
-  max-height: 470px;
-  object-fit: contain;
+  height: min(48vw, 470px);
+  object-fit: cover;
   width: 100%;
 }
 
@@ -855,13 +831,18 @@ export default {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .hero-inner {
+    display: block;
+  }
+
   .hero-products-figure {
-    bottom: auto;
     margin: 28px 0 0;
-    position: relative;
-    right: auto;
     width: 100%;
-    z-index: 1;
+  }
+
+  .hero-products-figure img {
+    height: auto;
+    max-height: 420px;
   }
 
   .hero-floating-card {
@@ -897,7 +878,11 @@ export default {
 
   .hero-products-figure {
     margin-top: 22px;
-    width: 112%;
+    width: 100%;
+  }
+
+  .hero-products-figure img {
+    border-radius: 22px;
   }
 
   .hero-floating-card {
