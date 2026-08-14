@@ -92,6 +92,10 @@
                     </v-card-title>
 
                     <v-card-text>
+                        <v-alert v-if="!form.beneficios.length" text type="info" class="mb-4">
+                            Todavía no hay beneficios configurados. Agrega el primero para mostrarlo en el index.
+                        </v-alert>
+
                         <v-row v-for="(beneficio, index) in form.beneficios" :key="index" dense class="benefit-row">
                             <v-col cols="12" md="3">
                                 <v-text-field v-model.trim="beneficio.icon" label="Ícono MDI" outlined dense rounded />
@@ -232,6 +236,10 @@ export default {
         },
 
         agregarBeneficio() {
+            if (!Array.isArray(this.form.beneficios)) {
+                this.$set(this.form, 'beneficios', [])
+            }
+
             this.form.beneficios.push({
                 icon: 'mdi-star-outline',
                 title: '',
@@ -240,6 +248,11 @@ export default {
         },
 
         quitarBeneficio(index) {
+            if (!Array.isArray(this.form.beneficios)) {
+                this.$set(this.form, 'beneficios', [])
+                return
+            }
+
             this.form.beneficios.splice(index, 1)
         },
 
