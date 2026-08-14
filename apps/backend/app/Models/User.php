@@ -54,6 +54,9 @@ class User extends Authenticatable
                 'usuarios.ver',
                 'usuarios.crear',
                 'usuarios.editar',
+                'roles.ver',
+                'roles.crear',
+                'roles.editar',
                 'administrar-sitio',
             ];
         }

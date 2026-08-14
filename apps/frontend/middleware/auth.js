@@ -29,6 +29,7 @@ export default function ({ route, redirect }) {
     { prefijo: '/modulo-parametrizacion/marcas', permiso: 'marcas.ver' },
     { prefijo: '/modulo-parametrizacion/imagenes', permiso: 'imagenes.ver' },
     { prefijo: '/modulo-parametrizacion/usuarios', permiso: 'usuarios.ver' },
+    { prefijo: '/modulo-parametrizacion/roles', permiso: 'roles.ver' },
     { prefijo: '/modulo-parametrizacion/sitio-publico', permiso: 'administrar-sitio' },
   ]
 

@@ -123,6 +123,14 @@ export default {
                     permiso: 'marcas.ver',
                 },
                 {
+                    title: 'Roles y permisos',
+                    text: 'Define perfiles reutilizables para usuarios y módulos.',
+                    icon: 'mdi-shield-account-outline',
+                    color: 'deep-purple',
+                    route: '/modulo-parametrizacion/roles',
+                    permiso: 'roles.ver',
+                },
+                {
                     title: 'Imágenes',
                     text: 'Controla logo, banner principal y demás piezas visuales.',
                     icon: 'mdi-image-multiple-outline',

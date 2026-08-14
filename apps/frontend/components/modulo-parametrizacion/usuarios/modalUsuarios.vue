@@ -41,7 +41,7 @@
 
                     <v-col cols="12" md="6">
                         <v-select v-model="form.rol" :items="roles" label="Rol operativo" outlined dense rounded
-                            prepend-inner-icon="mdi-account-key-outline" />
+                            prepend-inner-icon="mdi-account-key-outline" @change="aplicarPermisosRol" />
                     </v-col>
 
                     <v-col v-if="!form.es_super_admin" cols="12">
@@ -90,33 +90,8 @@ export default {
             guardando: false,
             verPassword: false,
             form: this.formInicial(),
-            roles: [
-                { text: 'Super administrador', value: 'super_admin' },
-                { text: 'Administrador', value: 'administrador' },
-                { text: 'Editor de catálogo', value: 'editor_catalogo' },
-                { text: 'Comercial', value: 'comercial' },
-                { text: 'Solo consulta', value: 'consulta' },
-            ],
-            permisosDisponibles: [
-                { label: 'Ver panel', value: 'panel.ver' },
-                { label: 'Ver productos', value: 'productos.ver' },
-                { label: 'Crear productos', value: 'productos.crear' },
-                { label: 'Editar productos', value: 'productos.editar' },
-                { label: 'Ver categorías', value: 'categorias.ver' },
-                { label: 'Crear categorías', value: 'categorias.crear' },
-                { label: 'Editar categorías', value: 'categorias.editar' },
-                { label: 'Ver marcas', value: 'marcas.ver' },
-                { label: 'Crear marcas', value: 'marcas.crear' },
-                { label: 'Editar marcas', value: 'marcas.editar' },
-                { label: 'Ver imágenes', value: 'imagenes.ver' },
-                { label: 'Crear imágenes', value: 'imagenes.crear' },
-                { label: 'Editar imágenes', value: 'imagenes.editar' },
-                { label: 'Eliminar imágenes', value: 'imagenes.eliminar' },
-                { label: 'Ver usuarios', value: 'usuarios.ver' },
-                { label: 'Crear usuarios', value: 'usuarios.crear' },
-                { label: 'Editar usuarios', value: 'usuarios.editar' },
-                { label: 'Administrar sitio público', value: 'administrar-sitio' },
-            ],
+            rolesCatalogo: [],
+            permisosCatalogo: [],
             rules: {
                 required: value => !!value || 'Este campo es requerido',
                 email: value => /.+@.+\..+/.test(value) || 'Ingrese un correo válido',
@@ -125,6 +100,22 @@ export default {
     },
 
     computed: {
+        roles() {
+            const rolesDb = this.rolesCatalogo.map(rol => ({
+                text: rol.nombre,
+                value: rol.slug,
+            }))
+
+            return [
+                { text: 'Super administrador', value: 'super_admin' },
+                ...rolesDb,
+            ]
+        },
+
+        permisosDisponibles() {
+            return this.permisosCatalogo.length ? this.permisosCatalogo : this.$permissionsCatalog
+        },
+
         passwordRules() {
             if (this.usuarioSeleccionado?.id) {
                 return [
@@ -162,6 +153,10 @@ export default {
         },
     },
 
+    mounted() {
+        this.cargarRoles()
+    },
+
     methods: {
         formInicial() {
             return {
@@ -180,6 +175,30 @@ export default {
                     'imagenes.ver',
                     'administrar-sitio',
                 ],
+            }
+        },
+
+        async cargarRoles() {
+            try {
+                const response = await this.$axios.get('/roles/listar')
+                this.rolesCatalogo = response.data?.roles || []
+                this.permisosCatalogo = response.data?.permisos || []
+            } catch (error) {
+                this.rolesCatalogo = []
+                this.permisosCatalogo = this.$permissionsCatalog
+            }
+        },
+
+        aplicarPermisosRol(slug) {
+            const rol = this.rolesCatalogo.find(item => item.slug === slug)
+
+            if (rol) {
+                this.form.permisos = rol.permisos || []
+            }
+
+            if (slug === 'super_admin') {
+                this.form.es_super_admin = true
+                this.form.permisos = []
             }
         },
 

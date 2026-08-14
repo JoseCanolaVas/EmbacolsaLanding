@@ -63,6 +63,12 @@ export default {
                     route: '/modulo-parametrizacion/usuarios',
                     permiso: 'usuarios.ver',
                 },
+                {
+                    title: 'Roles y permisos',
+                    icon: 'mdi-shield-account-outline',
+                    route: '/modulo-parametrizacion/roles',
+                    permiso: 'roles.ver',
+                },
 
             ],
         }
