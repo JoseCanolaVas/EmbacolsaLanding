@@ -42,9 +42,24 @@
 
       <v-spacer />
 
-      <v-btn rounded outlined color="primary" small to="/">
+      <div class="topbar-user d-none d-sm-flex">
+        <v-avatar size="34" color="primary">
+          <span>{{ inicialUsuario }}</span>
+        </v-avatar>
+        <div>
+          <strong>{{ nombreUsuario }}</strong>
+          <small>Sesión activa</small>
+        </div>
+      </div>
+
+      <v-btn rounded outlined color="primary" small to="/" class="ml-2">
         <v-icon left small>mdi-web</v-icon>
         Sitio público
+      </v-btn>
+
+      <v-btn rounded depressed color="error" small class="ml-2" @click="cerrarSesion">
+        <v-icon left small>mdi-logout</v-icon>
+        <span class="d-none d-sm-inline">Cerrar sesión</span>
       </v-btn>
     </v-app-bar>
 
@@ -74,7 +89,22 @@ export default {
   data() {
     return {
       drawer: false,
+      usuario: null,
     }
+  },
+
+  computed: {
+    nombreUsuario() {
+      return this.usuario?.nombre || this.usuario?.name || this.usuario?.email || 'Usuario'
+    },
+
+    inicialUsuario() {
+      return this.nombreUsuario.trim().charAt(0).toUpperCase() || 'U'
+    },
+  },
+
+  mounted() {
+    this.cargarUsuarioSesion()
   },
 
   watch: {
@@ -89,6 +119,33 @@ export default {
       if (this.$vuetify.breakpoint.smAndDown) {
         this.drawer = false
       }
+    },
+  },
+
+  methods: {
+    cargarUsuarioSesion() {
+      if (!process.client) {
+        return
+      }
+
+      try {
+        this.usuario = JSON.parse(sessionStorage.getItem('embacolsa_user') || 'null')
+      } catch (error) {
+        this.usuario = null
+      }
+    },
+
+    cerrarSesion() {
+      if (process.client) {
+        sessionStorage.removeItem('embacolsa_token')
+        sessionStorage.removeItem('embacolsa_user')
+
+        if (this.$axios?.defaults?.headers?.common?.Authorization) {
+          delete this.$axios.defaults.headers.common.Authorization
+        }
+      }
+
+      this.$router.push('/')
     },
   },
 }
@@ -165,6 +222,42 @@ export default {
   color: #6b7280;
   font-size: 12px;
   margin-top: 1px;
+}
+
+.topbar-user {
+  align-items: center;
+  border-right: 1px solid #e2e8f0;
+  gap: 10px;
+  margin-right: 4px;
+  padding-right: 14px;
+}
+
+.topbar-user .v-avatar span {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.topbar-user strong,
+.topbar-user small {
+  display: block;
+  line-height: 1.1;
+}
+
+.topbar-user strong {
+  color: #17365d;
+  font-size: 13px;
+  font-weight: 900;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topbar-user small {
+  color: #7b8ca3;
+  font-size: 11px;
+  margin-top: 3px;
 }
 
 .admin-main {
