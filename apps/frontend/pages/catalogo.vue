@@ -7,7 +7,7 @@
       <!-- HERO -->
       <section class="catalog-hero">
         <v-container>
-          <v-row align="center">
+          <v-row align="center" class="catalog-hero-row">
 
             <v-col cols="12" md="7">
               <div class="catalog-eyebrow">
@@ -21,6 +21,29 @@
               <p class="catalog-lead">
                 {{ configuracionSitio.descripcion_catalogo }}
               </p>
+
+              <div class="catalog-hero-actions">
+                <v-btn
+                  rounded
+                  depressed
+                  x-large
+                  class="catalog-main-action"
+                  :to="{ path: '/', hash: '#contacto' }"
+                >
+                  Hablar con un asesor
+                  <v-icon right>mdi-arrow-right</v-icon>
+                </v-btn>
+
+                <v-btn
+                  rounded
+                  outlined
+                  x-large
+                  color="white"
+                  :to="{ path: '/', hash: '#productos' }"
+                >
+                  Ver destacados
+                </v-btn>
+              </div>
             </v-col>
 
             <v-col cols="12" md="5">
@@ -42,6 +65,21 @@
                 <div class="text-caption font-weight-bold text-uppercase grey--text">
                   productos encontrados
                 </div>
+
+                <div class="catalog-counter-grid">
+                  <div>
+                    <strong>{{ opcionesCategorias.length }}</strong>
+                    <span>categorías</span>
+                  </div>
+                  <div>
+                    <strong>{{ opcionesMarcas.length }}</strong>
+                    <span>marcas</span>
+                  </div>
+                  <div>
+                    <strong>B2B</strong>
+                    <span>cotización</span>
+                  </div>
+                </div>
               </v-card>
             </v-col>
 
@@ -58,6 +96,24 @@
             outlined
             class="catalog-filter-card pa-4"
           >
+            <div class="filter-title">
+              <div>
+                <span>Encuentra rápido</span>
+                <strong>Filtra el portafolio disponible</strong>
+              </div>
+
+              <v-btn
+                v-if="hayFiltrosCatalogo"
+                text
+                rounded
+                color="error"
+                @click="limpiarPanelCatalogo"
+              >
+                <v-icon left small>mdi-broom</v-icon>
+                Limpiar
+              </v-btn>
+            </div>
+
             <v-row dense align="center">
 
               <v-col cols="12" md="5">
@@ -130,6 +186,28 @@
             </v-row>
           </v-card>
 
+          <div v-if="opcionesCategorias.length" class="category-rail">
+            <button
+              type="button"
+              :class="{ active: !catalogoCategoria }"
+              @click="catalogoCategoria = null"
+            >
+              <v-icon small>mdi-view-grid-outline</v-icon>
+              Todo
+            </button>
+
+            <button
+              v-for="categoria in opcionesCategorias"
+              :key="`rail-${categoria.id}`"
+              type="button"
+              :class="{ active: String(catalogoCategoria) === String(categoria.id) }"
+              @click="catalogoCategoria = categoria.id"
+            >
+              <v-icon small>mdi-package-variant-closed</v-icon>
+              {{ categoria.name }}
+            </button>
+          </div>
+
           <!-- LOADER -->
           <div
             v-if="cargandoProductos"
@@ -165,151 +243,95 @@
                 height="100%"
                 class="catalog-product-card"
               >
-                <v-row
-                  no-gutters
-                  class="fill-height"
-                >
-                  <!-- IMAGEN -->
-                  <v-col
-                    cols="12"
-                    class="catalog-product-visual"
+                <div class="catalog-product-visual">
+                  <v-img
+                    v-if="product.image"
+                    :src="product.image"
+                    height="245"
+                    cover
                   >
-                    <v-responsive
-                      :aspect-ratio="4 / 3"
-                      class="fill-height"
+                    <template #placeholder>
+                      <v-row
+                        class="fill-height ma-0"
+                        align="center"
+                        justify="center"
+                      >
+                        <v-progress-circular
+                          indeterminate
+                          color="primary"
+                        />
+                      </v-row>
+                    </template>
+                  </v-img>
+
+                  <div
+                    v-else
+                    class="catalog-product-empty"
+                  >
+                    <v-icon
+                      color="primary"
+                      size="72"
                     >
-                      <v-img
-                        v-if="product.image"
-                        :src="product.image"
-                        height="100%"
-                        cover
-                      >
-                        <template #placeholder>
-                          <v-row
-                            class="fill-height ma-0"
-                            align="center"
-                            justify="center"
-                          >
-                            <v-progress-circular
-                              indeterminate
-                              color="primary"
-                            />
-                          </v-row>
-                        </template>
-                      </v-img>
+                      {{ product.icon }}
+                    </v-icon>
+                  </div>
 
-                      <div
-                        v-else
-                        class="fill-height d-flex align-center justify-center"
-                      >
-                        <v-icon
-                          color="primary"
-                          size="64"
-                        >
-                          {{ product.icon }}
-                        </v-icon>
-                      </div>
-                    </v-responsive>
-                  </v-col>
+                  <div class="product-category-pill">
+                    {{ product.type }}
+                  </div>
+                </div>
 
-                  <!-- INFO -->
-                  <v-col cols="12">
-                    <div class="pa-5 d-flex flex-column fill-height">
+                <div class="catalog-product-body">
+                  <div class="product-meta-row">
+                    <span>{{ product.unit || 'Unidad por definir' }}</span>
+                    <strong v-if="product.brand">{{ product.brand }}</strong>
+                    <strong v-else>Disponible</strong>
+                  </div>
 
-                      <div class="mb-2">
-                        <v-chip
-                          small
-                          color="primary"
-                          outlined
-                          class="mr-1 mb-1"
-                        >
-                          {{ product.type }}
-                        </v-chip>
+                  <h2>{{ product.title }}</h2>
 
-                        <v-chip
-                          v-if="product.brand"
-                          small
-                          color="secondary"
-                          outlined
-                          class="mb-1"
-                        >
-                          {{ product.brand }}
-                        </v-chip>
-                      </div>
+                  <p>
+                    {{ limitarTexto(product.text, 136) }}
+                  </p>
 
-                      <div
-                        class="text-h6 font-weight-black mb-2"
-                        style="color: #17365d;"
-                      >
-                        {{ product.title }}
-                      </div>
-
-                      <div
-                        class="text-body-2 grey--text text--darken-1 mb-4"
-                      >
-                        {{ limitarTexto(product.text, 120) }}
-                      </div>
-
-                      <v-spacer />
-
-                      <div class="d-flex align-center justify-space-between mb-4">
-                        <span class="text-caption grey--text text--darken-1">
-                          {{ product.unit || 'Unidad según referencia' }}
-                        </span>
-
-                        <span
-                          v-if="product.price"
-                          class="text-subtitle-1 font-weight-black primary--text"
-                        >
-                          {{ product.price }}
-                        </span>
-
-                        <v-chip
-                          v-else
-                          small
-                          color="orange"
-                          text-color="white"
-                        >
-                          Precio a cotizar
-                        </v-chip>
-                      </div>
-
-                      <v-divider class="mb-4" />
-
-                      <!-- ACCIONES -->
-                      <div class="d-flex flex-wrap">
-                        <v-btn
-                          outlined
-                          rounded
-                          color="primary"
-                          class="mr-2 mb-2"
-                          @click="verDetalle(product)"
-                        >
-                          <v-icon left small>
-                            mdi-eye-outline
-                          </v-icon>
-
-                          Ver detalle
-                        </v-btn>
-
-                        <v-btn
-                          rounded
-                          color="success"
-                          dark
-                          class="mb-2"
-                          @click="cotizarProducto(product)"
-                        >
-                          <v-icon left>
-                            mdi-whatsapp
-                          </v-icon>
-
-                          Cotizar
-                        </v-btn>
-                      </div>
-
+                  <div class="product-price-row">
+                    <div>
+                      <span>Precio</span>
+                      <strong>{{ product.price || 'A cotizar' }}</strong>
                     </div>
-                  </v-col>
-                </v-row>
+
+                    <v-chip
+                      small
+                      color="success"
+                      text-color="white"
+                    >
+                      Activo
+                    </v-chip>
+                  </div>
+
+                  <div class="product-actions">
+                    <v-btn
+                      rounded
+                      depressed
+                      color="primary"
+                      @click="verDetalle(product)"
+                    >
+                      Ver detalle
+                    </v-btn>
+
+                    <v-btn
+                      rounded
+                      outlined
+                      color="success"
+                      @click="cotizarProducto(product)"
+                    >
+                      <v-icon left small>
+                        mdi-whatsapp
+                      </v-icon>
+                      Cotizar
+                    </v-btn>
+                  </div>
+                </div>
               </v-card>
             </v-col>
 
@@ -1133,6 +1155,7 @@ this.$axios.defaults.baseURL
 
 .catalog-hero {
   background:
+    radial-gradient(circle at 8% 18%, rgba(30, 168, 229, .3), transparent 24%),
     linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px),
     radial-gradient(
@@ -1148,7 +1171,25 @@ this.$axios.defaults.baseURL
     );
   background-size: 42px 42px, 42px 42px, auto, auto;
   color: white;
-  padding: 74px 0;
+  overflow: hidden;
+  padding: 86px 0 104px;
+  position: relative;
+}
+
+.catalog-hero::after {
+  background:
+    radial-gradient(circle, rgba(255,255,255,.18) 0 1px, transparent 1px);
+  background-size: 22px 22px;
+  content: '';
+  inset: 0;
+  opacity: .24;
+  pointer-events: none;
+  position: absolute;
+}
+
+.catalog-hero-row {
+  position: relative;
+  z-index: 2;
 }
 
 .catalog-eyebrow {
@@ -1176,6 +1217,20 @@ this.$axios.defaults.baseURL
   max-width: 640px;
 }
 
+.catalog-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.catalog-main-action {
+  background: linear-gradient(135deg, var(--brand-accent), #22b9d2) !important;
+  box-shadow: 0 18px 36px rgba(30, 136, 229, .32) !important;
+  color: #fff !important;
+  font-weight: 950;
+}
+
 .catalog-counter-card,
 .catalog-filter-card,
 .catalog-product-card {
@@ -1184,21 +1239,138 @@ this.$axios.defaults.baseURL
 
 .catalog-counter-card {
   backdrop-filter: blur(18px);
-  background: rgba(255, 255, 255, .92) !important;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, .96), rgba(240, 250, 255, .9)) !important;
+  border: 1px solid rgba(255, 255, 255, .62) !important;
   box-shadow: 0 28px 70px rgba(0, 20, 54, .22) !important;
+  overflow: hidden;
+  position: relative;
+}
+
+.catalog-counter-card::before {
+  background: linear-gradient(135deg, var(--brand-accent), var(--brand-secondary));
+  content: '';
+  height: 6px;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.catalog-counter-grid {
+  border-top: 1px solid #e2edf6;
+  display: grid;
+  gap: 0;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 22px;
+  padding-top: 18px;
+}
+
+.catalog-counter-grid div {
+  border-right: 1px solid #e2edf6;
+  padding: 4px 10px;
+}
+
+.catalog-counter-grid div:last-child {
+  border-right: 0;
+}
+
+.catalog-counter-grid strong,
+.catalog-counter-grid span {
+  display: block;
+}
+
+.catalog-counter-grid strong {
+  color: #17365d;
+  font-size: 22px;
+  font-weight: 950;
+}
+
+.catalog-counter-grid span {
+  color: #7a8aa0;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .catalog-filter-card {
+  background: rgba(255, 255, 255, .96) !important;
   border-color: #dfe9f2 !important;
-  box-shadow: 0 18px 42px rgba(16, 43, 92, .08);
-  margin-top: -42px;
+  box-shadow: 0 24px 58px rgba(16, 43, 92, .12);
+  margin-top: -68px;
   position: relative;
   z-index: 2;
 }
 
+.filter-title {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.filter-title span,
+.filter-title strong {
+  display: block;
+}
+
+.filter-title span {
+  color: #0d7880;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.filter-title strong {
+  color: #17365d;
+  font-size: 20px;
+  font-weight: 950;
+}
+
+.category-rail {
+  display: flex;
+  gap: 10px;
+  margin: 22px 0 6px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.category-rail button {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #dfe9f2;
+  border-radius: 999px;
+  color: #17365d;
+  cursor: pointer;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 13px;
+  font-weight: 900;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  transition: transform .18s ease, box-shadow .18s ease, color .18s ease, background .18s ease;
+}
+
+.category-rail button:hover,
+.category-rail button.active {
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+  box-shadow: 0 12px 26px rgba(13, 120, 128, .18);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.category-rail button.active .v-icon,
+.category-rail button:hover .v-icon {
+  color: #fff !important;
+}
+
 .catalog-product-card {
+  background: #fff !important;
   border-color: #dfe9f2 !important;
-  box-shadow: 0 10px 28px rgba(16, 43, 92, .07);
+  box-shadow: 0 14px 34px rgba(16, 43, 92, .08);
   overflow: hidden;
   transition: transform .2s ease, box-shadow .2s ease;
 }
@@ -1212,11 +1384,119 @@ this.$axios.defaults.baseURL
   background:
     radial-gradient(circle at 30% 20%, rgba(30, 136, 229, .12), transparent 28%),
     linear-gradient(145deg, #f8fbfe, #eaf2f8);
+  min-height: 245px;
   padding: 12px;
+  position: relative;
 }
 
 .catalog-product-visual .v-image {
+  border-radius: 20px;
+}
+
+.catalog-product-empty {
+  align-items: center;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(13, 120, 128, .14), transparent 28%),
+    linear-gradient(145deg, #f8fbfe, #eaf2f8);
+  border: 1px dashed #bed2e6;
+  border-radius: 20px;
+  display: flex;
+  height: 221px;
+  justify-content: center;
+}
+
+.product-category-pill {
+  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, .94);
+  border: 1px solid rgba(255, 255, 255, .74);
+  border-radius: 999px;
+  bottom: 24px;
+  box-shadow: 0 12px 28px rgba(8, 36, 74, .16);
+  color: #17365d;
+  font-size: 12px;
+  font-weight: 950;
+  left: 24px;
+  max-width: calc(100% - 48px);
+  overflow: hidden;
+  padding: 8px 13px;
+  position: absolute;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.catalog-product-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 278px;
+  padding: 22px;
+}
+
+.product-meta-row,
+.product-price-row,
+.product-actions {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.product-meta-row {
+  color: #73859c;
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.product-meta-row strong {
+  color: var(--brand-secondary);
+}
+
+.catalog-product-body h2 {
+  color: #12305e;
+  font-size: 23px;
+  font-weight: 950;
+  letter-spacing: -.4px;
+  line-height: 1.12;
+  margin: 12px 0 10px;
+}
+
+.catalog-product-body p {
+  color: #66768c;
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 0 0 18px;
+}
+
+.product-price-row {
+  background: #f6f9fc;
+  border: 1px solid #e2ebf3;
   border-radius: 18px;
+  margin-top: auto;
+  padding: 14px;
+}
+
+.product-price-row span,
+.product-price-row strong {
+  display: block;
+}
+
+.product-price-row span {
+  color: #7a8aa0;
+  font-size: 11px;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.product-price-row strong {
+  color: #12305e;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.product-actions {
+  justify-content: flex-start;
+  margin-top: 16px;
 }
 
 @media (max-width: 960px) {
@@ -1231,11 +1511,37 @@ this.$axios.defaults.baseURL
 
 @media (max-width: 600px) {
   .catalog-hero {
-    padding: 48px 0;
+    padding: 54px 0 78px;
   }
 
   .catalog-title {
     font-size: 34px;
+  }
+
+  .catalog-hero-actions .v-btn,
+  .product-actions .v-btn {
+    width: 100%;
+  }
+
+  .catalog-filter-card {
+    margin-top: -46px;
+  }
+
+  .filter-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .catalog-product-visual {
+    min-height: 220px;
+  }
+
+  .catalog-product-empty {
+    height: 196px;
+  }
+
+  .catalog-product-body {
+    min-height: auto;
   }
 }
 </style>
