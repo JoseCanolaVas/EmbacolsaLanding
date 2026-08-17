@@ -22,39 +22,19 @@
                 {{ configuracionSitio.descripcion_catalogo }}
               </p>
 
-              <div class="catalog-hero-actions">
-                <v-btn
-                  rounded
-                  depressed
-                  x-large
-                  class="catalog-main-action"
-                  :to="{ path: '/', hash: '#contacto' }"
-                >
-                  Hablar con un asesor
-                  <v-icon right>mdi-arrow-right</v-icon>
-                </v-btn>
+              <div class="catalog-hero-actions">  
+                <h1>Catalogo </h1>
+                <span class="eyebrowes">Aca Podras encontrar todo nuestro Catalogo Disponible para cotizar</span>
 
-                <v-btn
-                  rounded
-                  outlined
-                  x-large
-                  color="white"
-                  :to="{ path: '/', hash: '#productos' }"
-                >
+                <v-btn rounded outlined x-large color="white" :to="{ path: '/', hash: '#productos' }">
                   Ver destacados
                 </v-btn>
               </div>
             </v-col>
 
             <v-col cols="12" md="5">
-              <v-card
-                flat
-                class="catalog-counter-card pa-7 text-center"
-              >
-                <v-icon
-                  color="primary"
-                  size="44"
-                >
+              <v-card flat class="catalog-counter-card pa-7 text-center">
+                <v-icon color="primary" size="44">
                   mdi-store-search-outline
                 </v-icon>
 
@@ -92,23 +72,14 @@
         <v-container>
 
           <!-- FILTROS -->
-          <v-card
-            outlined
-            class="catalog-filter-card pa-4"
-          >
+          <v-card outlined class="catalog-filter-card pa-4">
             <div class="filter-title">
               <div>
                 <span>Encuentra rápido</span>
                 <strong>Filtra el portafolio disponible</strong>
               </div>
 
-              <v-btn
-                v-if="hayFiltrosCatalogo"
-                text
-                rounded
-                color="error"
-                @click="limpiarPanelCatalogo"
-              >
+              <v-btn v-if="hayFiltrosCatalogo" text rounded color="error" @click="limpiarPanelCatalogo">
                 <v-icon left small>mdi-broom</v-icon>
                 Limpiar
               </v-btn>
@@ -117,64 +88,21 @@
             <v-row dense align="center">
 
               <v-col cols="12" md="5">
-                <v-text-field
-                  v-model="catalogoBusqueda"
-                  label="Nombre o descripción"
-                  outlined
-                  dense
-                  rounded
-                  clearable
-                  hide-details
-                  prepend-inner-icon="mdi-magnify"
-                />
+                <v-text-field v-model="catalogoBusqueda" label="Nombre o descripción" outlined dense rounded clearable
+                  hide-details prepend-inner-icon="mdi-magnify" />
               </v-col>
+
+
 
               <v-col cols="12" md="3">
-                <v-select
-                  v-model="catalogoCategoria"
-                  :items="opcionesCategorias"
-                  item-text="name"
-                  item-value="id"
-                  label="Categoría"
-                  outlined
-                  dense
-                  rounded
-                  clearable
-                  hide-details
-                  prepend-inner-icon="mdi-filter-outline"
-                />
+                <v-select v-model="catalogoMarca" :items="opcionesMarcas" item-text="nombre" item-value="id"
+                  label="Marca" outlined dense rounded clearable hide-details prepend-inner-icon="mdi-tag-outline" />
               </v-col>
 
-              <v-col cols="12" md="3">
-                <v-select
-                  v-model="catalogoMarca"
-                  :items="opcionesMarcas"
-                  item-text="nombre"
-                  item-value="id"
-                  label="Marca"
-                  outlined
-                  dense
-                  rounded
-                  clearable
-                  hide-details
-                  prepend-inner-icon="mdi-tag-outline"
-                />
-              </v-col>
-
-              <v-col
-                cols="12"
-                md="1"
-                class="text-center"
-              >
+              <v-col cols="12" md="1" class="text-center">
                 <v-tooltip bottom v-if="hayFiltrosCatalogo">
                   <template #activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      color="error"
-                      v-bind="attrs"
-                      v-on="on"
-                      @click="limpiarPanelCatalogo"
-                    >
+                    <v-btn icon color="error" v-bind="attrs" v-on="on" @click="limpiarPanelCatalogo">
                       <v-icon>mdi-broom</v-icon>
                     </v-btn>
                   </template>
@@ -187,38 +115,22 @@
           </v-card>
 
           <div v-if="opcionesCategorias.length" class="category-rail">
-            <button
-              type="button"
-              :class="{ active: !catalogoCategoria }"
-              @click="catalogoCategoria = null"
-            >
+            <button type="button" :class="{ active: !catalogoCategoria }" @click="catalogoCategoria = null">
               <v-icon small>mdi-view-grid-outline</v-icon>
               Todo
             </button>
 
-            <button
-              v-for="categoria in opcionesCategorias"
-              :key="`rail-${categoria.id}`"
-              type="button"
+            <button v-for="categoria in opcionesCategorias" :key="`rail-${categoria.id}`" type="button"
               :class="{ active: String(catalogoCategoria) === String(categoria.id) }"
-              @click="catalogoCategoria = categoria.id"
-            >
+              @click="catalogoCategoria = categoria.id">
               <v-icon small>mdi-package-variant-closed</v-icon>
               {{ categoria.name }}
             </button>
           </div>
 
           <!-- LOADER -->
-          <div
-            v-if="cargandoProductos"
-            class="text-center py-16"
-          >
-            <v-progress-circular
-              indeterminate
-              color="primary"
-              size="54"
-              width="5"
-            />
+          <div v-if="cargandoProductos" class="text-center py-16">
+            <v-progress-circular indeterminate color="primary" size="54" width="5" />
 
             <div class="mt-4 grey--text text--darken-1">
               Cargando productos...
@@ -226,52 +138,20 @@
           </div>
 
           <!-- PRODUCTOS -->
-          <v-row
-            v-else
-            class="mt-5"
-          >
-            <v-col
-              v-for="product in productosCatalogo"
-              :key="`catalogo-${product.id}`"
-              cols="12"
-              md="6"
-              lg="4"
-            >
-              <v-card
-                outlined
-                hover
-                height="100%"
-                class="catalog-product-card"
-              >
+          <v-row v-else class="mt-5">
+            <v-col v-for="product in productosCatalogo" :key="`catalogo-${product.id}`" cols="12" md="6" lg="4">
+              <v-card outlined hover height="100%" class="catalog-product-card">
                 <div class="catalog-product-visual">
-                  <v-img
-                    v-if="product.image"
-                    :src="product.image"
-                    height="245"
-                    cover
-                  >
+                  <v-img v-if="product.image" :src="product.image" height="245" cover>
                     <template #placeholder>
-                      <v-row
-                        class="fill-height ma-0"
-                        align="center"
-                        justify="center"
-                      >
-                        <v-progress-circular
-                          indeterminate
-                          color="primary"
-                        />
+                      <v-row class="fill-height ma-0" align="center" justify="center">
+                        <v-progress-circular indeterminate color="primary" />
                       </v-row>
                     </template>
                   </v-img>
 
-                  <div
-                    v-else
-                    class="catalog-product-empty"
-                  >
-                    <v-icon
-                      color="primary"
-                      size="72"
-                    >
+                  <div v-else class="catalog-product-empty">
+                    <v-icon color="primary" size="72">
                       {{ product.icon }}
                     </v-icon>
                   </div>
@@ -300,31 +180,17 @@
                       <strong>{{ product.price || 'A cotizar' }}</strong>
                     </div>
 
-                    <v-chip
-                      small
-                      color="success"
-                      text-color="white"
-                    >
+                    <v-chip small color="success" text-color="white">
                       Activo
                     </v-chip>
                   </div>
 
                   <div class="product-actions">
-                    <v-btn
-                      rounded
-                      depressed
-                      color="primary"
-                      @click="verDetalle(product)"
-                    >
+                    <v-btn rounded depressed color="primary" @click="verDetalle(product)">
                       Ver detalle
                     </v-btn>
 
-                    <v-btn
-                      rounded
-                      outlined
-                      color="success"
-                      @click="cotizarProducto(product)"
-                    >
+                    <v-btn rounded outlined color="success" @click="cotizarProducto(product)">
                       <v-icon left small>
                         mdi-whatsapp
                       </v-icon>
@@ -336,26 +202,13 @@
             </v-col>
 
             <!-- SIN RESULTADOS -->
-            <v-col
-              v-if="!productosCatalogo.length"
-              cols="12"
-            >
-              <v-sheet
-                outlined
-                rounded="lg"
-                class="pa-12 text-center"
-              >
-                <v-icon
-                  size="72"
-                  color="grey lighten-1"
-                >
+            <v-col v-if="!productosCatalogo.length" cols="12">
+              <v-sheet outlined rounded="lg" class="pa-12 text-center">
+                <v-icon size="72" color="grey lighten-1">
                   mdi-database-search-outline
                 </v-icon>
 
-                <div
-                  class="text-h5 font-weight-black mt-4"
-                  style="color: #17365d;"
-                >
+                <div class="text-h5 font-weight-black mt-4" style="color: #17365d;">
                   No encontramos productos
                 </div>
 
@@ -363,14 +216,8 @@
                   Cambia el nombre, la categoría o la marca para ver más resultados.
                 </div>
 
-                <v-btn
-                  v-if="hayFiltrosCatalogo"
-                  color="primary"
-                  outlined
-                  rounded
-                  class="mt-5"
-                  @click="limpiarPanelCatalogo"
-                >
+                <v-btn v-if="hayFiltrosCatalogo" color="primary" outlined rounded class="mt-5"
+                  @click="limpiarPanelCatalogo">
                   Limpiar filtros
                 </v-btn>
               </v-sheet>
@@ -384,20 +231,10 @@
     </main>
 
     <!-- MODAL DETALLE -->
-    <v-dialog
-      v-model="modalDetalle"
-      max-width="900"
-      scrollable
-    >
-      <v-card
-        v-if="productoSeleccionado"
-        class="rounded-lg"
-      >
+    <v-dialog v-model="modalDetalle" max-width="900" scrollable>
+      <v-card v-if="productoSeleccionado" class="rounded-lg">
         <v-card-title class="d-flex align-center">
-          <v-icon
-            color="primary"
-            class="mr-2"
-          >
+          <v-icon color="primary" class="mr-2">
             mdi-package-variant-closed
           </v-icon>
 
@@ -407,10 +244,7 @@
 
           <v-spacer />
 
-          <v-btn
-            icon
-            @click="modalDetalle = false"
-          >
+          <v-btn icon @click="modalDetalle = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-card-title>
@@ -421,27 +255,11 @@
           <v-row no-gutters>
 
             <!-- IMAGEN GRANDE -->
-            <v-col
-              cols="12"
-              md="5"
-              class="grey lighten-5"
-            >
-              <div
-                class="pa-6 d-flex align-center justify-center"
-                style="min-height: 390px;"
-              >
-                <v-img
-                  v-if="productoSeleccionado.image"
-                  :src="productoSeleccionado.image"
-                  contain
-                  max-height="350"
-                />
+            <v-col cols="12" md="5" class="grey lighten-5">
+              <div class="pa-6 d-flex align-center justify-center" style="min-height: 390px;">
+                <v-img v-if="productoSeleccionado.image" :src="productoSeleccionado.image" contain max-height="350" />
 
-                <v-icon
-                  v-else
-                  color="primary"
-                  size="120"
-                >
+                <v-icon v-else color="primary" size="120">
                   {{ productoSeleccionado.icon }}
                 </v-icon>
               </div>
@@ -452,36 +270,20 @@
               <div class="pa-7">
 
                 <div class="mb-3">
-                  <v-chip
-                    color="primary"
-                    outlined
-                    small
-                    class="mr-2"
-                  >
+                  <v-chip color="primary" outlined small class="mr-2">
                     {{ productoSeleccionado.type }}
                   </v-chip>
 
-                  <v-chip
-                    v-if="productoSeleccionado.brand"
-                    color="secondary"
-                    outlined
-                    small
-                  >
+                  <v-chip v-if="productoSeleccionado.brand" color="secondary" outlined small>
                     {{ productoSeleccionado.brand }}
                   </v-chip>
                 </div>
 
-                <h2
-                  class="text-h4 font-weight-black mb-4"
-                  style="color: #17365d;"
-                >
+                <h2 class="text-h4 font-weight-black mb-4" style="color: #17365d;">
                   {{ productoSeleccionado.title }}
                 </h2>
 
-                <div
-                  class="text-body-1 grey--text text--darken-2 mb-6"
-                  style="line-height: 1.7;"
-                >
+                <div class="text-body-1 grey--text text--darken-2 mb-6" style="line-height: 1.7;">
                   {{ productoSeleccionado.text }}
                 </div>
 
@@ -519,9 +321,7 @@
                         Precio
                       </v-list-item-subtitle>
 
-                      <v-list-item-title
-                        class="font-weight-black primary--text"
-                      >
+                      <v-list-item-title class="font-weight-black primary--text">
                         {{ productoSeleccionado.price || 'Solicitar cotización' }}
                       </v-list-item-title>
                     </v-list-item-content>
@@ -558,20 +358,11 @@
         <v-card-actions class="pa-4">
           <v-spacer />
 
-          <v-btn
-            text
-            rounded
-            @click="modalDetalle = false"
-          >
+          <v-btn text rounded @click="modalDetalle = false">
             Cerrar
           </v-btn>
 
-          <v-btn
-            rounded
-            color="success"
-            dark
-            @click="cotizarProducto(productoSeleccionado)"
-          >
+          <v-btn rounded color="success" dark @click="cotizarProducto(productoSeleccionado)">
             <v-icon left>
               mdi-whatsapp
             </v-icon>
@@ -704,17 +495,11 @@ export default {
 
       return this.productosNormalizados
         .filter((producto) => {
-          if (
-            this.catalogoCategoria === null ||
-            this.catalogoCategoria === ''
-          ) {
+          if (this.catalogoCategoria === null || this.catalogoCategoria === '') {
             return true
           }
 
-          return (
-            String(producto.categoryId) ===
-            String(this.catalogoCategoria)
-          )
+          return (String(producto.categoryId) === String(this.catalogoCategoria))
         })
 
         .filter((producto) => {
@@ -749,17 +534,12 @@ export default {
     },
 
     hayFiltrosCatalogo() {
-      return Boolean(
-        this.catalogoBusqueda ||
-        this.catalogoCategoria ||
-        this.catalogoMarca
-      )
+      return Boolean(this.catalogoBusqueda || this.catalogoCategoria || this.catalogoMarca)
     },
   },
 
   mounted() {
-    this.catalogoBusqueda =
-      this.$route.query.buscar || ''
+    this.catalogoBusqueda = this.$route.query.buscar || ''
 
     this.cargarParametrizacion()
   },
@@ -819,19 +599,10 @@ export default {
 
     async listarCategorias() {
       try {
-        const response = await this.$axios.get(
-          '/categorias/listar'
-        )
-
-        this.categoriasParametrizadas =
-          this.extraerLista(response.data)
+        const response = await this.$axios.get('/categorias/listar')
+        this.categoriasParametrizadas = this.extraerLista(response.data)
       } catch (error) {
-        console.error(
-          'Error cargando categorías:',
-          error
-        )
-
-        this.categoriasParametrizadas = []
+        this.$toast.error('Ha ocurrido un error al cargar las categorías.');
       }
     },
 
@@ -1027,8 +798,8 @@ export default {
       }
 
       const apiUrl =
-        (this.$axios &&this.$axios.defaults &&
-this.$axios.defaults.baseURL
+        (this.$axios && this.$axios.defaults &&
+          this.$axios.defaults.baseURL
         ) ||
         (
           this.$config &&
@@ -1102,11 +873,7 @@ this.$axios.defaults.baseURL
     },
 
     formatearPrecio(precio) {
-      if (
-        precio === null ||
-        precio === undefined ||
-        precio === ''
-      ) {
+      if (precio === null || precio === undefined || precio === '') {
         return null
       }
 
@@ -1149,36 +916,25 @@ this.$axios.defaults.baseURL
 
 <style scoped>
 .catalog-page {
-  background: var(--brand-bg);
   color: #102b5c;
 }
 
 .catalog-hero {
   background:
-    radial-gradient(circle at 8% 18%, rgba(30, 168, 229, .3), transparent 24%),
-    linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px),
-    radial-gradient(
-      circle at 85% 15%,
-      rgba(114, 237, 240, .22),
-      transparent 28%
-    ),
-    linear-gradient(
-      110deg,
-      #061d43 0%,
-      var(--brand-primary) 48%,
-      var(--brand-secondary) 100%
-    );
-  background-size: 42px 42px, 42px 42px, auto, auto;
-  color: white;
+    linear-gradient(rgba(255, 255, 255, .045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .045) 1px, transparent 1px),
+    radial-gradient(circle at 78% 14%, rgba(114, 237, 240, .25), transparent 28%),
+    radial-gradient(circle at 18% 68%, rgba(30, 136, 229, .23), transparent 32%),
+    linear-gradient(110deg, #061d43 0%, var(--brand-primary) 48%, var(--brand-secondary) 100%);
+  background-size: 42px 42px, 42px 42px, auto, auto, auto;
+  color: #fff;
   overflow: hidden;
-  padding: 86px 0 104px;
   position: relative;
 }
 
 .catalog-hero::after {
   background:
-    radial-gradient(circle, rgba(255,255,255,.18) 0 1px, transparent 1px);
+    radial-gradient(circle, rgba(255, 255, 255, .18) 0 1px, transparent 1px);
   background-size: 22px 22px;
   content: '';
   inset: 0;
@@ -1430,6 +1186,14 @@ this.$axios.defaults.baseURL
   flex-direction: column;
   min-height: 278px;
   padding: 22px;
+}
+
+.eyebrowes {
+  color: #edf3f3;
+  display: inline-block;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 1px;
 }
 
 .product-meta-row,

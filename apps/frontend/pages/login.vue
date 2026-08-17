@@ -277,11 +277,11 @@ export default {
                 })
 
                 sessionStorage.setItem(
-                    'embacolsa_token',
+                    'softnova_token',
                     response.data.access_token
                 )
                 sessionStorage.setItem(
-                    'embacolsa_user',
+                    'softnova_user',
                     JSON.stringify(response.data.user || {})
                 )
 
@@ -295,7 +295,7 @@ export default {
                 })
 
                 sessionStorage.setItem(
-                    'embacolsa_token',
+                    'softnova_token',
                     response.data.token
                 )
 

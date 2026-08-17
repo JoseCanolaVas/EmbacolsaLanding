@@ -3,7 +3,7 @@ export default function ({ route, redirect }) {
     return
   }
 
-  const token = sessionStorage.getItem('embacolsa_token')
+  const token = sessionStorage.getItem('softnova_token')
   const rutaNormalizada = route.path.replace(/\/+$/, '') || '/'
 
   if (rutaNormalizada === '/login' && token) {
@@ -40,7 +40,7 @@ export default function ({ route, redirect }) {
   }
 
   try {
-    const usuario = JSON.parse(sessionStorage.getItem('embacolsa_user') || '{}')
+    const usuario = JSON.parse(sessionStorage.getItem('softnova_user') || '{}')
 
     if (usuario.es_super_admin) {
       return

@@ -6,7 +6,7 @@ services:
 
     environment:
       POSTGRES_DB: embacolsa
-      POSTGRES_USER: embacolsa_user
+      POSTGRES_USER: softnova_user
       POSTGRES_PASSWORD: embacolsa_password
 
     ports:

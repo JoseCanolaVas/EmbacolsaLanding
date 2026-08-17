@@ -1,13 +1,7 @@
 <template>
   <v-app class="admin-shell">
-    <v-navigation-drawer
-      v-model="drawer"
-      app
-      :permanent="$vuetify.breakpoint.mdAndUp"
-      :temporary="$vuetify.breakpoint.smAndDown"
-      width="245"
-      class="admin-drawer"
-    >
+    <v-navigation-drawer v-model="drawer" app :permanent="$vuetify.breakpoint.mdAndUp"
+      :temporary="$vuetify.breakpoint.smAndDown" width="245" class="admin-drawer">
       <div class="drawer-mobile-close d-md-none">
         <v-btn icon color="white" aria-label="Cerrar menú" @click="drawer = false">
           <v-icon>mdi-close</v-icon>
@@ -23,15 +17,8 @@
     </v-navigation-drawer>
 
     <v-app-bar app color="white" light elevation="1" height="64">
-      <v-btn
-        fab
-        small
-        depressed
-        color="primary"
-        class="mr-3 d-md-none"
-        aria-label="Abrir menú de parametrización"
-        @click="drawer = true"
-      >
+      <v-btn fab small depressed color="primary" class="mr-3 d-md-none" aria-label="Abrir menú de parametrización"
+        @click="drawer = true">
         <v-icon>mdi-menu</v-icon>
       </v-btn>
 
@@ -48,7 +35,6 @@
         </v-avatar>
         <div>
           <strong>{{ nombreUsuario }}</strong>
-          <small>Sesión activa</small>
         </div>
       </div>
 
@@ -57,9 +43,8 @@
         Sitio público
       </v-btn>
 
-      <v-btn rounded depressed color="error" small class="ml-2" @click="cerrarSesion">
-        <v-icon left small>mdi-logout</v-icon>
-        <span class="d-none d-sm-inline">Cerrar sesión</span>
+      <v-btn rounded color="error" small class="ml-2" @click="cerrarSesion">
+        <v-icon small>mdi-logout</v-icon>
       </v-btn>
     </v-app-bar>
 
@@ -95,7 +80,7 @@ export default {
 
   computed: {
     nombreUsuario() {
-      return this.usuario?.nombre || this.usuario?.name || this.usuario?.email || 'Usuario'
+      return (this.usuario?.nombre + ' ' + (this.usuario?.apellido || '')) || 'Usuario'
     },
 
     inicialUsuario() {
@@ -128,18 +113,13 @@ export default {
         return
       }
 
-      try {
-        this.usuario = JSON.parse(sessionStorage.getItem('embacolsa_user') || 'null')
-      } catch (error) {
-        this.usuario = null
-      }
+      this.usuario = JSON.parse(sessionStorage.getItem('softnova_user') || null)
     },
 
     cerrarSesion() {
       if (process.client) {
-        sessionStorage.removeItem('embacolsa_token')
-        sessionStorage.removeItem('embacolsa_user')
-
+        sessionStorage.removeItem('softnova_token')
+        sessionStorage.removeItem('softnova_user')
         if (this.$axios?.defaults?.headers?.common?.Authorization) {
           delete this.$axios.defaults.headers.common.Authorization
         }

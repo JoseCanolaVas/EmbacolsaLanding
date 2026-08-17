@@ -11,15 +11,8 @@
         </nuxt-link>
       </nav>
 
-      <v-btn
-        fab
-        small
-        depressed
-        color="primary"
-        class="menu-button d-lg-none"
-        aria-label="Abrir menú de navegación"
-        @click="drawer = true"
-      >
+      <v-btn fab small depressed color="primary" class="menu-button d-lg-none" aria-label="Abrir menú de navegación"
+        @click="drawer = true">
         <v-icon>mdi-menu</v-icon>
       </v-btn>
     </v-container>
@@ -31,20 +24,14 @@
         <aside class="mobile-menu-panel" aria-label="Menú de navegación móvil">
           <div class="drawer-brand">
             <img :src="logoSrc" alt="Embacolsa" class="drawer-logo">
-
             <v-btn icon color="primary" aria-label="Cerrar menú" @click="drawer = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
           </div>
 
           <nav class="mobile-menu-links">
-            <nuxt-link
-              v-for="link in drawerLinks"
-              :key="link.label"
-              :to="link.to"
-              class="mobile-menu-link"
-              @click="drawer = false"
-            >
+            <nuxt-link v-for="link in drawerLinks" :key="link.label" :to="link.to" class="mobile-menu-link"
+              @click="drawer = false">
               <span class="mobile-menu-icon">
                 <v-icon color="primary">{{ link.icon }}</v-icon>
               </span>
@@ -197,7 +184,7 @@ export default {
 
 .brand-logo {
   display: block;
-  height: 100%;
+  height: 250px;
   object-fit: contain;
   object-position: left center;
   width: 100%;
@@ -291,7 +278,7 @@ export default {
 
 .drawer-logo {
   display: block;
-  height: 62px;
+  height: 82px;
   object-fit: contain;
   object-position: left center;
   width: 190px;

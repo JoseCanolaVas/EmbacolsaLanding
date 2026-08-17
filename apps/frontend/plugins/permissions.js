@@ -29,7 +29,7 @@ export default function (_context, inject) {
         }
 
         try {
-            return JSON.parse(sessionStorage.getItem('embacolsa_user') || 'null')
+            return JSON.parse(sessionStorage.getItem('softnova_user') || 'null')
         } catch (error) {
             return null
         }
