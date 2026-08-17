@@ -4,7 +4,6 @@
 
     <main>
 
-      <!-- HERO -->
       <section class="catalog-hero">
         <v-container>
           <v-row align="center" class="catalog-hero-row">
@@ -23,8 +22,8 @@
               </p>
 
               <div class="catalog-hero-actions">  
-                <h1>Catalogo </h1>
-                <span class="eyebrowes">Aca Podras encontrar todo nuestro Catalogo Disponible para cotizar</span>
+                <!-- <h1>Catalogo </h1>
+                <span class="eyebrowes">Aca Podras encontrar todo nuestro Catalogo Disponible para cotizar</span> -->
 
                 <v-btn rounded outlined x-large color="white" :to="{ path: '/', hash: '#productos' }">
                   Ver destacados
