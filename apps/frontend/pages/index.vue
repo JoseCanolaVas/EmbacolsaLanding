@@ -7,8 +7,8 @@
         <v-container class="hero-inner">
           <div class="hero-copy">
             <span class="eyebrow">{{ configuracionSitio.eyebrow }}</span>
-            <h1>{{ configuracionSitio.titulo }}</h1>
-            <p>{{ configuracionSitio.descripcion }}</p>
+            <h1>{{ configuracionSitio.titulo ?? '¡ SITIO WEB DESACTIVADO ! ' }}</h1>
+            <p>{{ configuracionSitio.descripcion ?? 'contacta a softnova para poder activar tu servicio '}}</p>
 
             <div class="hero-actions">
               <v-btn x-large rounded depressed class="brand-primary-btn" :to="{ path: '/', hash: '#productos' }">
