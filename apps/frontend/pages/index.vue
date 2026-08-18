@@ -6,9 +6,8 @@
       <section id="inicio" class="hero-section">
         <v-container class="hero-inner">
           <div class="hero-copy">
-            <span class="eyebrow">{{ configuracionSitio.eyebrow }}</span>
-            <h1>{{ configuracionSitio.titulo ?? '¡ SITIO WEB DESACTIVADO ! ' }}</h1>
-            <p>{{ configuracionSitio.descripcion ?? 'contacta a softnova para poder activar tu servicio '}}</p>
+            <h1>{{ '¡ SITIO WEB DESACTIVADO ! ' }}</h1>
+            <p>{{ 'contacta a softnova para poder activar tu servicio ' }}</p>
 
             <div class="hero-actions">
               <v-btn x-large rounded depressed class="brand-primary-btn" :to="{ path: '/', hash: '#productos' }">
@@ -122,8 +121,7 @@
             <p>{{ configuracionSitio.descripcion_contacto }}</p>
           </div>
           <div class="contact-actions">
-            <v-btn x-large rounded color="white" class="primary--text" :href="whatsappUrl"
-              target="_blank">
+            <v-btn x-large rounded color="white" class="primary--text" :href="whatsappUrl" target="_blank">
               <v-icon left>mdi-whatsapp</v-icon>
               WhatsApp
             </v-btn>
@@ -465,8 +463,8 @@ export default {
 
 .hero-section {
   background:
-    linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, .045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .045) 1px, transparent 1px),
     radial-gradient(circle at 78% 14%, rgba(114, 237, 240, .25), transparent 28%),
     radial-gradient(circle at 18% 68%, rgba(30, 136, 229, .23), transparent 32%),
     linear-gradient(110deg, #061d43 0%, var(--brand-primary) 48%, var(--brand-secondary) 100%);
@@ -478,8 +476,8 @@ export default {
 
 .hero-section::before {
   background:
-    radial-gradient(circle, rgba(255,255,255,.18) 0 1px, transparent 1px),
-    linear-gradient(100deg, rgba(255,255,255,.12), transparent 42%);
+    radial-gradient(circle, rgba(255, 255, 255, .18) 0 1px, transparent 1px),
+    linear-gradient(100deg, rgba(255, 255, 255, .12), transparent 42%);
   background-size: 24px 24px, auto;
   content: '';
   inset: 0;
@@ -790,7 +788,7 @@ export default {
 
 .contact-section {
   background:
-    radial-gradient(circle at 80% 20%, rgba(255,255,255,.22), transparent 26%),
+    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, .22), transparent 26%),
     linear-gradient(105deg, var(--brand-primary), var(--brand-secondary));
   color: #fff;
   padding: 54px 0;
