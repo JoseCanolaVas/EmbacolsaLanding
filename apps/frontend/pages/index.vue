@@ -6,7 +6,7 @@
       <section id="inicio" class="hero-section">
         <v-container class="hero-inner">
           <div class="hero-copy">
-            <h1>{{ '¡ SITIO WEB DESACTIVADO ! ' }}</h1>
+            <h1>{{ 'SITIO WEB DESACTIVADO  ' }}</h1>
             <p>{{ 'contacta a softnova para poder activar tu servicio ' }}</p>
 
             <div class="hero-actions">
