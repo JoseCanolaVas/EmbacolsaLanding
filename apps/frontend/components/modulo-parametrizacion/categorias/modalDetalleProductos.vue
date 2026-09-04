@@ -68,6 +68,15 @@
                         </div>
                     </v-col>
 
+                    <v-col cols="12" sm="6">
+                        <div class="detalle-label">
+                            Bodega
+                        </div>
+                        <div class="detalle-valor">
+                            {{ bodegaNombre }}
+                        </div>
+                    </v-col>
+
                     <v-col cols="12">
                         <div class="detalle-label">
                             Descripción
@@ -95,6 +104,18 @@
                                 {{ estadoActivo ? 'mdi-check-circle-outline' : 'mdi-close-circle-outline' }}
                             </v-icon>
                             {{ estadoTexto }}
+                        </v-chip>
+                    </v-col>
+
+                    <v-col cols="12" sm="6">
+                        <div class="detalle-label">
+                            Stock disponible
+                        </div>
+                        <v-chip small :color="stockDisponible > 0 ? 'success' : 'error'" dark>
+                            <v-icon left small>
+                                {{ stockDisponible > 0 ? 'mdi-package-check' : 'mdi-package-variant-remove' }}
+                            </v-icon>
+                            {{ stockDisponible }} unidades
                         </v-chip>
                     </v-col>
 
@@ -144,6 +165,14 @@ export default {
 
         marcaNombre() {
             return this.producto.marca?.nombre || 'Sin marca'
+        },
+
+        bodegaNombre() {
+            return this.producto.bodega?.nombre || 'Sin bodega'
+        },
+
+        stockDisponible() {
+            return Number(this.producto.stock || 0)
         },
 
         estadoActivo() {

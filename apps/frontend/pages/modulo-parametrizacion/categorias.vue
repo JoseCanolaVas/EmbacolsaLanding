@@ -1,71 +1,62 @@
 <template>
-    <v-card flat class="mb-4">
-        <v-card-title>
-            <v-toolbar flat>
-                <v-toolbar-title>
-                    <div class="d-flex align-center">
-                        <v-icon color="warning" class="mr-3" size="30">
-                            mdi-folder-outline
-                        </v-icon>
-                        <span>Categorías</span>
-                    </div>
-                </v-toolbar-title>
-                <v-divider class="mx-4" inset vertical></v-divider>
-            </v-toolbar>
-        </v-card-title>
+    <v-card flat class="categories-page">
+        <div class="page-heading">
+            <div>
+                <span>Catálogo</span>
+                <h2>Categorías</h2>
+                <p>
+                    Organiza las líneas visibles del catálogo y controla qué grupos aparecen en el sitio público.
+                </p>
+            </div>
 
+            <v-btn v-if="$can('categorias.crear')" rounded depressed color="primary" @click="abrirModalCrearCategoria()">
+                <v-icon left>mdi-folder-plus-outline</v-icon>
+                Crear categoría
+            </v-btn>
+        </div>
 
-        <v-card-subtitle class="mb-4 mt-5" align="center">
-            <h3><b class="justify-center"> <v-icon>mdi-information-slab-circle-outline</v-icon> Panel de parametrizacion
-                    de
-                    categorías, desde acá se organiza la información disponible para los productos.</b></h3>
-        </v-card-subtitle>
+        <v-card outlined class="panel-card table-card">
+            <v-card-title class="panel-card-title">
+                <div class="panel-title-icon">
+                    <v-icon color="primary">mdi-format-list-bulleted-type</v-icon>
+                </div>
+                <div>
+                    <strong>Categorías configuradas</strong>
+                    <p>Busca, revisa estado y edita la información que alimenta productos.</p>
+                </div>
 
-        <v-card-text>
-            <v-row>
-                <v-col cols="6" md="6" sm="6">
-                    <v-text-field v-model="buscar" label="Buscar" outlined dense clearable rounded></v-text-field>
-                </v-col>
+                <v-spacer />
 
-                <v-col cols="6" md="6" sm="6">
-                    <v-btn v-if="$can('categorias.crear')" color="primary" @click="abrirModalCrearCategoria()" rounded>
-                        <v-icon left>mdi-plus</v-icon>
-                        Crear Categoría
-                    </v-btn>
-                </v-col>
-            </v-row>
-        </v-card-text>
+                <v-text-field v-model="buscar" dense outlined rounded clearable hide-details
+                    prepend-inner-icon="mdi-magnify" label="Buscar categoría" class="panel-search" />
+            </v-card-title>
 
-        <v-card-text class="mt-5">
-
-            <v-data-table :items="categorias" :headers="headersCategorias" :loading="loading.categorias" disable-pagination hide-default-footer :search="buscar" >
-
+            <v-data-table :items="categorias" :headers="headersCategorias" :loading="loading.categorias"
+                disable-pagination hide-default-footer :search="buscar" class="panel-table">
                 <template v-slot:[`item.estado`]="{ item }">
-                    <v-chip :color="item.estado === true ? 'green' : 'red'" dark>
+                    <v-chip small :color="item.estado === true ? 'green' : 'grey'" dark>
                         {{ item.estado === true ? 'Activo' : 'Inactivo' }}
                     </v-chip>
                 </template>
 
                 <template v-slot:[`item.acciones`]="{ item }">
-                    <v-icon v-if="$can('categorias.editar')" color="teal" @click="abrirModalCrearCategoria(item)">
-                        mdi-pencil
-                    </v-icon>
+                    <v-btn v-if="$can('categorias.editar')" icon color="primary" @click="abrirModalCrearCategoria(item)">
+                        <v-icon>mdi-pencil-outline</v-icon>
+                    </v-btn>
                 </template>
             </v-data-table>
-
-        </v-card-text>
-
+        </v-card>
 
         <v-dialog v-model="modalCategoria" max-width="500px">
             <modalCategorias :categoriaSeleccionada="categoriaSeleccionada" @cerrarModal="modalCategoria = false"
                 @recargar="listarCategorias" />
         </v-dialog>
-
     </v-card>
 </template>
 
 <script>
 import modalCategorias from '~/components/modulo-parametrizacion/categorias/modalCategorias.vue'
+
 export default {
     layout: 'parametrizacion',
 
@@ -82,36 +73,133 @@ export default {
                 categorias: false,
             },
             headersCategorias: [
-                { text: 'Nombre', value: 'nombre' , align: 'center'},
-                { text: 'Descripción', value: 'descripcion' , align: 'center'},
-                { text: 'Estado', value: 'estado' , align: 'center'},
-                { text: 'Acciones', value: 'acciones', sortable: false , align: 'center'},
+                { text: 'Nombre', value: 'nombre' },
+                { text: 'Descripción', value: 'descripcion' },
+                { text: 'Estado', value: 'estado', align: 'center' },
+                { text: 'Acciones', value: 'acciones', sortable: false, align: 'center' },
             ],
             categoriaSeleccionada: {},
-        };
+        }
     },
 
     mounted() {
-        this.listarCategorias();
+        this.listarCategorias()
     },
 
     methods: {
         abrirModalCrearCategoria(item = {}) {
-            this.categoriaSeleccionada = { ...item };
-            this.modalCategoria = true;
+            this.categoriaSeleccionada = { ...item }
+            this.modalCategoria = true
         },
 
         async listarCategorias() {
             try {
-                this.loading.categorias = true;
-                const response = await this.$axios.get('/categorias/listar');
-                this.categorias = response.data;
+                this.loading.categorias = true
+                const response = await this.$axios.get('/categorias/listar')
+                this.categorias = response.data || []
             } catch (error) {
-                this.$toast.error('Ocurrió un error al listar las categorías. Por favor, inténtelo de nuevo.');
+                this.$toast.error('Ocurrió un error al listar las categorías. Por favor, inténtelo de nuevo.')
             } finally {
-                this.loading.categorias = false;
+                this.loading.categorias = false
             }
-        }
-    }
-};
+        },
+    },
+}
 </script>
+
+<style scoped>
+.categories-page {
+    background: transparent;
+}
+
+.page-heading,
+.panel-card {
+    border-radius: 16px !important;
+}
+
+.page-heading {
+    align-items: center;
+    background: #fff;
+    border: 1px solid #dfe8f0;
+    display: flex;
+    gap: 18px;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    padding: 24px;
+}
+
+.page-heading span {
+    color: #0d7880;
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.page-heading h2 {
+    color: #14325f;
+    font-size: 28px;
+    font-weight: 950;
+    margin: 4px 0;
+}
+
+.page-heading p {
+    color: #65758d;
+    line-height: 1.55;
+    margin: 0;
+}
+
+.panel-card {
+    border-color: #dfe8f0 !important;
+    overflow: hidden;
+}
+
+.panel-card-title {
+    align-items: center;
+    gap: 14px;
+    padding: 22px 24px;
+}
+
+.panel-title-icon {
+    align-items: center;
+    background: #eef6ff;
+    border-radius: 14px;
+    display: flex;
+    height: 46px;
+    justify-content: center;
+    width: 46px;
+}
+
+.panel-card-title strong {
+    color: #243b53;
+    display: block;
+    font-size: 19px;
+}
+
+.panel-card-title p {
+    color: #65758d;
+    font-size: 13px;
+    margin: 2px 0 0;
+}
+
+.panel-search {
+    max-width: 360px;
+}
+
+.panel-table {
+    border-top: 1px solid #e6edf5;
+}
+
+@media (max-width: 760px) {
+    .page-heading,
+    .panel-card-title {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .panel-search {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+</style>

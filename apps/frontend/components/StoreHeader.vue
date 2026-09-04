@@ -2,7 +2,7 @@
   <header class="store-header">
     <v-container class="header-inner">
       <nuxt-link :to="homeTo" class="brand-link" aria-label="Ir al inicio">
-        <img :src="logoSrc" alt="Embacolsa" class="brand-logo">
+        <img :src="logoSrc" alt="NovaCell" class="brand-logo">
       </nuxt-link>
 
       <nav class="header-links d-none d-lg-flex" aria-label="Navegación principal">
@@ -10,6 +10,22 @@
           {{ link.label }}
         </nuxt-link>
       </nav>
+
+      <v-btn
+        v-if="showCart"
+        rounded
+        depressed
+        class="header-cart-button"
+        aria-label="Abrir carrito"
+        @click="$emit('open-cart')"
+      >
+        <v-badge :content="cartCount" :value="cartCount" color="#19c463" overlap>
+          <v-icon left>
+            mdi-cart-outline
+          </v-icon>
+        </v-badge>
+        <span class="d-none d-sm-inline">Carrito</span>
+      </v-btn>
 
       <v-btn fab small depressed color="primary" class="menu-button d-lg-none" aria-label="Abrir menú de navegación"
         @click="drawer = true">
@@ -23,7 +39,7 @@
 
         <aside class="mobile-menu-panel" aria-label="Menú de navegación móvil">
           <div class="drawer-brand">
-            <img :src="logoSrc" alt="Embacolsa" class="drawer-logo">
+            <img :src="logoSrc" alt="NovaCell" class="drawer-logo">
             <v-btn icon color="primary" aria-label="Cerrar menú" @click="drawer = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
@@ -41,7 +57,22 @@
           </nav>
 
           <div class="mobile-menu-cta">
-            <v-btn block rounded color="primary" href="https://wa.me/573218720375" target="_blank">
+            <v-btn
+              v-if="showCart"
+              block
+              rounded
+              depressed
+              class="mobile-cart-button mb-3"
+              @click="$emit('open-cart'); drawer = false"
+            >
+              <v-icon left>mdi-cart-outline</v-icon>
+              Ver carrito
+              <v-chip v-if="cartCount" x-small color="success" text-color="white" class="ml-2">
+                {{ cartCount }}
+              </v-chip>
+            </v-btn>
+
+            <v-btn block rounded color="primary" href="https://wa.me/573188158107" target="_blank">
               <v-icon left>mdi-whatsapp</v-icon>
               Cotizar por WhatsApp
             </v-btn>
@@ -65,6 +96,16 @@ export default {
     activeSection: {
       type: String,
       default: 'inicio',
+    },
+
+    cartCount: {
+      type: Number,
+      default: 0,
+    },
+
+    showCart: {
+      type: Boolean,
+      default: true,
     },
   },
 
@@ -91,11 +132,6 @@ export default {
           label: 'Inicio',
           to: this.isHome ? { path: '/', hash: '#inicio' } : { path: '/' },
           active: this.activeSection === 'inicio',
-        },
-        {
-          label: 'Productos',
-          to: { path: '/', hash: '#productos' },
-          active: this.activeSection === 'productos',
         },
         {
           label: 'Catálogo',
@@ -215,9 +251,36 @@ export default {
   transform: translateY(-1px);
 }
 
+.header-cart-button {
+  background: #f4f9ff !important;
+  border: 1px solid #d8e9f8 !important;
+  color: #0f2c61 !important;
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: .2px;
+  margin-left: 4px;
+  min-height: 44px;
+  padding: 0 18px !important;
+}
+
+.header-cart-button:hover {
+  background: linear-gradient(135deg, #eef8ff, #ffffff) !important;
+  box-shadow: 0 12px 28px rgba(15, 44, 97, .12);
+}
+
+.mobile-cart-button {
+  background:
+    linear-gradient(
+      135deg,
+      #0f2c61,
+      #0b7ec2
+    ) !important;
+  color: #fff !important;
+  font-weight: 950;
+}
 
 .menu-button {
-  margin-left: auto;
+  margin-left: 0;
   min-width: 40px;
   position: relative;
   z-index: 90;
@@ -344,12 +407,23 @@ export default {
 
 @media (max-width: 600px) {
   .header-inner {
+    gap: 10px;
     min-height: 76px;
   }
 
   .brand-link {
     height: 56px;
-    width: 184px;
+    width: 150px;
+  }
+
+  .brand-logo {
+    height: 160px;
+  }
+
+  .header-cart-button {
+    margin-left: auto;
+    min-width: 44px;
+    padding: 0 12px !important;
   }
 }
 </style>

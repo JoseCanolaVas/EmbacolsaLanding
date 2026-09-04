@@ -46,6 +46,24 @@ export default {
                     permiso: 'marcas.ver',
                 },
                 {
+                    title: 'Bodegas',
+                    icon: 'mdi-warehouse',
+                    route: '/modulo-parametrizacion/bodegas',
+                    permiso: 'bodegas.ver',
+                },
+                {
+                    title: 'POS',
+                    icon: 'mdi-cash-register',
+                    route: '/modulo-parametrizacion/pos',
+                    permiso: 'ventas.ver',
+                },
+                {
+                    title: 'Ventas',
+                    icon: 'mdi-chart-line',
+                    route: '/modulo-parametrizacion/ventas',
+                    permiso: 'ventas.ver',
+                },
+                {
                     title: 'Sitio público',
                     icon: 'mdi-palette-outline',
                     route: '/modulo-parametrizacion/sitio-publico',

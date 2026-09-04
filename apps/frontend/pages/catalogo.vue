@@ -1,6 +1,11 @@
 <template>
   <v-app class="catalog-page" :style="variablesMarca">
-    <store-header :logo-src="logoActual" active-section="catalogo" />
+    <store-header
+      :logo-src="logoActual"
+      active-section="catalogo"
+      :cart-count="totalItemsCarrito"
+      @open-cart="drawerCarrito = true"
+    />
 
     <main>
 
@@ -21,14 +26,6 @@
                 {{ configuracionSitio.descripcion_catalogo }}
               </p>
 
-              <div class="catalog-hero-actions">  
-                <!-- <h1>Catalogo </h1>
-                <span class="eyebrowes">Aca Podras encontrar todo nuestro Catalogo Disponible para cotizar</span> -->
-
-                <v-btn rounded outlined x-large color="white" :to="{ path: '/', hash: '#productos' }">
-                  Ver destacados
-                </v-btn>
-              </div>
             </v-col>
 
             <v-col cols="12" md="5">
@@ -138,7 +135,7 @@
 
           <!-- PRODUCTOS -->
           <v-row v-else class="mt-5">
-            <v-col v-for="product in productosCatalogo" :key="`catalogo-${product.id}`" cols="12" md="6" lg="4">
+            <v-col v-for="product in productosCatalogoPaginados" :key="`catalogo-${product.id}`" cols="12" md="6" lg="4">
               <v-card outlined hover height="100%" class="catalog-product-card">
                 <div class="catalog-product-visual">
                   <v-img v-if="product.image" :src="product.image" height="245" cover>
@@ -179,8 +176,8 @@
                       <strong>{{ product.price || 'A cotizar' }}</strong>
                     </div>
 
-                    <v-chip small color="success" text-color="white">
-                      Activo
+                    <v-chip small :color="productoAgotado(product) ? 'error' : 'success'" text-color="white">
+                      {{ productoAgotado(product) ? 'Agotado' : `${product.stock} und` }}
                     </v-chip>
                   </div>
 
@@ -194,6 +191,19 @@
                         mdi-whatsapp
                       </v-icon>
                       Cotizar
+                    </v-btn>
+
+                    <v-btn
+                      rounded
+                      depressed
+                      class="cart-add-btn"
+                      :disabled="productoAgotado(product)"
+                      @click="agregarAlCarrito(product)"
+                    >
+                      <v-icon left small>
+                        {{ productoAgotado(product) ? 'mdi-cart-off' : 'mdi-cart-plus' }}
+                      </v-icon>
+                      {{ productoAgotado(product) ? 'Agotado' : 'Añadir al carrito' }}
                     </v-btn>
                   </div>
                 </div>
@@ -223,6 +233,20 @@
             </v-col>
 
           </v-row>
+
+          <div v-if="totalPaginasCatalogo > 1" class="catalog-pagination">
+            <span>
+              Mostrando {{ productosCatalogoPaginados.length }} de {{ productosCatalogo.length }} productos
+            </span>
+
+            <v-pagination
+              v-model="paginaCatalogo"
+              :length="totalPaginasCatalogo"
+              :total-visible="7"
+              circle
+              color="primary"
+            />
+          </div>
 
         </v-container>
       </section>
@@ -326,6 +350,42 @@
                     </v-list-item-content>
                   </v-list-item>
 
+                  <v-list-item>
+                    <v-list-item-icon>
+                      <v-icon color="primary">
+                        mdi-package-check
+                      </v-icon>
+                    </v-list-item-icon>
+
+                    <v-list-item-content>
+                      <v-list-item-subtitle>
+                        Stock disponible
+                      </v-list-item-subtitle>
+
+                      <v-list-item-title class="font-weight-bold">
+                        {{ productoAgotado(productoSeleccionado) ? 'Agotado' : `${productoSeleccionado.stock} unidades` }}
+                      </v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+
+                  <v-list-item v-if="productoSeleccionado.bodega">
+                    <v-list-item-icon>
+                      <v-icon color="primary">
+                        mdi-warehouse
+                      </v-icon>
+                    </v-list-item-icon>
+
+                    <v-list-item-content>
+                      <v-list-item-subtitle>
+                        Bodega
+                      </v-list-item-subtitle>
+
+                      <v-list-item-title class="font-weight-bold">
+                        {{ productoSeleccionado.bodega }}
+                      </v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+
                   <v-list-item v-if="productoSeleccionado.brand">
                     <v-list-item-icon>
                       <v-icon color="primary">
@@ -368,10 +428,111 @@
 
             Solicitar cotización
           </v-btn>
+
+          <v-btn
+            rounded
+            depressed
+            class="cart-add-btn"
+            :disabled="productoAgotado(productoSeleccionado)"
+            @click="agregarAlCarrito(productoSeleccionado)"
+          >
+            <v-icon left>
+              {{ productoAgotado(productoSeleccionado) ? 'mdi-cart-off' : 'mdi-cart-plus' }}
+            </v-icon>
+
+            {{ productoAgotado(productoSeleccionado) ? 'Agotado' : 'Agregar al carrito' }}
+          </v-btn>
         </v-card-actions>
 
       </v-card>
     </v-dialog>
+
+    <v-navigation-drawer v-model="drawerCarrito" fixed temporary right width="440" class="cart-drawer">
+      <div class="cart-header">
+        <div class="cart-header-icon">
+          <v-icon color="white">
+            mdi-cart-heart
+          </v-icon>
+        </div>
+
+        <div class="cart-header-copy">
+          <span>Pedido rápido</span>
+          <h3>Carrito</h3>
+          <p>{{ totalItemsCarrito }} producto(s) listos para consultar</p>
+        </div>
+
+        <v-btn icon dark @click="drawerCarrito = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </div>
+
+      <div v-if="!carrito.length" class="cart-empty">
+        <v-icon size="72" color="primary">
+          mdi-cart-outline
+        </v-icon>
+
+        <h4>Tu carrito está vacío</h4>
+        <p>Agrega productos del catálogo y cotízalos todos en un solo mensaje.</p>
+
+        <v-btn rounded depressed color="primary" class="mt-5" @click="drawerCarrito = false">
+          Explorar productos
+        </v-btn>
+      </div>
+
+      <div v-else class="cart-content">
+        <div v-for="item in carrito" :key="`cart-${item.id}`" class="cart-item">
+          <div class="cart-item-visual">
+            <v-img v-if="item.image" :src="item.image" height="72" width="72" cover />
+            <v-icon v-else color="primary">
+              {{ item.icon }}
+            </v-icon>
+          </div>
+
+          <div class="cart-item-body">
+            <div class="cart-item-top">
+              <span>{{ item.type }}</span>
+
+              <v-btn x-small icon color="error" @click="quitarDelCarrito(item)">
+                <v-icon small>mdi-trash-can-outline</v-icon>
+              </v-btn>
+            </div>
+
+            <strong>{{ item.title }}</strong>
+
+            <small>
+              {{ item.brand ? `${item.brand} · ` : '' }}{{ item.price || 'Precio a cotizar' }}
+            </small>
+            <small>{{ productoAgotado(item) ? 'Agotado' : `${item.stock} und disponibles` }}</small>
+
+            <div class="cart-qty">
+              <v-btn x-small fab depressed color="#eef5ff" @click="disminuirCantidad(item)">
+                <v-icon small>mdi-minus</v-icon>
+              </v-btn>
+
+              <b>{{ item.cantidad }}</b>
+
+              <v-btn x-small fab depressed color="#eef5ff" :disabled="productoAgotado(item)" @click="incrementarCantidad(item)">
+                <v-icon small>mdi-plus</v-icon>
+              </v-btn>
+            </div>
+          </div>
+        </div>
+
+        <div class="cart-summary">
+          <span>Total estimado</span>
+          <strong>{{ carritoFormateado || 'A cotizar' }}</strong>
+        </div>
+
+        <v-btn block rounded x-large class="cart-whatsapp-btn" @click="cotizarCarrito">
+          <v-icon left>mdi-whatsapp</v-icon>
+          Cotizar por WhatsApp
+        </v-btn>
+
+        <v-btn block rounded text color="error" class="mt-2" @click="vaciarCarrito">
+          Vaciar carrito
+        </v-btn>
+      </div>
+    </v-navigation-drawer>
 
   </v-app>
 </template>
@@ -387,9 +548,13 @@ export default {
       catalogoBusqueda: '',
       catalogoCategoria: null,
       catalogoMarca: null,
+      paginaCatalogo: 1,
+      productosPorPagina: 9,
 
       modalDetalle: false,
       productoSeleccionado: null,
+      drawerCarrito: false,
+      carrito: [],
 
       categoriasParametrizadas: [],
       productosParametrizados: [],
@@ -404,7 +569,7 @@ export default {
     logoActual() {
       return (
         this.obtenerImagenPorTipo('logo') ||
-        '/images/embacolsa-optimized.webp'
+        '/images/novacell.png'
       )
     },
 
@@ -484,6 +649,13 @@ export default {
           price: this.formatearPrecio(producto.precio),
 
           precioOriginal: producto.precio,
+
+          stock: Number(producto.stock || 0),
+
+          bodega:
+            (producto.bodega ? producto.bodega.nombre : null) ||
+            producto.bodega_nombre ||
+            null,
         }))
     },
 
@@ -535,15 +707,68 @@ export default {
     hayFiltrosCatalogo() {
       return Boolean(this.catalogoBusqueda || this.catalogoCategoria || this.catalogoMarca)
     },
+
+    totalPaginasCatalogo() {
+      return Math.ceil(this.productosCatalogo.length / this.productosPorPagina)
+    },
+
+    productosCatalogoPaginados() {
+      const inicio = (this.paginaCatalogo - 1) * this.productosPorPagina
+      const fin = inicio + this.productosPorPagina
+
+      return this.productosCatalogo.slice(inicio, fin)
+    },
+
+    totalItemsCarrito() {
+      return this.carrito.reduce((total, item) => total + Number(item.cantidad || 0), 0)
+    },
+
+    totalCarrito() {
+      return this.carrito.reduce((total, item) => {
+        const precio = Number(item.precioOriginal || 0)
+        return total + (Number.isNaN(precio) ? 0 : precio * Number(item.cantidad || 0))
+      }, 0)
+    },
+
+    carritoFormateado() {
+      return this.totalCarrito
+        ? this.formatearPrecio(this.totalCarrito)
+        : null
+    },
   },
 
   mounted() {
     this.catalogoBusqueda = this.$route.query.buscar || ''
+    this.cargarCarrito()
+    this.drawerCarrito = this.$route.query.carrito === '1'
 
     this.cargarParametrizacion()
   },
 
+  watch: {
+    catalogoBusqueda() {
+      this.paginaCatalogo = 1
+    },
+
+    catalogoCategoria() {
+      this.paginaCatalogo = 1
+    },
+
+    catalogoMarca() {
+      this.paginaCatalogo = 1
+    },
+
+    productosCatalogo() {
+      if (this.paginaCatalogo > this.totalPaginasCatalogo) {
+        this.paginaCatalogo = this.totalPaginasCatalogo || 1
+      }
+    },
+  },
+
   methods: {
+    productoAgotado(producto) {
+      return !producto || Number(producto.stock || 0) <= 0
+    },
 
     async cargarParametrizacion() {
       this.cargandoProductos = true
@@ -708,7 +933,7 @@ export default {
       }
 
       const mensaje = [
-        'Hola Embacolsa, estoy interesado en cotizar el siguiente producto:',
+        `Hola ${this.configuracionSitio.nombre_sitio || 'NovaCell'}, estoy interesado en cotizar el siguiente producto:`,
         '',
         `Producto: ${producto.title}`,
         `Categoría: ${producto.type}`,
@@ -754,6 +979,171 @@ export default {
         path: '/',
         query: {
           producto: producto.title,
+        },
+        hash: '#contacto',
+      })
+    },
+
+    normalizarProductoCarrito(producto) {
+      return {
+        id: producto.id,
+        title: producto.title,
+        text: producto.text,
+        type: producto.type,
+        brand: producto.brand,
+        unit: producto.unit,
+        price: producto.price,
+        precioOriginal: producto.precioOriginal,
+        stock: producto.stock,
+        bodega: producto.bodega,
+        image: producto.image,
+        icon: producto.icon,
+        cantidad: 1,
+      }
+    },
+
+    agregarAlCarrito(producto) {
+      if (!producto) {
+        return
+      }
+
+      if (this.productoAgotado(producto)) {
+        if (this.$toast) {
+          this.$toast.warning('Este producto está agotado y no se puede agregar al carrito.')
+        }
+
+        return
+      }
+
+      const item = this.carrito.find(productoCarrito => String(productoCarrito.id) === String(producto.id))
+
+      if (item) {
+        if (Number(item.stock || 0) > 0 && item.cantidad >= Number(item.stock)) {
+          if (this.$toast) {
+            this.$toast.warning('Ya agregaste todo el stock disponible de este producto.')
+          }
+
+          this.drawerCarrito = true
+          return
+        }
+
+        item.cantidad += 1
+      } else {
+        this.carrito.push(this.normalizarProductoCarrito(producto))
+      }
+
+      this.guardarCarrito()
+      this.drawerCarrito = true
+
+      if (this.$toast) {
+        this.$toast.success('Producto agregado al carrito.')
+      }
+    },
+
+    incrementarCantidad(item) {
+      if (this.productoAgotado(item)) {
+        if (this.$toast) {
+          this.$toast.warning('Este producto está agotado.')
+        }
+
+        return
+      }
+
+      if (Number(item.stock || 0) > 0 && item.cantidad >= Number(item.stock)) {
+        if (this.$toast) {
+          this.$toast.warning('No hay más stock disponible para este producto.')
+        }
+
+        return
+      }
+
+      item.cantidad += 1
+      this.guardarCarrito()
+    },
+
+    disminuirCantidad(item) {
+      if (item.cantidad <= 1) {
+        this.quitarDelCarrito(item)
+        return
+      }
+
+      item.cantidad -= 1
+      this.guardarCarrito()
+    },
+
+    quitarDelCarrito(item) {
+      this.carrito = this.carrito.filter(productoCarrito => String(productoCarrito.id) !== String(item.id))
+      this.guardarCarrito()
+    },
+
+    vaciarCarrito() {
+      this.carrito = []
+      this.guardarCarrito()
+    },
+
+    guardarCarrito() {
+      if (!process.client) {
+        return
+      }
+
+      localStorage.setItem('novacell_cart', JSON.stringify(this.carrito))
+    },
+
+    cargarCarrito() {
+      if (!process.client) {
+        return
+      }
+
+      try {
+        this.carrito = JSON.parse(localStorage.getItem('novacell_cart') || '[]')
+      } catch (error) {
+        this.carrito = []
+      }
+    },
+
+    cotizarCarrito() {
+      if (!this.carrito.length) {
+        return
+      }
+
+      const productos = this.carrito
+        .map((item, index) => [
+          `${index + 1}. ${item.title} x${item.cantidad}`,
+          item.type ? `   Categoría: ${item.type}` : null,
+          item.brand ? `   Marca: ${item.brand}` : null,
+          item.unit ? `   Unidad: ${item.unit}` : null,
+          item.price ? `   Precio publicado: ${item.price}` : '   Precio: Solicitar cotización',
+          item.stock > 0 ? `   Stock visto en web: ${item.stock} unidades` : null,
+        ].filter(Boolean).join('\n'))
+        .join('\n\n')
+
+      const mensaje = [
+        `Hola ${this.configuracionSitio.nombre_sitio || 'NovaCell'}, quiero cotizar estos productos:`,
+        '',
+        productos,
+        '',
+        this.carritoFormateado
+          ? `Total estimado: ${this.carritoFormateado}`
+          : null,
+        '¿Me pueden confirmar disponibilidad y tiempos de entrega?',
+      ]
+        .filter(Boolean)
+        .join('\n')
+
+      const numero = this.configuracionSitio.telefono_whatsapp || ''
+
+      if (numero) {
+        const numeroLimpio = String(numero).replace(/\D/g, '')
+        const url = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`
+
+        window.open(url, '_blank', 'noopener,noreferrer')
+        return
+      }
+
+      this.$router.push({
+        path: '/',
+        query: {
+          pedido: 'carrito',
         },
         hash: '#contacto',
       })
@@ -828,39 +1218,31 @@ export default {
 
       const nombre = categoria.toLowerCase()
 
-      if (nombre.includes('cinta')) {
-        return 'mdi-tape-measure'
+      if (nombre.includes('forro') || nombre.includes('funda') || nombre.includes('case')) {
+        return 'mdi-shield-phone-outline'
       }
 
-      if (
-        nombre.includes('caja') ||
-        nombre.includes('cartón') ||
-        nombre.includes('carton')
-      ) {
-        return 'mdi-package-variant-closed'
+      if (nombre.includes('cable') || nombre.includes('adaptador')) {
+        return 'mdi-usb-port'
       }
 
-      if (
-        nombre.includes('zuncho') ||
-        nombre.includes('suncho')
-      ) {
-        return 'mdi-link-variant'
+      if (nombre.includes('audífono') || nombre.includes('audifono') || nombre.includes('audio')) {
+        return 'mdi-headphones'
       }
 
-      if (
-        nombre.includes('seguridad')
-      ) {
-        return 'mdi-shield-check-outline'
+      if (nombre.includes('vidrio') || nombre.includes('templado')) {
+        return 'mdi-cellphone-screenshot'
       }
 
-      if (
-        nombre.includes('stretch') ||
-        nombre.includes('film')
-      ) {
-        return 'mdi-rollup'
+      if (nombre.includes('soporte') || nombre.includes('carro')) {
+        return 'mdi-car-connected'
       }
 
-      return 'mdi-package-variant'
+      if (nombre.includes('cargador') || nombre.includes('carga')) {
+        return 'mdi-battery-charging-high'
+      }
+
+      return 'mdi-cellphone-link'
     },
 
     estaActivo(estado) {
@@ -915,7 +1297,7 @@ export default {
 
 <style scoped>
 .catalog-page {
-  color: #102b5c;
+  color: #0b2a55;
 }
 
 .catalog-hero {
@@ -924,7 +1306,8 @@ export default {
     linear-gradient(90deg, rgba(255, 255, 255, .045) 1px, transparent 1px),
     radial-gradient(circle at 78% 14%, rgba(114, 237, 240, .25), transparent 28%),
     radial-gradient(circle at 18% 68%, rgba(30, 136, 229, .23), transparent 32%),
-    linear-gradient(110deg, #061d43 0%, var(--brand-primary) 48%, var(--brand-secondary) 100%);
+    linear-gradient(110deg, #061d43 0%, #0b5ed7 48%, #8b2cf5 100%);
+
   background-size: 42px 42px, 42px 42px, auto, auto, auto;
   color: #fff;
   overflow: hidden;
@@ -933,7 +1316,12 @@ export default {
 
 .catalog-hero::after {
   background:
-    radial-gradient(circle, rgba(255, 255, 255, .18) 0 1px, transparent 1px);
+    radial-gradient(
+      circle,
+      rgba(255, 255, 255, .18) 0 1px,
+      transparent 1px
+    );
+
   background-size: 22px 22px;
   content: '';
   inset: 0;
@@ -956,7 +1344,7 @@ export default {
 }
 
 .catalog-title {
-  color: white;
+  color: #fff;
   font-size: clamp(44px, 6vw, 72px);
   font-weight: 950;
   line-height: 1.05;
@@ -980,8 +1368,15 @@ export default {
 }
 
 .catalog-main-action {
-  background: linear-gradient(135deg, var(--brand-accent), #22b9d2) !important;
-  box-shadow: 0 18px 36px rgba(30, 136, 229, .32) !important;
+  background: linear-gradient(
+    135deg,
+    #0b5ed7,
+    #00c8ff
+  ) !important;
+
+  box-shadow:
+    0 18px 36px rgba(11, 94, 215, .32) !important;
+
   color: #fff !important;
   font-weight: 950;
 }
@@ -989,21 +1384,37 @@ export default {
 .catalog-counter-card,
 .catalog-filter-card,
 .catalog-product-card {
+  margin-top: 24px;
   border-radius: 24px !important;
 }
 
 .catalog-counter-card {
   backdrop-filter: blur(18px);
+
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, .96), rgba(240, 250, 255, .9)) !important;
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, .98),
+      rgba(240, 247, 255, .94)
+    ) !important;
+
   border: 1px solid rgba(255, 255, 255, .62) !important;
-  box-shadow: 0 28px 70px rgba(0, 20, 54, .22) !important;
+
+  box-shadow:
+    0 28px 70px rgba(6, 29, 67, .22) !important;
+
   overflow: hidden;
   position: relative;
 }
 
 .catalog-counter-card::before {
-  background: linear-gradient(135deg, var(--brand-accent), var(--brand-secondary));
+  background:
+    linear-gradient(
+      135deg,
+      #0b5ed7,
+      #8b2cf5
+    );
+
   content: '';
   height: 6px;
   left: 0;
@@ -1013,7 +1424,7 @@ export default {
 }
 
 .catalog-counter-grid {
-  border-top: 1px solid #e2edf6;
+  border-top: 1px solid #dce8f5;
   display: grid;
   gap: 0;
   grid-template-columns: repeat(3, 1fr);
@@ -1022,7 +1433,7 @@ export default {
 }
 
 .catalog-counter-grid div {
-  border-right: 1px solid #e2edf6;
+  border-right: 1px solid #dce8f5;
   padding: 4px 10px;
 }
 
@@ -1036,22 +1447,25 @@ export default {
 }
 
 .catalog-counter-grid strong {
-  color: #17365d;
+  color: #061d43;
   font-size: 22px;
   font-weight: 950;
 }
 
 .catalog-counter-grid span {
-  color: #7a8aa0;
+  color: #7487a3;
   font-size: 11px;
   font-weight: 900;
   text-transform: uppercase;
 }
 
 .catalog-filter-card {
-  background: rgba(255, 255, 255, .96) !important;
-  border-color: #dfe9f2 !important;
-  box-shadow: 0 24px 58px rgba(16, 43, 92, .12);
+  background: rgba(255, 255, 255, .97) !important;
+  border-color: #dce8f5 !important;
+
+  box-shadow:
+    0 24px 58px rgba(6, 29, 67, .12);
+
   margin-top: -68px;
   position: relative;
   z-index: 2;
@@ -1071,7 +1485,7 @@ export default {
 }
 
 .filter-title span {
-  color: #0d7880;
+  color: #0b5ed7;
   font-size: 11px;
   font-weight: 950;
   letter-spacing: 1px;
@@ -1079,7 +1493,7 @@ export default {
 }
 
 .filter-title strong {
-  color: #17365d;
+  color: #061d43;
   font-size: 20px;
   font-weight: 950;
 }
@@ -1095,9 +1509,9 @@ export default {
 .category-rail button {
   align-items: center;
   background: #fff;
-  border: 1px solid #dfe9f2;
+  border: 1px solid #dce8f5;
   border-radius: 999px;
-  color: #17365d;
+  color: #061d43;
   cursor: pointer;
   display: inline-flex;
   flex: 0 0 auto;
@@ -1106,13 +1520,26 @@ export default {
   gap: 8px;
   min-height: 42px;
   padding: 0 16px;
-  transition: transform .18s ease, box-shadow .18s ease, color .18s ease, background .18s ease;
+
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    color .18s ease,
+    background .18s ease;
 }
 
 .category-rail button:hover,
 .category-rail button.active {
-  background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
-  box-shadow: 0 12px 26px rgba(13, 120, 128, .18);
+  background:
+    linear-gradient(
+      135deg,
+      #0b5ed7,
+      #8b2cf5
+    );
+
+  box-shadow:
+    0 12px 26px rgba(11, 94, 215, .22);
+
   color: #fff;
   transform: translateY(-2px);
 }
@@ -1124,21 +1551,43 @@ export default {
 
 .catalog-product-card {
   background: #fff !important;
-  border-color: #dfe9f2 !important;
-  box-shadow: 0 14px 34px rgba(16, 43, 92, .08);
+  border-color: #dce8f5 !important;
+
+  box-shadow:
+    0 14px 34px rgba(6, 29, 67, .08);
+
   overflow: hidden;
-  transition: transform .2s ease, box-shadow .2s ease;
+
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease;
 }
 
 .catalog-product-card:hover {
-  box-shadow: 0 28px 58px rgba(16, 43, 92, .16);
+  box-shadow:
+    0 28px 58px rgba(6, 29, 67, .16);
+
   transform: translateY(-6px);
 }
 
 .catalog-product-visual {
   background:
-    radial-gradient(circle at 30% 20%, rgba(30, 136, 229, .12), transparent 28%),
-    linear-gradient(145deg, #f8fbfe, #eaf2f8);
+    radial-gradient(
+      circle at 30% 20%,
+      rgba(0, 200, 255, .16),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 85% 80%,
+      rgba(139, 44, 245, .10),
+      transparent 30%
+    ),
+    linear-gradient(
+      145deg,
+      #f8fbff,
+      #e8f1fb
+    );
+
   min-height: 245px;
   padding: 12px;
   position: relative;
@@ -1150,10 +1599,25 @@ export default {
 
 .catalog-product-empty {
   align-items: center;
+
   background:
-    radial-gradient(circle at 30% 20%, rgba(13, 120, 128, .14), transparent 28%),
-    linear-gradient(145deg, #f8fbfe, #eaf2f8);
-  border: 1px dashed #bed2e6;
+    radial-gradient(
+      circle at 30% 20%,
+      rgba(11, 94, 215, .14),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(139, 44, 245, .10),
+      transparent 28%
+    ),
+    linear-gradient(
+      145deg,
+      #f8fbff,
+      #e8f1fb
+    );
+
+  border: 1px dashed #a9c7e7;
   border-radius: 20px;
   display: flex;
   height: 221px;
@@ -1162,12 +1626,20 @@ export default {
 
 .product-category-pill {
   backdrop-filter: blur(14px);
-  background: rgba(255, 255, 255, .94);
-  border: 1px solid rgba(255, 255, 255, .74);
+
+  background:
+    rgba(255, 255, 255, .94);
+
+  border:
+    1px solid rgba(255, 255, 255, .74);
+
   border-radius: 999px;
   bottom: 24px;
-  box-shadow: 0 12px 28px rgba(8, 36, 74, .16);
-  color: #17365d;
+
+  box-shadow:
+    0 12px 28px rgba(6, 29, 67, .16);
+
+  color: #061d43;
   font-size: 12px;
   font-weight: 950;
   left: 24px;
@@ -1188,7 +1660,17 @@ export default {
 }
 
 .eyebrowes {
-  color: #edf3f3;
+  background:
+    linear-gradient(
+      90deg,
+      #00c8ff,
+      #0b5ed7,
+      #8b2cf5
+    );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
   display: inline-block;
   font-size: 20px;
   font-weight: 900;
@@ -1205,18 +1687,18 @@ export default {
 }
 
 .product-meta-row {
-  color: #73859c;
+  color: #7487a3;
   font-size: 12px;
   font-weight: 850;
   text-transform: uppercase;
 }
 
 .product-meta-row strong {
-  color: var(--brand-secondary);
+  color: #8b2cf5;
 }
 
 .catalog-product-body h2 {
-  color: #12305e;
+  color: #061d43;
   font-size: 23px;
   font-weight: 950;
   letter-spacing: -.4px;
@@ -1225,15 +1707,21 @@ export default {
 }
 
 .catalog-product-body p {
-  color: #66768c;
+  color: #667b99;
   font-size: 14px;
   line-height: 1.65;
   margin: 0 0 18px;
 }
 
 .product-price-row {
-  background: #f6f9fc;
-  border: 1px solid #e2ebf3;
+  background:
+    linear-gradient(
+      135deg,
+      #f7fbff,
+      #f2f4ff
+    );
+
+  border: 1px solid #dce8f5;
   border-radius: 18px;
   margin-top: auto;
   padding: 14px;
@@ -1245,21 +1733,309 @@ export default {
 }
 
 .product-price-row span {
-  color: #7a8aa0;
+  color: #7487a3;
   font-size: 11px;
   font-weight: 950;
   text-transform: uppercase;
 }
 
 .product-price-row strong {
-  color: #12305e;
+  color: #0b5ed7;
   font-size: 18px;
   font-weight: 950;
 }
 
 .product-actions {
-  justify-content: flex-start;
+  align-items: stretch;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  justify-content: initial;
   margin-top: 16px;
+}
+
+.product-actions .v-btn {
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: .4px;
+}
+
+.product-actions .cart-add-btn {
+  grid-column: 1 / -1;
+}
+
+.cart-add-btn {
+  background: #f4f9ff !important;
+  border: 1px solid #cfe2f3 !important;
+  box-shadow: none !important;
+  color: #0f2c61 !important;
+  font-weight: 950;
+  letter-spacing: .3px;
+}
+
+.cart-add-btn:hover {
+  background: #eaf5ff !important;
+  box-shadow: 0 10px 24px rgba(15, 44, 97, .10) !important;
+}
+
+.cart-add-btn.v-btn--disabled {
+  background: #fff1f1 !important;
+  border-color: #ffd0d0 !important;
+  color: #d32f2f !important;
+  opacity: 1 !important;
+}
+
+.cart-drawer {
+  background:
+    linear-gradient(
+      180deg,
+      #f7fbff 0%,
+      #ffffff 38%,
+      #f4f8ff 100%
+    ) !important;
+  border-radius: 0;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden;
+  top: 0 !important;
+  z-index: 1000 !important;
+}
+
+.cart-header {
+  align-items: center;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(72, 211, 214, .20), transparent 34%),
+    linear-gradient(135deg, #071f42, #0f4f7c 58%, #0d7880);
+  color: #fff;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  padding: 24px 22px;
+  position: relative;
+}
+
+.cart-header::after {
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, .22) 0 1px, transparent 1px);
+  background-size: 18px 18px;
+  content: '';
+  inset: 0;
+  opacity: .24;
+  pointer-events: none;
+  position: absolute;
+}
+
+.cart-header > * {
+  position: relative;
+  z-index: 1;
+}
+
+.cart-header-icon {
+  align-items: center;
+  background: rgba(255, 255, 255, .16);
+  border: 1px solid rgba(255, 255, 255, .24);
+  border-radius: 18px;
+  display: flex;
+  flex: 0 0 54px;
+  height: 54px;
+  justify-content: center;
+}
+
+.cart-header-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.cart-header span {
+  color: #8ff4f0;
+  display: block;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.cart-header h3 {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 950;
+  margin: 4px 0 0;
+}
+
+.cart-header p {
+  color: rgba(255, 255, 255, .78);
+  font-size: 13px;
+  font-weight: 750;
+  margin: 4px 0 0;
+}
+
+.cart-content {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  max-height: calc(100vh - 128px);
+  overflow-y: auto;
+  padding: 18px 18px 24px;
+}
+
+.cart-empty {
+  align-items: center;
+  color: #667b99;
+  display: flex;
+  flex-direction: column;
+  min-height: 430px;
+  justify-content: center;
+  padding: 28px;
+  text-align: center;
+}
+
+.cart-empty h4 {
+  color: #061d43;
+  font-size: 22px;
+  font-weight: 950;
+  margin: 14px 0 6px;
+}
+
+.cart-empty p {
+  line-height: 1.6;
+  margin: 0;
+}
+
+.cart-item {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, .98),
+      rgba(246, 250, 255, .94)
+    );
+  border: 1px solid rgba(180, 205, 235, .72);
+  border-radius: 22px;
+  box-shadow: 0 14px 32px rgba(6, 29, 67, .08);
+  display: flex;
+  gap: 13px;
+  padding: 13px;
+}
+
+.cart-item-visual {
+  align-items: center;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(0, 200, 255, .18), transparent 34%),
+    linear-gradient(145deg, #f8fbff, #e8f1fb);
+  border: 1px solid #dce8f5;
+  border-radius: 18px;
+  display: flex;
+  flex: 0 0 78px;
+  height: 78px;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.cart-item-visual .v-image {
+  border-radius: 18px;
+}
+
+.cart-item-body {
+  min-width: 0;
+  width: 100%;
+}
+
+.cart-item-top {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.cart-item-body span,
+.cart-item-body small {
+  color: #7487a3;
+  display: block;
+  font-size: 11px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.cart-item-body strong {
+  color: #061d43;
+  display: block;
+  font-size: 16px;
+  font-weight: 950;
+  line-height: 1.2;
+  margin: 2px 0 4px;
+}
+
+.cart-qty {
+  align-items: center;
+  background: #f0f6ff;
+  border: 1px solid #dce8f5;
+  border-radius: 999px;
+  display: inline-flex;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 4px;
+}
+
+.cart-qty b {
+  color: #061d43;
+  min-width: 28px;
+  text-align: center;
+}
+
+.cart-summary {
+  align-items: center;
+  background:
+    radial-gradient(circle at 80% 20%, rgba(0, 200, 255, .13), transparent 32%),
+    linear-gradient(135deg, #ffffff, #eef5ff);
+  border: 1px solid #cfe0f3;
+  border-radius: 22px;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  padding: 18px;
+}
+
+.cart-summary span {
+  color: #7487a3;
+  font-size: 12px;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.cart-summary strong {
+  color: #0b5ed7;
+  font-size: 20px;
+  font-weight: 950;
+}
+
+.cart-whatsapp-btn {
+  background:
+    linear-gradient(
+      135deg,
+      #10943a,
+      #25d366
+    ) !important;
+
+  box-shadow: 0 16px 34px rgba(37, 211, 102, .28) !important;
+  color: #fff !important;
+  font-weight: 950;
+}
+
+.catalog-pagination {
+  align-items: center;
+  background: rgba(255, 255, 255, .92);
+  border: 1px solid #dce8f5;
+  border-radius: 22px;
+  box-shadow: 0 14px 34px rgba(6, 29, 67, .07);
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  margin-top: 30px;
+  padding: 14px 18px;
+}
+
+.catalog-pagination span {
+  color: #667b99;
+  font-size: 13px;
+  font-weight: 850;
 }
 
 @media (max-width: 960px) {
@@ -1273,6 +2049,10 @@ export default {
 }
 
 @media (max-width: 600px) {
+  .cart-drawer {
+    width: min(92vw, 440px) !important;
+  }
+
   .catalog-hero {
     padding: 54px 0 78px;
   }
@@ -1284,6 +2064,10 @@ export default {
   .catalog-hero-actions .v-btn,
   .product-actions .v-btn {
     width: 100%;
+  }
+
+  .product-actions {
+    grid-template-columns: 1fr;
   }
 
   .catalog-filter-card {
@@ -1305,6 +2089,12 @@ export default {
 
   .catalog-product-body {
     min-height: auto;
+  }
+
+  .catalog-pagination {
+    align-items: stretch;
+    flex-direction: column;
+    text-align: center;
   }
 }
 </style>

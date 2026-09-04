@@ -44,10 +44,22 @@
                             rounded dense clearable />
                     </v-col>
 
+                    <v-col cols="12" md="6">
+                        <v-select v-model="form.bodega_id" :items="bodegas" item-text="nombre" item-value="id"
+                            :loading="loading.bodegas" label="Bodega" prepend-inner-icon="mdi-warehouse" outlined
+                            rounded dense clearable />
+                    </v-col>
+
                     <!-- PRECIO -->
                     <v-col cols="12" md="6">
                         <v-text-field v-model="form.precio" label="Precio" prepend-inner-icon="mdi-currency-usd"
                             type="number" outlined rounded dense clearable min="0" />
+                    </v-col>
+
+                    <v-col cols="12" md="6">
+                        <v-text-field v-model="form.stock" label="Stock disponible"
+                            prepend-inner-icon="mdi-counter" type="number" outlined rounded dense clearable min="0"
+                            hint="Cantidad disponible para vender o cotizar" persistent-hint />
                     </v-col>
 
                     <!-- ESTADO -->
@@ -173,7 +185,9 @@ export default {
                 unidad_medida: null,
                 categoria_id: null,
                 marca_id: null,
+                bodega_id: null,
                 precio: null,
+                stock: 0,
             },
             estados: [
                 {
@@ -191,9 +205,11 @@ export default {
             },
             categorias: [],
             marcas: [],
+            bodegas: [],
             loading: {
                 categorias: false,
                 marcas: false,
+                bodegas: false,
             },
         }
     },
@@ -235,6 +251,15 @@ export default {
                 this.form.marca_id =
                     producto.marca_id || producto.marca?.id || null
 
+                this.form.bodega_id =
+                    producto.bodega_id || producto.bodega?.id || null
+
+                this.form.stock =
+                    producto.stock !== null &&
+                        producto.stock !== undefined
+                        ? producto.stock
+                        : 0
+
                 /*
                  * Si el backend devuelve una URL completa,
                  * puedes ponerla directamente.
@@ -252,6 +277,7 @@ export default {
     mounted() {
         this.listarCategorias()
         this.listarMarcas()
+        this.listarBodegas()
     },
 
     methods: {
@@ -372,6 +398,10 @@ export default {
                     formData.append('precio', this.form.precio)
                 }
 
+                formData.append('stock', this.form.stock || 0)
+
+                formData.append('bodega_id', this.form.bodega_id || '')
+
                 if (this.form.imagen) {
                     formData.append('imagen', this.form.imagen)
                 }
@@ -391,11 +421,6 @@ export default {
                      * Con archivos en Laravel suele ser
                      * más cómodo mandar POST + _method PUT.
                      */
-
-                    formData.append(
-                        '_method',
-                        'PUT'
-                    )
 
                     await this.$axios.post(
                         `/productos/${this.productoSeleccionado.id}`,
@@ -430,7 +455,9 @@ export default {
                 unidad_medida: null,
                 categoria_id: null,
                 marca_id: null,
+                bodega_id: null,
                 precio: null,
+                stock: 0,
             }
 
             this.imagenPreview = null
@@ -473,6 +500,18 @@ export default {
                 this.$toast.error('Ocurrió un error al listar las marcas. Por favor, inténtelo de nuevo.');
             } finally {
                 this.loading.marcas = false;
+            }
+        },
+
+        async listarBodegas() {
+            try {
+                this.loading.bodegas = true;
+                const response = await this.$axios.get('/bodegas/listar');
+                this.bodegas = response.data;
+            } catch (error) {
+                this.bodegas = [];
+            } finally {
+                this.loading.bodegas = false;
             }
         }
     },

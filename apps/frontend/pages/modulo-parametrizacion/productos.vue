@@ -44,6 +44,16 @@
                 </v-col>
 
                 <v-col cols="12" md="2">
+                    <v-autocomplete v-model="filtros.bodega" :items="bodegas" label="Bodega" outlined dense
+                        item-text="nombre" item-value="id" clearable rounded @change="filtrarProductos" />
+                </v-col>
+
+                <v-col cols="12" md="2">
+                    <v-select v-model="filtros.stock" :items="opcionesStock" label="Stock" outlined dense rounded
+                        clearable @change="filtrarProductos" />
+                </v-col>
+
+                <v-col cols="12" md="2">
                     <v-select v-model="filtros.estado" :items="estados" label="Estado" outlined dense rounded
                         clearable @change="filtrarProductos" />
                 </v-col>
@@ -87,8 +97,21 @@
                     {{ item.marca?.nombre || 'Sin marca' }}
                 </template>
 
+                <template v-slot:item.bodega="{ item }">
+                    {{ item.bodega?.nombre || 'Sin bodega' }}
+                </template>
+
                 <template v-slot:item.precio="{ item }">
                     {{ formatearPrecio(item.precio) }}
+                </template>
+
+                <template v-slot:item.stock="{ item }">
+                    <v-chip small :color="Number(item.stock || 0) > 0 ? 'success' : 'error'" dark>
+                        <v-icon left small>
+                            {{ Number(item.stock || 0) > 0 ? 'mdi-package-check' : 'mdi-package-variant-remove' }}
+                        </v-icon>
+                        {{ Number(item.stock || 0) }} und
+                    </v-chip>
                 </template>
 
                 <template v-slot:item.estado="{ item }">
@@ -176,29 +199,39 @@ export default {
                 id: null,
                 categoria: null,
                 marca: null,
+                bodega: null,
+                stock: null,
                 estado: null
             },
             categorias: [],
             marcas: [],
+            bodegas: [],
             headersProductos: [
                 { text: 'ID', value: 'id' },
                 { text: 'Imagen', value: 'ruta_imagen', sortable: false },
                 { text: 'Nombre', value: 'nombre' },
                 { text: 'Categoría', value: 'categoria' },
                 { text: 'Marca', value: 'marca' },
+                { text: 'Bodega', value: 'bodega' },
                 { text: 'Precio', value: 'precio' },
+                { text: 'Stock', value: 'stock' },
                 { text: 'Estado', value: 'estado' },
                 { text: 'Acciones', value: 'acciones', sortable: false }
             ],
             loading: {
                 productos: false,
                 categorias: false,
-                marcas: false
+                marcas: false,
+                bodegas: false
             },
             productos: [],
             estados: [
                 { text: 'Activo', value: true },
                 { text: 'Inactivo', value: false }
+            ],
+            opcionesStock: [
+                { text: 'Con stock', value: 'con_stock' },
+                { text: 'Sin stock', value: 'sin_stock' }
             ],
             paginacion: {
                 pagina: 1,
@@ -212,6 +245,7 @@ export default {
         this.listarProductos();
         this.listarCategorias();
         this.listarMarcas();
+        this.listarBodegas();
     },
 
     methods: {
@@ -223,9 +257,12 @@ export default {
             try {
                 this.loading.productos = true;
                 const response = await this.$axios.post('/productos/listar', {
+                    id: this.filtros.id,
                     nombre: this.buscar,
                     categoria: this.filtros.categoria,
                     marca: this.filtros.marca,
+                    bodega: this.filtros.bodega,
+                    stock: this.filtros.stock,
                     estado: this.filtros.estado,
                     paginacion: this.paginacion
                 });
@@ -260,6 +297,18 @@ export default {
                 this.$toast.error('Ocurrió un error al listar las marcas. Por favor, inténtelo de nuevo.');
             } finally {
                 this.loading.marcas = false;
+            }
+        },
+
+        async listarBodegas() {
+            try {
+                this.loading.bodegas = true;
+                const response = await this.$axios.get('/bodegas/listar');
+                this.bodegas = response.data;
+            } catch (error) {
+                this.bodegas = [];
+            } finally {
+                this.loading.bodegas = false;
             }
         },
 
@@ -322,6 +371,8 @@ export default {
             this.buscar = null;
             this.filtros.categoria = null;
             this.filtros.marca = null;
+            this.filtros.bodega = null;
+            this.filtros.stock = null;
             this.filtros.estado = null;
             this.paginacion.pagina = 1;
             this.paginacion.cantidadRegistros = 10;
