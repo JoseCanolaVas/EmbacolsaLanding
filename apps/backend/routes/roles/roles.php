@@ -8,5 +8,7 @@ Route::prefix('roles')->middleware('auth:api')->group(function () {
         Route::get('/listar', 'listar')->middleware('can:roles.ver');
         Route::post('/crear', 'crear')->middleware('can:roles.crear');
         Route::put('/actualizar/{id}', 'actualizar')->middleware('can:roles.editar');
+        Route::post('/agregar-permisos/{id}', 'agregarPermisos')->middleware('can:roles.editar');
+        Route::post('/remover-permisos/{id}', 'removerPermisos')->middleware('can:roles.editar');
     });
 });

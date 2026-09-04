@@ -19,9 +19,13 @@ class ProductoRepository
     {
         $paginacion = $data['paginacion'] ?? null;
 
-        $productos = Productos::select('id', 'nombre', 'descripcion', 'ruta_imagen', 'estado', 'unidad_medida', 'precio', 'categoria_id', 'marca_id')
-            ->with(['categoria', 'marca'])
+        $productos = Productos::select('id', 'nombre', 'descripcion', 'ruta_imagen', 'estado', 'unidad_medida', 'precio', 'stock', 'categoria_id', 'marca_id', 'bodega_id')
+            ->with(['categoria', 'marca', 'bodega'])
             ->orderBy('id', 'desc');
+
+        if (!empty($data['id'])) {
+            $productos->where('id', $data['id']);
+        }
 
         if (!empty($data['nombre'])) {
             $productos->where(function ($query) use ($data) {
@@ -37,6 +41,20 @@ class ProductoRepository
 
         if (!empty($data['marca'])) {
             $productos->where('marca_id', $data['marca']);
+        }
+
+        if (!empty($data['bodega'])) {
+            $productos->where('bodega_id', $data['bodega']);
+        }
+
+        if (array_key_exists('stock', $data) && $data['stock'] !== null && $data['stock'] !== '') {
+            if ($data['stock'] === 'con_stock') {
+                $productos->where('stock', '>', 0);
+            }
+
+            if ($data['stock'] === 'sin_stock') {
+                $productos->where('stock', '<=', 0);
+            }
         }
 
         if (array_key_exists('estado', $data) && $data['estado'] !== null && $data['estado'] !== '') {

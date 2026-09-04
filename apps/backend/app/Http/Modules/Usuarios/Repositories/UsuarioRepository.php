@@ -14,7 +14,19 @@ class UsuarioRepository
      */
     public function listarUsuarios(): Collection
     {
-        return User::get();
+        return User::with(['roles.permissions', 'permissions'])
+            ->orderBy('nombre')
+            ->get()
+            ->map(function (User $usuario) {
+                $usuario->setAttribute('roles_asignados', $usuario->roles->map(fn ($rol) => [
+                    'id' => $rol->id,
+                    'nombre' => $rol->display_name ?: $rol->name,
+                    'slug' => $rol->name,
+                ])->values());
+                $usuario->setAttribute('permisos', $usuario->permisosDisponibles());
+
+                return $usuario;
+            });
     }
 
     /**
@@ -25,7 +37,7 @@ class UsuarioRepository
      */
     public function buscarUsuario(int $userId): User|null
     {
-        return User::where('id', $userId)->first();
+        return User::with(['roles', 'permissions'])->where('id', $userId)->first();
     }
 
     /**

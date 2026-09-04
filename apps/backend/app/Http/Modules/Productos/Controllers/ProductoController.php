@@ -55,21 +55,22 @@ class ProductoController extends Controller
         }
     }
 
+    /**
+     * Actualizar producto
+     * @param Request $request
+     * @param Productos $producto // Modelo de Producto por Id ingresado
+     * @return JsonResponse
+     * @throws \Throwable $th
+     * @author jose vasquez
+     */
     public function actualizarProducto(Request $request, Productos $producto): JsonResponse
     {
         try {
-            $productoActualizado = $this->productoService->actualizarProducto($producto, $request->all());
-
-            return response()->json($productoActualizado, Response::HTTP_OK);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'error' => 'Datos invalidos para actualizar el producto',
-                'message' => $e->errors()
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            $producto = $this->productoService->actualizarProducto($request->all(), $producto);
+            return response()->json($producto, Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json([
-                'error' => 'Error al actualizar el producto',
-                'message' => $th->getMessage()
+                'mensaje' => 'Ha ocurrido un error al actualizar el producto',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

@@ -4,11 +4,14 @@ namespace App\Http\Modules\Usuarios\Services;
 
 use App\Http\Modules\Usuarios\Repositories\UsuarioRepository;
 use App\Models\User;
+use App\Support\PermissionCatalog;
 use Exception;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class UsuarioService
 {
@@ -26,6 +29,8 @@ class UsuarioService
             'password' => ['required', 'string', 'min:6'],
             'es_super_admin' => ['nullable', 'boolean'],
             'rol' => ['nullable', 'string', 'max:80'],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['string', 'max:120'],
             'permisos' => ['nullable', 'array'],
             'permisos.*' => ['string', 'max:120'],
         ]);
@@ -37,10 +42,17 @@ class UsuarioService
         $datosValidados = $validator->validated();
         $datosValidados['password'] = Hash::make($datosValidados['password']);
         $datosValidados['es_super_admin'] = $datosValidados['es_super_admin'] ?? false;
-        $datosValidados['rol'] = $datosValidados['rol'] ?? ($datosValidados['es_super_admin'] ? 'super_admin' : 'editor');
-        $datosValidados['permisos'] = $datosValidados['es_super_admin'] ? [] : ($datosValidados['permisos'] ?? []);
+        $roles = $this->resolverRoles($datosValidados);
+        $permisos = $this->resolverPermisos($datosValidados['permisos'] ?? []);
+        $datosValidados['rol'] = $roles[0] ?? ($datosValidados['es_super_admin'] ? 'super_admin' : 'editor_catalogo');
+        $datosValidados['permisos'] = $datosValidados['es_super_admin'] ? [] : $permisos;
+        unset($datosValidados['roles']);
 
-        return User::create($datosValidados);
+        $usuario = User::create($datosValidados);
+        $usuario->syncRoles($roles);
+        $usuario->syncPermissions($datosValidados['es_super_admin'] ? [] : $permisos);
+
+        return $usuario->fresh(['roles', 'permissions']);
     }
 
     public function actualizarUsuario(int $id, array $data)
@@ -59,6 +71,8 @@ class UsuarioService
             'password' => ['nullable', 'string', 'min:6'],
             'es_super_admin' => ['nullable', 'boolean'],
             'rol' => ['nullable', 'string', 'max:80'],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['string', 'max:120'],
             'permisos' => ['nullable', 'array'],
             'permisos.*' => ['string', 'max:120'],
         ]);
@@ -76,11 +90,44 @@ class UsuarioService
         }
 
         $datosValidados['es_super_admin'] = $datosValidados['es_super_admin'] ?? false;
-        $datosValidados['rol'] = $datosValidados['rol'] ?? ($datosValidados['es_super_admin'] ? 'super_admin' : 'editor');
-        $datosValidados['permisos'] = $datosValidados['es_super_admin'] ? [] : ($datosValidados['permisos'] ?? []);
+        $roles = $this->resolverRoles($datosValidados);
+        $permisos = $this->resolverPermisos($datosValidados['permisos'] ?? []);
+        $datosValidados['rol'] = $roles[0] ?? ($datosValidados['es_super_admin'] ? 'super_admin' : 'editor_catalogo');
+        $datosValidados['permisos'] = $datosValidados['es_super_admin'] ? [] : $permisos;
+        unset($datosValidados['roles']);
 
         $usuario->update($datosValidados);
+        $usuario->syncRoles($roles);
+        $usuario->syncPermissions($datosValidados['es_super_admin'] ? [] : $permisos);
 
-        return $usuario;
+        return $usuario->fresh(['roles', 'permissions']);
+    }
+
+    private function resolverRoles(array $datos): array
+    {
+        $roles = $datos['roles'] ?? [];
+
+        if (! empty($datos['rol'])) {
+            $roles[] = $datos['rol'];
+        }
+
+        if (! empty($datos['es_super_admin'])) {
+            $roles[] = 'super_admin';
+        }
+
+        $roles = array_values(array_unique(array_filter($roles)));
+
+        return Role::where('guard_name', PermissionCatalog::GUARD)
+            ->whereIn('name', $roles)
+            ->pluck('name')
+            ->all();
+    }
+
+    private function resolverPermisos(array $permisos): array
+    {
+        return Permission::where('guard_name', PermissionCatalog::GUARD)
+            ->whereIn('name', array_values(array_unique($permisos)))
+            ->pluck('name')
+            ->all();
     }
 }
