@@ -19,38 +19,25 @@ class UsuarioService
         protected UsuarioRepository $usuarioRepository
     ) {}
 
+    /**
+     * Crear un nuevo usuario
+     * @param array $data
+     * @return User
+     * @author jose vasquez
+     */
     public function crearUsuario(array $data)
     {
-        $validator = Validator::make($data, [
-            'nombre' => ['required', 'string', 'max:255'],
-            'apellido' => ['required', 'string', 'max:255'],
-            'telefono' => ['nullable', 'string', 'max:30'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:6'],
-            'es_super_admin' => ['nullable', 'boolean'],
-            'rol' => ['nullable', 'string', 'max:80'],
-            'roles' => ['nullable', 'array'],
-            'roles.*' => ['string', 'max:120'],
-            'permisos' => ['nullable', 'array'],
-            'permisos.*' => ['string', 'max:120'],
-        ]);
+        $data['password'] = Hash::make($data['password']);
+        $data['es_super_admin'] = $data['es_super_admin'] ?? false;
+        $roles = $this->resolverRoles($data);
+        $permisos = $this->resolverPermisos($data['permisos'] ?? []);
+        $data['rol'] = $roles[0] ?? ($data['es_super_admin'] ? 'super_admin' : 'editor_catalogo');
+        $data['permisos'] = $data['es_super_admin'] ? [] : $permisos;
+        unset($data['roles']);
 
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
-        }
-
-        $datosValidados = $validator->validated();
-        $datosValidados['password'] = Hash::make($datosValidados['password']);
-        $datosValidados['es_super_admin'] = $datosValidados['es_super_admin'] ?? false;
-        $roles = $this->resolverRoles($datosValidados);
-        $permisos = $this->resolverPermisos($datosValidados['permisos'] ?? []);
-        $datosValidados['rol'] = $roles[0] ?? ($datosValidados['es_super_admin'] ? 'super_admin' : 'editor_catalogo');
-        $datosValidados['permisos'] = $datosValidados['es_super_admin'] ? [] : $permisos;
-        unset($datosValidados['roles']);
-
-        $usuario = User::create($datosValidados);
+        $usuario = User::create($data);
         $usuario->syncRoles($roles);
-        $usuario->syncPermissions($datosValidados['es_super_admin'] ? [] : $permisos);
+        $usuario->syncPermissions($data['es_super_admin'] ? [] : $permisos);
 
         return $usuario->fresh(['roles', 'permissions']);
     }
@@ -60,8 +47,9 @@ class UsuarioService
         $usuario = $this->usuarioRepository->buscarUsuario($id);
 
         if (! $usuario) {
-            throw new Exception('Usuario no encontrado');
+            throw new Exception('Usuario no encontrado', 422);
         }
+
 
         $validator = Validator::make($data, [
             'nombre' => ['required', 'string', 'max:255'],
