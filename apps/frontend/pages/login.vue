@@ -12,22 +12,22 @@
                             <v-icon size="19" color="#67f0ea" class="mr-2">
                                 mdi-shield-check-outline
                             </v-icon>
-                            Plataforma comercial Embacolsa
+                            Plataforma comercial NovaCell
                         </div>
 
                         <h1 class="brand-title">
-                            Empaques, embalajes y control para operar sin vueltas.
+                            Celulares, accesorios y tecnología listos para vender.
                         </h1>
 
                         <p class="brand-copy">
-                            Administra productos, categorías, marcas e imágenes desde
-                            un panel pensado para mantener tu catálogo listo y vendible.
+                            Administra forros, cables, audífonos, vidrios templados,
+                            soportes y cargadores desde un panel listo para vender.
                         </p>
 
                         <div class="brand-actions">
                             <div class="brand-pill">
                                 <v-icon size="20" color="#1e88e5">
-                                    mdi-package-variant-closed
+                                    mdi-cellphone-link
                                 </v-icon>
                                 Catálogo dinámico
                             </div>
@@ -41,7 +41,7 @@
                         </div>
 
                         <div class="brand-visual">
-                            <img src="/images/hero-products-optimized.webp" alt="Productos Embacolsa" />
+                            <img src="/images/hero-products-optimized.webp" alt="Accesorios NovaCell" />
                         </div>
                     </section>
                 </v-col>
@@ -50,13 +50,13 @@
                     <v-card class="login-card" elevation="0">
                         <v-card-text class="login-content">
                             <div class="login-header">
-                                <img src="/images/embacolsa-optimized.webp" alt="Logo Embacolsa" class="login-logo" />
+                                <img src="/images/novacell.png" alt="Logo NovaCell" class="login-logo" />
 
-                                <div class="login-access-chip">
+                                <!-- <div class="login-access-chip">
                                     Acceso seguro
-                                </div>
+                                </div> -->
 
-                                <h2 class="login-title">
+                                <h2 class="login-title mt-2">
                                     Iniciar sesión
                                 </h2>
 

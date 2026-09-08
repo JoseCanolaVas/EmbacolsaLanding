@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 
 class UsuarioSeeder extends Seeder
@@ -53,9 +54,11 @@ class UsuarioSeeder extends Seeder
             $datos['password'] = Hash::make($password ?: Str::random(40));
         }
 
+        Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'api']);
+
         User::updateOrCreate(
             ['email' => $email],
             $datos
-        );
+        )->assignRole('super_admin');
     }
 }

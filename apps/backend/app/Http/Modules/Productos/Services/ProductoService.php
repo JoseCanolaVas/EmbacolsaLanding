@@ -5,7 +5,6 @@ namespace App\Http\Modules\Productos\Services;
 use App\Http\Modules\Productos\Models\Productos;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -13,92 +12,70 @@ class ProductoService
 {
     public function __construct() {}
 
+    /**
+     * Crear producto
+     * @param array $data
+     * @return Productos|array
+     * @author jose vasquez
+     */
     public function crearProducto(array $data)
     {
-        $validator = Validator::make($data, [
-            'nombre' => ['required', 'string', 'max:255'],
-            'descripcion' => ['nullable', 'string'],
-            'unidad_medida' => ['required', 'string', 'max:50'],
-            'estado' => ['required', 'boolean'],
-            'precio' => ['nullable', 'numeric', 'min:0'],
-            'categoria_id' => ['required', 'exists:categorias,id'],
-            'marca_id' => ['nullable', 'exists:marcas,id'],
-            'imagen' => ['required', 'image', 'max:20480'],
-        ]);
+        $imagen = $data['imagen'];
+        unset($data['imagen']);
 
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
+        if (!$imagen instanceof UploadedFile) {
+            return [
+                'status' => 422,
+                'mensaje' => 'La imagen enviada no es un archivo valido.'
+            ];
         }
 
-        $datosValidados = $validator->validated();
-        $imagen = $datosValidados['imagen'];
-        unset($datosValidados['imagen']);
-
-        if (! $imagen instanceof UploadedFile) {
-            throw ValidationException::withMessages([
-                'imagen' => ['La imagen enviada no es un archivo valido.'],
-            ]);
-        }
-
-        $carpeta = 'productos/' . now()->format('Y/m');
-        $nombreArchivo = Str::slug($datosValidados['nombre'])
-            . '-' . now()->format('YmdHis')
-            . '-' . Str::random(8)
-            . '.' . $imagen->getClientOriginalExtension();
+        $carpeta = 'Productos';
+        $nombreArchivo = Str::uuid() . '.' . $imagen->getClientOriginalExtension();
 
         $rutaImagen = $imagen->storeAs($carpeta, $nombreArchivo, 'public');
 
-        $datosValidados['descripcion'] = $datosValidados['descripcion'] ?? 'Sin descripcion por ahora';
-        $datosValidados['ruta_imagen'] = $this->rutaPublica($rutaImagen);
+        $data['descripcion'] = $data['descripcion'] ?? 'Sin descripcion';
+        $data['stock'] = $data['stock'] ?? 0;
+        $data['ruta_imagen'] = $this->rutaPublica($rutaImagen);
 
-        return Productos::create($datosValidados);
+        return Productos::create($data);
     }
 
-    public function actualizarProducto(Productos $producto, array $data)
+    /**
+     * Actualizar producto
+     * @param array $data
+     * @param Productos $producto
+     * @return Productos
+     * @throws ValidationException
+     */
+    public function actualizarProducto(array $data, Productos $producto)
     {
-        $validator = Validator::make($data, [
-            'nombre' => ['required', 'string', 'max:255'],
-            'descripcion' => ['nullable', 'string'],
-            'unidad_medida' => ['required', 'string', 'max:50'],
-            'estado' => ['required', 'boolean'],
-            'precio' => ['nullable', 'numeric', 'min:0'],
-            'categoria_id' => ['required', 'exists:categorias,id'],
-            'marca_id' => ['nullable', 'exists:marcas,id'],
-            'imagen' => ['nullable', 'image', 'max:20480'],
-        ]);
-
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
-        }
-
-        $datosValidados = $validator->validated();
-        $imagen = $datosValidados['imagen'] ?? null;
-        unset($datosValidados['imagen']);
+        $imagen = $data['imagen'] ?? null;
+        unset($data['imagen']);
 
         if ($imagen) {
-            if (! $imagen instanceof UploadedFile) {
-                throw ValidationException::withMessages([
-                    'imagen' => ['La imagen enviada no es un archivo valido.'],
-                ]);
+            if (!$imagen instanceof UploadedFile) {
+                return [
+                    'status' => 422,
+                    'mensaje' => 'La imagen enviada no es un archivo valido.'
+                ];
             }
 
             $this->eliminarArchivoFisico($producto->ruta_imagen);
 
             $carpeta = 'productos/' . now()->format('Y/m');
-            $nombreArchivo = Str::slug($datosValidados['nombre'])
-                . '-' . now()->format('YmdHis')
-                . '-' . Str::random(8)
-                . '.' . $imagen->getClientOriginalExtension();
-
+            $nombreArchivo = Str::slug($data['nombre']) . '-' . now()->format('YmdHis') . '-' . Str::uuid() . '.' . $imagen->getClientOriginalExtension();
             $rutaImagen = $imagen->storeAs($carpeta, $nombreArchivo, 'public');
-            $datosValidados['ruta_imagen'] = $this->rutaPublica($rutaImagen);
+            $data['ruta_imagen'] = $this->rutaPublica($rutaImagen);
         }
 
-        $datosValidados['descripcion'] = $datosValidados['descripcion'] ?? 'Sin descripcion por ahora';
+        $data['descripcion'] = $data['descripcion'] ?? 'Sin descripcion por ahora';
+        $data['stock'] = $data['stock'] ?? 0;
 
-        $producto->update($datosValidados);
+        $producto->update($data);
 
-        return $producto->fresh(['categoria', 'marca']);
+        return $producto->fresh(['categoria', 'marca', 'bodega']);
     }
 
     private function eliminarArchivoFisico(?string $ruta): void

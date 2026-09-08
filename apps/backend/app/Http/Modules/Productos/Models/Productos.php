@@ -3,6 +3,7 @@
 namespace App\Http\Modules\Productos\Models;
 
 use App\Http\Modules\Categorias\Models\Categorias;
+use App\Http\Modules\Bodegas\Models\Bodegas;
 use App\Http\Modules\Marcas\Models\Marcas;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,8 +21,10 @@ class Productos extends Model
         'estado',
         'unidad_medida',
         'precio',
+        'stock',
         'categoria_id',
         'marca_id',
+        'bodega_id',
     ];
 
     public function categoria()
@@ -32,5 +35,10 @@ class Productos extends Model
     public function marca()
     {
         return $this->belongsTo(Marcas::class, 'marca_id');
+    }
+
+    public function bodega()
+    {
+        return $this->belongsTo(Bodegas::class, 'bodega_id');
     }
 }

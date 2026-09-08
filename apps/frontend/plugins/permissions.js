@@ -10,6 +10,11 @@ export default function (_context, inject) {
         { label: 'Ver marcas', value: 'marcas.ver' },
         { label: 'Crear marcas', value: 'marcas.crear' },
         { label: 'Editar marcas', value: 'marcas.editar' },
+        { label: 'Ver bodegas', value: 'bodegas.ver' },
+        { label: 'Crear bodegas', value: 'bodegas.crear' },
+        { label: 'Editar bodegas', value: 'bodegas.editar' },
+        { label: 'Ver ventas', value: 'ventas.ver' },
+        { label: 'Registrar ventas POS', value: 'ventas.crear' },
         { label: 'Ver imágenes', value: 'imagenes.ver' },
         { label: 'Crear imágenes', value: 'imagenes.crear' },
         { label: 'Editar imágenes', value: 'imagenes.editar' },
@@ -20,6 +25,9 @@ export default function (_context, inject) {
         { label: 'Ver roles', value: 'roles.ver' },
         { label: 'Crear roles', value: 'roles.crear' },
         { label: 'Editar roles', value: 'roles.editar' },
+        { label: 'Ver permisos', value: 'permisos.ver' },
+        { label: 'Crear permisos', value: 'permisos.crear' },
+        { label: 'Editar permisos', value: 'permisos.editar' },
         { label: 'Administrar sitio público', value: 'administrar-sitio' },
     ]
 

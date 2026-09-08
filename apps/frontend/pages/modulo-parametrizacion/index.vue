@@ -87,8 +87,13 @@ export default {
             categorias: [],
             productos: [],
             marcas: [],
+            bodegas: [],
             imagenes: [],
             usuarios: [],
+            resumenVentas: {
+                cantidad_ventas: 0,
+                total_vendido_mes: 0,
+            },
             accesos: [
                 {
                     title: 'Sitio público',
@@ -100,7 +105,7 @@ export default {
                 },
                 {
                     title: 'Productos',
-                    text: 'Crea productos con categoría, marca, imagen, precio y estado.',
+                    text: 'Crea productos con categoría, marca, stock, bodega, imagen, precio y estado.',
                     icon: 'mdi-package-variant-closed',
                     color: 'primary',
                     route: '/modulo-parametrizacion/productos',
@@ -121,6 +126,30 @@ export default {
                     color: 'amber darken-2',
                     route: '/modulo-parametrizacion/marcas',
                     permiso: 'marcas.ver',
+                },
+                {
+                    title: 'Bodegas',
+                    text: 'Define ubicaciones para organizar el stock disponible.',
+                    icon: 'mdi-warehouse',
+                    color: 'blue-grey',
+                    route: '/modulo-parametrizacion/bodegas',
+                    permiso: 'bodegas.ver',
+                },
+                {
+                    title: 'POS',
+                    text: 'Registra ventas, valida stock y descuenta inventario automáticamente.',
+                    icon: 'mdi-cash-register',
+                    color: 'green darken-1',
+                    route: '/modulo-parametrizacion/pos',
+                    permiso: 'ventas.ver',
+                },
+                {
+                    title: 'Ventas',
+                    text: 'Consulta totales vendidos, histórico, ventas del mes y productos más vendidos.',
+                    icon: 'mdi-chart-line',
+                    color: 'light-blue darken-2',
+                    route: '/modulo-parametrizacion/ventas',
+                    permiso: 'ventas.ver',
                 },
                 {
                     title: 'Roles y permisos',
@@ -178,6 +207,30 @@ export default {
                     color: 'amber darken-2',
                 },
                 {
+                    title: 'Unidades en stock',
+                    value: this.stockTotal,
+                    icon: 'mdi-counter',
+                    color: 'success',
+                },
+                {
+                    title: 'Productos sin stock',
+                    value: this.productosSinStock,
+                    icon: 'mdi-package-variant-remove',
+                    color: 'error',
+                },
+                {
+                    title: 'Bodegas activas',
+                    value: this.bodegas.filter(item => this.estaActivo(item.estado)).length,
+                    icon: 'mdi-warehouse',
+                    color: 'blue-grey',
+                },
+                {
+                    title: 'Ventas registradas',
+                    value: this.resumenVentas.cantidad_ventas,
+                    icon: 'mdi-chart-line',
+                    color: 'light-blue darken-2',
+                },
+                {
                     title: 'Imágenes cargadas',
                     value: this.imagenes.length,
                     icon: 'mdi-image-multiple-outline',
@@ -188,6 +241,14 @@ export default {
 
         accesosFiltrados() {
             return this.accesos.filter(item => !item.permiso || this.$can(item.permiso))
+        },
+
+        stockTotal() {
+            return this.productos.reduce((total, producto) => total + Number(producto.stock || 0), 0)
+        },
+
+        productosSinStock() {
+            return this.productos.filter(producto => Number(producto.stock || 0) <= 0).length
         },
     },
 
@@ -201,6 +262,8 @@ export default {
                 this.listarCategorias(),
                 this.listarProductos(),
                 this.listarMarcas(),
+                this.listarBodegas(),
+                this.listarVentas(),
                 this.listarImagenes(),
                 this.listarUsuarios(),
             ])
@@ -232,6 +295,35 @@ export default {
                 this.marcas = response.data || []
             } catch (error) {
                 this.marcas = []
+            }
+        },
+
+        async listarBodegas() {
+            try {
+                const response = await this.$axios.get('/bodegas/listar')
+                this.bodegas = response.data || []
+            } catch (error) {
+                this.bodegas = []
+            }
+        },
+
+        async listarVentas() {
+            try {
+                if (!this.$can('ventas.ver')) {
+                    this.ventas = []
+                    return
+                }
+
+                const response = await this.$axios.post('/ventas/resumen')
+                this.resumenVentas = {
+                    ...this.resumenVentas,
+                    ...(response.data || {}),
+                }
+            } catch (error) {
+                this.resumenVentas = {
+                    cantidad_ventas: 0,
+                    total_vendido_mes: 0,
+                }
             }
         },
 
@@ -275,6 +367,7 @@ export default {
     gap: 24px;
     justify-content: space-between;
     padding: 34px;
+    border-radius: 16px;
 }
 
 .home-hero span {
@@ -303,10 +396,19 @@ export default {
 .summary-card {
     align-items: flex-start;
     border-color: #dfe8f0 !important;
+    border-radius: 16px !important;
     display: flex;
     flex-direction: column;
     gap: 8px;
     padding: 22px;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+.summary-card:hover,
+.access-card:hover {
+    border-color: #bcd2e4 !important;
+    box-shadow: 0 14px 34px rgba(15, 44, 97, .08);
+    transform: translateY(-2px);
 }
 
 .summary-card strong {
@@ -326,6 +428,8 @@ export default {
 .guide-card,
 .access-card {
     border-color: #dfe8f0 !important;
+    border-radius: 16px !important;
+    overflow: hidden;
 }
 
 .access-card {
@@ -335,6 +439,7 @@ export default {
     height: 100%;
     padding: 18px;
     text-decoration: none;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
 
 .access-card strong,

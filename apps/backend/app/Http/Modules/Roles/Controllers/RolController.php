@@ -46,4 +46,20 @@ class RolController extends Controller
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
     }
+
+    public function agregarPermisos(Request $request, int $id): JsonResponse
+    {
+        return response()->json(
+            $this->rolService->agregarPermisos($id, $request->input('permisos', [])),
+            Response::HTTP_OK
+        );
+    }
+
+    public function removerPermisos(Request $request, int $id): JsonResponse
+    {
+        return response()->json(
+            $this->rolService->removerPermisos($id, $request->input('permisos', [])),
+            Response::HTTP_OK
+        );
+    }
 }

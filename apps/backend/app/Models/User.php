@@ -6,10 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
+use App\Support\PermissionCatalog;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+
+    protected string $guard_name = PermissionCatalog::GUARD;
 
     protected $fillable = [
         'nombre',
@@ -36,31 +40,12 @@ class User extends Authenticatable
     public function permisosDisponibles(): array
     {
         if ($this->es_super_admin) {
-            return [
-                'panel.ver',
-                'productos.ver',
-                'productos.crear',
-                'productos.editar',
-                'categorias.ver',
-                'categorias.crear',
-                'categorias.editar',
-                'marcas.ver',
-                'marcas.crear',
-                'marcas.editar',
-                'imagenes.ver',
-                'imagenes.crear',
-                'imagenes.editar',
-                'imagenes.eliminar',
-                'usuarios.ver',
-                'usuarios.crear',
-                'usuarios.editar',
-                'roles.ver',
-                'roles.crear',
-                'roles.editar',
-                'administrar-sitio',
-            ];
+            return PermissionCatalog::nombres();
         }
 
-        return $this->permisos ?? [];
+        $permisosJson = is_array($this->permisos) ? $this->permisos : [];
+        $permisosSpatie = $this->getAllPermissions()->pluck('name')->all();
+
+        return array_values(array_unique(array_merge($permisosJson, $permisosSpatie)));
     }
 }
