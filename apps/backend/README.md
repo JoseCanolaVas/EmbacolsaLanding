@@ -1,66 +1,190 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Servidor Backend - Embacolsa (Laravel API)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API REST construida con **Laravel 10**, autenticación mediante **Laravel Passport** y persistencia en base de datos (**PostgreSQL** o **MySQL**).
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📋 Requisitos del Servidor
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Sistema Operativo**: Linux (Ubuntu 22.04 LTS / 24.04 LTS recomendado, Debian, CentOS, etc.)
+- **PHP**: 8.1 o superior (8.2 recomendado)
+- **Extensiones PHP**: `php-fpm`, `php-pgsql` (o `php-mysql`), `php-mbstring`, `php-xml`, `php-curl`, `php-intl`, `php-zip`, `php-bcmath`, `php-tokenizer`, `php-fileinfo`
+- **Gestor de paquetes**: Composer 2.x
+- **Base de Datos**: PostgreSQL 14+ o MySQL 8+
+- **Servidor Web**: Nginx o Apache2
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🛠️ Paso 1: Instalación de Dependencias del Sistema (Ubuntu / Debian)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```bash
+sudo apt update && sudo apt upgrade -y
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+# Instalar PHP 8.2 y extensiones requeridas
+sudo apt install -y php8.2 php8.2-fpm php8.2-pgsql php8.2-mysql php8.2-mbstring \
+    php8.2-xml php8.2-curl php8.2-intl php8.2-zip php8.2-bcmath php8.2-tokenizer \
+    php8.2-fileinfo unzip git curl nginx
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# Instalar Composer
+curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+```
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## ⚙️ Paso 2: Configuración del Proyecto
 
-### Premium Partners
+1. **Clonar o ubicar el proyecto**:
+   ```bash
+   cd /var/www/embacolsa-backend # o la ruta de tu preferencia
+   ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+2. **Instalar dependencias de PHP**:
+   ```bash
+   composer install --no-dev --optimize-autoloader
+   ```
 
-## Contributing
+3. **Configurar el archivo de entorno (`.env`)**:
+   ```bash
+   cp .env.example .env
+   nano .env
+   ```
+   Ajusta las siguientes variables esenciales:
+   ```env
+   APP_NAME=Embacolsa
+   APP_ENV=production
+   APP_DEBUG=false
+   APP_URL=https://api.embacolsa.com.co
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+   # Conexión por URL de Base de Datos (PostgreSQL o MySQL)
+   DATABASE_URL=postgres://embacolsa_user:tu_password_seguro@127.0.0.1:5432/embacolsa_db
+   ```
 
-## Code of Conduct
+4. **Generar claves y configurar la aplicación**:
+   ```bash
+   # Generar clave de cifrado de la aplicación
+   php artisan key:generate
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+   # Ejecutar migraciones y seeders
+   php artisan migrate --force
+   php artisan db:seed --force
 
-## Security Vulnerabilities
+   # Generar claves de Laravel Passport para autenticación
+   php artisan passport:keys --force
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+   # Crear enlace simbólico para imágenes y archivos públicos
+   php artisan storage:link
 
-## License
+   # Optimizar configuración y rutas para producción
+   php artisan config:cache
+   php artisan route:cache
+   php artisan view:cache
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+5. **Ajustar permisos de almacenamiento y caché**:
+   ```bash
+   sudo chown -R www-data:www-data /var/www/embacolsa-backend/storage /var/www/embacolsa-backend/bootstrap/cache
+   sudo chmod -R 775 /var/www/embacolsa-backend/storage /var/www/embacolsa-backend/bootstrap/cache
+   ```
+
+---
+
+## 🌐 Paso 3: Configuración del Servidor Web
+
+### Opción A: Configuración con Nginx (Recomendada)
+
+Crea el archivo `/etc/nginx/sites-available/embacolsa-backend`:
+
+```nginx
+server {
+    listen 80;
+    server_name api.embacolsa.com.co; # Cambia por tu dominio o IP pública
+    root /var/www/embacolsa-backend/public;
+
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
+
+    index index.php;
+    charset utf-8;
+
+    client_max_body_size 25M;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    error_page 404 /index.php;
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+}
+```
+
+Habilitar el sitio y reiniciar Nginx:
+```bash
+sudo ln -s /etc/nginx/sites-available/embacolsa-backend /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+---
+
+### Opción B: Configuración con Apache2
+
+Si utilizas Apache, crea `/etc/apache2/sites-available/embacolsa-backend.conf`:
+
+```apache
+<VirtualHost *:80>
+    ServerName api.embacolsa.com.co
+    DocumentRoot /var/www/embacolsa-backend/public
+
+    <Directory /var/www/embacolsa-backend/public>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/embacolsa_backend_error.log
+    CustomLog ${APACHE_LOG_DIR}/embacolsa_backend_access.log combined
+</VirtualHost>
+```
+
+Habilitar módulos y sitio:
+```bash
+sudo a2enmod rewrite headers
+sudo a2ensite embacolsa-backend.conf
+sudo systemctl reload apache2
+```
+
+---
+
+## 🔒 Paso 4: Configuración de Certificado SSL (HTTPS)
+
+```bash
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d api.embacolsa.com.co
+```
+
+---
+
+## 🔄 Comandos Útiles de Mantenimiento
+
+```bash
+# Limpiar caché tras actualizar código
+php artisan optimize:clear
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Ejecutar nuevas migraciones
+php artisan migrate --force
+```
