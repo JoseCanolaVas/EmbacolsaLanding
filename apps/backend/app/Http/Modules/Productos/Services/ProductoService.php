@@ -30,7 +30,7 @@ class ProductoService
             ];
         }
 
-        $carpeta = 'Productos';
+        $carpeta = 'productos';
         $nombreArchivo = Str::uuid() . '.' . $imagen->getClientOriginalExtension();
 
         $rutaImagen = $imagen->storeAs($carpeta, $nombreArchivo, 'public');

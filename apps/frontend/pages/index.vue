@@ -421,7 +421,8 @@ export default {
     async listarProductos() {
       try {
         const response = await this.$axios.post('/productos/listar', {
-          paginacion: null,
+          estado: true,
+          uno_por_categoria: true,
         })
         this.productosParametrizados = response.data || []
       } catch (error) {

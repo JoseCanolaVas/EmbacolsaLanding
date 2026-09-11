@@ -64,6 +64,12 @@ export default {
                     permiso: 'ventas.ver',
                 },
                 {
+                    title: 'Movimientos de Inventario',
+                    icon: 'mdi-folder-open',
+                    route: '/modulo-parametrizacion/inventario',
+                    permiso: 'ventas.ver', // cambiar
+                },
+                {
                     title: 'Sitio público',
                     icon: 'mdi-palette-outline',
                     route: '/modulo-parametrizacion/sitio-publico',

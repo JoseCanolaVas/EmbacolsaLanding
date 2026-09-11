@@ -20,7 +20,11 @@ class ProductoRepository
         $paginacion = $data['paginacion'] ?? null;
 
         $productos = Productos::select('id', 'nombre', 'descripcion', 'ruta_imagen', 'estado', 'unidad_medida', 'precio', 'stock', 'categoria_id', 'marca_id', 'bodega_id')
-            ->with(['categoria', 'marca', 'bodega'])
+            ->with([
+                'categoria:id,nombre,descripcion,estado',
+                'marca:id,nombre,descripcion,estado',
+                'bodega:id,nombre,codigo,ubicacion,estado',
+            ])
             ->orderBy('id', 'desc');
 
         if (!empty($data['id'])) {
@@ -59,6 +63,17 @@ class ProductoRepository
 
         if (array_key_exists('estado', $data) && $data['estado'] !== null && $data['estado'] !== '') {
             $productos->where('estado', filter_var($data['estado'], FILTER_VALIDATE_BOOLEAN));
+        }
+
+        if (! empty($data['uno_por_categoria'])) {
+            return $productos
+                ->get()
+                ->unique(fn ($producto) => $producto->categoria_id ?: 'sin-categoria-' . $producto->id)
+                ->values();
+        }
+
+        if (! empty($data['limite'])) {
+            $productos->limit((int) $data['limite']);
         }
 
         return !empty($paginacion)

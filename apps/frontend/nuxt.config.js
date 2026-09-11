@@ -1,11 +1,16 @@
 import colors from 'vuetify/es5/util/colors'
 
+const isDev = process.env.NODE_ENV !== 'production'
+const apiUrl = process.env.API_URL || '/api'
+const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000'
+
 export default {
     ssr: false,
+    target: 'static',
 
     head: {
-        titleTemplate: '%s | Embacolsa',
-        title: 'Embacolsa - Embalajes y suministros',
+        titleTemplate: '%s | NovaCell',
+        title: 'NovaCell',
 
         htmlAttrs: {
             lang: 'es',
@@ -59,18 +64,28 @@ export default {
 
     modules: [
         '@nuxtjs/axios',
+        '@nuxtjs/proxy',
     ],
 
     publicRuntimeConfig: {
-        API_URL:
-            process.env.API_URL ||
-            'http://localhost:8000/api',
+        API_URL: apiUrl,
     },
 
     axios: {
-        baseURL:
-            process.env.API_URL ||
-            'http://localhost:8000/api',
+        baseURL: apiUrl,
+        browserBaseURL: apiUrl,
+        proxy: apiUrl === '/api',
+    },
+
+    proxy: {
+        '/api/': {
+            target: backendUrl,
+            changeOrigin: true,
+        },
+        '/storage/': {
+            target: backendUrl,
+            changeOrigin: true,
+        },
     },
 
     router: {
@@ -105,12 +120,20 @@ export default {
     },
 
     build: {
-        extractCSS: true,
+        cache: true,
+        hardSource: isDev,
+        parallel: true,
+        extractCSS: !isDev,
         optimization: {
             splitChunks: {
                 chunks: 'all',
                 automaticNameDelimiter: '.',
-                name: true,
+                name: !isDev,
+            },
+        },
+        loaders: {
+            vue: {
+                prettify: false,
             },
         },
         postcss: {
