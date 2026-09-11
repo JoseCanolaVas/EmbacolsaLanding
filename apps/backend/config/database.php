@@ -15,7 +15,22 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_CONNECTION') ?: (function () {
+        $url = env('DATABASE_URL');
+        if ($url) {
+            $scheme = parse_url($url, PHP_URL_SCHEME);
+            if (in_array($scheme, ['postgres', 'postgresql', 'pgsql'])) {
+                return 'pgsql';
+            }
+            if (in_array($scheme, ['mysql', 'mariadb'])) {
+                return 'mysql';
+            }
+            if (in_array($scheme, ['sqlite'])) {
+                return 'sqlite';
+            }
+        }
+        return 'pgsql';
+    })(),
 
     /*
     |--------------------------------------------------------------------------

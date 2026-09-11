@@ -1,39 +1,34 @@
-COMPOSE=docker compose
+FRONTEND_DIR=apps/frontend
+BACKEND_DIR=apps/backend
 
-.PHONY: up down ps logs backend frontend frontend-fast backend-fast migrate seed clear-cache test-api
-
-up:
-	$(COMPOSE) up -d
-
-down:
-	$(COMPOSE) down
-
-ps:
-	$(COMPOSE) ps
-
-logs:
-	$(COMPOSE) logs -f --tail=120 backend frontend
-
-backend:
-	$(COMPOSE) up -d --build --force-recreate backend
+.PHONY: frontend backend generate build migrate seed clear-cache storage-link passport-keys test-api
 
 frontend:
-	$(COMPOSE) up -d --build --force-recreate frontend
+	cd $(FRONTEND_DIR) && npm run dev
 
-frontend-fast:
-	$(COMPOSE) up -d --no-deps --build --force-recreate frontend
+backend:
+	cd $(BACKEND_DIR) && php artisan serve --port=8000
 
-backend-fast:
-	$(COMPOSE) up -d --no-deps --build --force-recreate backend
+generate:
+	cd $(FRONTEND_DIR) && npm run generate
+
+build:
+	cd $(FRONTEND_DIR) && npm run build
 
 migrate:
-	$(COMPOSE) exec backend php artisan migrate --force
+	cd $(BACKEND_DIR) && php artisan migrate --force
 
 seed:
-	$(COMPOSE) exec backend php artisan db:seed --force
+	cd $(BACKEND_DIR) && php artisan db:seed --force
 
 clear-cache:
-	$(COMPOSE) exec backend php artisan optimize:clear
+	cd $(BACKEND_DIR) && php artisan optimize:clear
+
+storage-link:
+	cd $(BACKEND_DIR) && php artisan storage:link
+
+passport-keys:
+	cd $(BACKEND_DIR) && php artisan passport:keys --force
 
 test-api:
-	curl -sS -X POST http://localhost:8080/api/productos/listar -H 'Content-Type: application/json' -d '{"limite":1}' | python3 -m json.tool
+	curl -sS -X POST http://localhost:8000/api/productos/listar -H 'Content-Type: application/json' -d '{"limite":1}' | python3 -m json.tool

@@ -67,6 +67,12 @@ export default {
         '@nuxtjs/proxy',
     ],
 
+    env: {
+        API_URL:
+            process.env.API_URL ||
+            'http://localhost:8000/api',
+    },
+
     publicRuntimeConfig: {
         API_URL: apiUrl,
     },
