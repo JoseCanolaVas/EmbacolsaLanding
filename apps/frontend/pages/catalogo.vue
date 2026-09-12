@@ -1306,7 +1306,7 @@ export default {
     linear-gradient(90deg, rgba(255, 255, 255, .045) 1px, transparent 1px),
     radial-gradient(circle at 78% 14%, rgba(114, 237, 240, .25), transparent 28%),
     radial-gradient(circle at 18% 68%, rgba(30, 136, 229, .23), transparent 32%),
-    linear-gradient(110deg, #061d43 0%, #0b5ed7 48%, #8b2cf5 100%);
+    linear-gradient(110deg, #071f42 0%, #0f4f7c 56%, #0d7880 100%);
 
   background-size: 42px 42px, 42px 42px, auto, auto, auto;
   color: #fff;
@@ -1371,7 +1371,7 @@ export default {
   background: linear-gradient(
     135deg,
     #0b5ed7,
-    #00c8ff
+    #72edf0
   ) !important;
 
   box-shadow:
@@ -1411,8 +1411,8 @@ export default {
   background:
     linear-gradient(
       135deg,
-      #0b5ed7,
-      #8b2cf5
+      #071f42,
+      #0d7880
     );
 
   content: '';
@@ -1533,8 +1533,8 @@ export default {
   background:
     linear-gradient(
       135deg,
-      #0b5ed7,
-      #8b2cf5
+      #071f42,
+      #0d7880
     );
 
   box-shadow:
@@ -1579,7 +1579,7 @@ export default {
     ),
     radial-gradient(
       circle at 85% 80%,
-      rgba(139, 44, 245, .10),
+      rgba(13, 120, 128, .10),
       transparent 30%
     ),
     linear-gradient(
@@ -1608,7 +1608,7 @@ export default {
     ),
     radial-gradient(
       circle at 80% 80%,
-      rgba(139, 44, 245, .10),
+      rgba(13, 120, 128, .10),
       transparent 28%
     ),
     linear-gradient(
@@ -1663,9 +1663,9 @@ export default {
   background:
     linear-gradient(
       90deg,
-      #00c8ff,
-      #0b5ed7,
-      #8b2cf5
+      #72edf0,
+      #0f4f7c,
+      #0d7880
     );
 
   -webkit-background-clip: text;
@@ -1694,7 +1694,7 @@ export default {
 }
 
 .product-meta-row strong {
-  color: #8b2cf5;
+  color: #0d7880;
 }
 
 .catalog-product-body h2 {
@@ -1765,17 +1765,17 @@ export default {
 }
 
 .cart-add-btn {
-  background: #f4f9ff !important;
-  border: 1px solid #cfe2f3 !important;
-  box-shadow: none !important;
-  color: #0f2c61 !important;
+  background: linear-gradient(135deg, #071f42, #0f4f7c 58%, #0d7880) !important;
+  border: 0 !important;
+  box-shadow: 0 16px 34px rgba(7, 31, 66, .26) !important;
+  color: #fff !important;
   font-weight: 950;
   letter-spacing: .3px;
 }
 
 .cart-add-btn:hover {
-  background: #eaf5ff !important;
-  box-shadow: 0 10px 24px rgba(15, 44, 97, .10) !important;
+  background: linear-gradient(135deg, #08244c, #12608f 58%, #11939a) !important;
+  box-shadow: 0 20px 42px rgba(7, 31, 66, .34) !important;
 }
 
 .cart-add-btn.v-btn--disabled {

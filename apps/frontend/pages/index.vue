@@ -632,7 +632,7 @@ export default {
     linear-gradient(90deg, rgba(255, 255, 255, .045) 1px, transparent 1px),
     radial-gradient(circle at 78% 14%, rgba(114, 237, 240, .25), transparent 28%),
     radial-gradient(circle at 18% 68%, rgba(30, 136, 229, .23), transparent 32%),
-    linear-gradient(110deg, #061d43 0%, #0b5ed7 48%, #8b2cf5 100%);
+    linear-gradient(110deg, #071f42 0%, #0f4f7c 56%, #0d7880 100%);
   background-size: 42px 42px, 42px 42px, auto, auto, auto;
   color: #fff;
   overflow: hidden;
@@ -678,7 +678,7 @@ export default {
 }
 
 .eyebrow.blue {
-  color: #00c8ff;
+  color: #72edf0;
 }
 
 .hero-copy h1 {
@@ -709,8 +709,8 @@ export default {
   background:
     linear-gradient(
       135deg,
-      #0b5ed7,
-      #00c8ff
+      #071f42,
+      #0d7880
     ) !important;
 
   box-shadow:
@@ -886,7 +886,7 @@ export default {
     ),
     radial-gradient(
       circle at 85% 80%,
-      rgba(139, 44, 245, .10),
+      rgba(13, 120, 128, .10),
       transparent 30%
     ),
     linear-gradient(
@@ -937,7 +937,7 @@ export default {
     ),
     radial-gradient(
       circle at 85% 80%,
-      rgba(139, 44, 245, .10),
+      rgba(13, 120, 128, .10),
       transparent 30%
     ),
     linear-gradient(
@@ -987,18 +987,18 @@ export default {
 }
 
 .cart-add-mini {
-  background: #f4f9ff !important;
-  border: 1px solid #cfe2f3 !important;
-  box-shadow: none !important;
-  color: #0f2c61 !important;
+  background: linear-gradient(135deg, #071f42, #0f4f7c 58%, #0d7880) !important;
+  border: 0 !important;
+  box-shadow: 0 14px 28px rgba(7, 31, 66, .22) !important;
+  color: #fff !important;
   font-size: 12px;
   font-weight: 950;
   letter-spacing: .2px;
 }
 
 .cart-add-mini:hover {
-  background: #eaf5ff !important;
-  box-shadow: 0 10px 24px rgba(15, 44, 97, .10) !important;
+  background: linear-gradient(135deg, #08244c, #12608f 58%, #11939a) !important;
+  box-shadow: 0 18px 34px rgba(7, 31, 66, .30) !important;
 }
 
 .cart-add-mini.v-btn--disabled {
@@ -1042,7 +1042,7 @@ export default {
     ),
     radial-gradient(
       circle at 80% 80%,
-      rgba(139, 44, 245, .07),
+      rgba(13, 120, 128, .07),
       transparent 28%
     ),
     linear-gradient(
@@ -1088,7 +1088,7 @@ export default {
     ),
     radial-gradient(
       circle at 92% 75%,
-      rgba(139, 44, 245, .07),
+      rgba(13, 120, 128, .07),
       transparent 26%
     ),
     #fff;
@@ -1152,8 +1152,8 @@ export default {
     linear-gradient(
       105deg,
       #061d43,
-      #0b5ed7 52%,
-      #8b2cf5
+      #0f4f7c 52%,
+      #0d7880
     );
 
   color: #fff;

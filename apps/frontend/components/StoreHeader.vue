@@ -252,8 +252,10 @@ export default {
 }
 
 .header-cart-button {
-  background: #f4f9ff !important;
-  border: 1px solid #d8e9f8 !important;
+  background:
+    linear-gradient(#f7fbff, #f7fbff) padding-box,
+    linear-gradient(135deg, rgba(7, 31, 66, .42), rgba(15, 79, 124, .34), rgba(13, 120, 128, .28)) border-box !important;
+  border: 1px solid transparent !important;
   color: #0f2c61 !important;
   font-size: 13px;
   font-weight: 950;
@@ -264,22 +266,21 @@ export default {
 }
 
 .header-cart-button:hover {
-  background: linear-gradient(135deg, #eef8ff, #ffffff) !important;
-  box-shadow: 0 12px 28px rgba(15, 44, 97, .12);
+  background: linear-gradient(135deg, #071f42, #0f4f7c 58%, #0d7880) !important;
+  box-shadow: 0 16px 34px rgba(7, 31, 66, .24);
+  color: #fff !important;
+  transform: translateY(-1px);
 }
 
 .mobile-cart-button {
-  background:
-    linear-gradient(
-      135deg,
-      #0f2c61,
-      #0b7ec2
-    ) !important;
+  background: linear-gradient(135deg, #071f42, #0f4f7c 58%, #0d7880) !important;
   color: #fff !important;
   font-weight: 950;
 }
 
 .menu-button {
+  background: linear-gradient(135deg, #071f42, #0f4f7c 58%, #0d7880) !important;
+  box-shadow: 0 12px 26px rgba(7, 31, 66, .24) !important;
   margin-left: 0;
   min-width: 40px;
   position: relative;
