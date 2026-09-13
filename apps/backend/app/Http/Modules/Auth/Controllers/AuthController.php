@@ -3,71 +3,29 @@
 namespace App\Http\Modules\Auth\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Modules\Auth\Services\AuthService;
 use Illuminate\Http\Request;
+use App\Http\Modules\Auth\Requests\LoginRequest;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
+    public function __construct(protected AuthService $authService) {}
+
+    /**
+     * 
+     */
+    public function login(LoginRequest $request)
     {
-        $credentials = $request->validate([
-            'email' => [
-                'required',
-                'email',
-            ],
-            'password' => [
-                'required',
-                'string',
-            ],
-        ]);
-
-        /*
-         * Autentica solamente durante esta petición.
-         * Es más apropiado para routes/api.php porque no usa sesión.
-         */
-        if (!Auth::guard('web')->once($credentials)) {
+        try {
+            $login = $this->authService->login($request->validated());
+            return response()->json($login, Response::HTTP_OK);
+        } catch (\Throwable $th) {
             return response()->json([
-                'success' => false,
-                'message' => 'Correo o contraseña incorrectos.',
-            ], 401);
+                'message' => 'Ha ocurrido un error al iniciar sesión.',
+            ], Response::HTTP_BAD_REQUEST);
         }
-
-        $user = Auth::guard('web')->user();
-
-        $tokenResult = $user->createToken(
-            'TokenSoftNova2026'
-        );
-
-        /*
-         * Este es el modelo Laravel\Passport\Token.
-         * Sirve para modificar expiración, scopes, revocación, etc.
-         */
-        $token = $tokenResult->token;
-
-        $token->expires_at = now()->addDays(30);
-        $token->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Inicio de sesión exitoso.',
-
-            // Este es el token que debe guardar Nuxt.
-            'access_token' => $tokenResult->accessToken,
-
-            'token_type' => 'Bearer',
-            'expires_at' => $token->expires_at,
-
-            'user' => [
-                'id' => $user->id,
-                'nombre' => $user->nombre,
-                'apellido' => $user->apellido,
-                'email' => $user->email,
-                'telefono' => $user->telefono,
-                'es_super_admin' => $user->es_super_admin,
-                'rol' => $user->rol,
-                'permisos' => $user->permisosDisponibles(),
-            ],
-        ]);
     }
 
     public function me(Request $request)

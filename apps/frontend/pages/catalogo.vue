@@ -1,11 +1,7 @@
 <template>
   <v-app class="catalog-page" :style="variablesMarca">
-    <store-header
-      :logo-src="logoActual"
-      active-section="catalogo"
-      :cart-count="totalItemsCarrito"
-      @open-cart="drawerCarrito = true"
-    />
+    <store-header :logo-src="logoActual" active-section="catalogo" :cart-count="totalItemsCarrito"
+      @open-cart="drawerCarrito = true" />
 
     <main>
 
@@ -135,7 +131,8 @@
 
           <!-- PRODUCTOS -->
           <v-row v-else class="mt-5">
-            <v-col v-for="product in productosCatalogoPaginados" :key="`catalogo-${product.id}`" cols="12" md="6" lg="4">
+            <v-col v-for="product in productosCatalogoPaginados" :key="`catalogo-${product.id}`" cols="12" md="6"
+              lg="4">
               <v-card outlined hover height="100%" class="catalog-product-card">
                 <div class="catalog-product-visual">
                   <v-img v-if="product.image" :src="product.image" height="245" cover>
@@ -193,13 +190,8 @@
                       Cotizar
                     </v-btn>
 
-                    <v-btn
-                      rounded
-                      depressed
-                      class="cart-add-btn"
-                      :disabled="productoAgotado(product)"
-                      @click="agregarAlCarrito(product)"
-                    >
+                    <v-btn rounded depressed class="cart-add-btn" :disabled="productoAgotado(product)"
+                      @click="agregarAlCarrito(product)">
                       <v-icon left small>
                         {{ productoAgotado(product) ? 'mdi-cart-off' : 'mdi-cart-plus' }}
                       </v-icon>
@@ -239,13 +231,8 @@
               Mostrando {{ productosCatalogoPaginados.length }} de {{ productosCatalogo.length }} productos
             </span>
 
-            <v-pagination
-              v-model="paginaCatalogo"
-              :length="totalPaginasCatalogo"
-              :total-visible="7"
-              circle
-              color="primary"
-            />
+            <v-pagination v-model="paginaCatalogo" :length="totalPaginasCatalogo" :total-visible="7" circle
+              color="primary" />
           </div>
 
         </v-container>
@@ -363,7 +350,8 @@
                       </v-list-item-subtitle>
 
                       <v-list-item-title class="font-weight-bold">
-                        {{ productoAgotado(productoSeleccionado) ? 'Agotado' : `${productoSeleccionado.stock} unidades` }}
+                        {{ productoAgotado(productoSeleccionado) ? 'Agotado' : `${productoSeleccionado.stock} unidades`
+                        }}
                       </v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
@@ -429,13 +417,8 @@
             Solicitar cotización
           </v-btn>
 
-          <v-btn
-            rounded
-            depressed
-            class="cart-add-btn"
-            :disabled="productoAgotado(productoSeleccionado)"
-            @click="agregarAlCarrito(productoSeleccionado)"
-          >
+          <v-btn rounded depressed class="cart-add-btn" :disabled="productoAgotado(productoSeleccionado)"
+            @click="agregarAlCarrito(productoSeleccionado)">
             <v-icon left>
               {{ productoAgotado(productoSeleccionado) ? 'mdi-cart-off' : 'mdi-cart-plus' }}
             </v-icon>
@@ -511,7 +494,8 @@
 
               <b>{{ item.cantidad }}</b>
 
-              <v-btn x-small fab depressed color="#eef5ff" :disabled="productoAgotado(item)" @click="incrementarCantidad(item)">
+              <v-btn x-small fab depressed color="#eef5ff" :disabled="productoAgotado(item)"
+                @click="incrementarCantidad(item)">
                 <v-icon small>mdi-plus</v-icon>
               </v-btn>
             </div>
@@ -1187,9 +1171,7 @@ export default {
       }
 
       const apiUrl =
-        (this.$axios && this.$axios.defaults &&
-          this.$axios.defaults.baseURL
-        ) ||
+        (this.$axios && this.$axios.defaults && this.$axios.defaults.baseURL) ||
         (
           this.$config &&
           this.$config.API_URL
@@ -1316,11 +1298,9 @@ export default {
 
 .catalog-hero::after {
   background:
-    radial-gradient(
-      circle,
+    radial-gradient(circle,
       rgba(255, 255, 255, .18) 0 1px,
-      transparent 1px
-    );
+      transparent 1px);
 
   background-size: 22px 22px;
   content: '';
@@ -1368,11 +1348,9 @@ export default {
 }
 
 .catalog-main-action {
-  background: linear-gradient(
-    135deg,
-    #0b5ed7,
-    #72edf0
-  ) !important;
+  background: linear-gradient(135deg,
+      #0b5ed7,
+      #72edf0) !important;
 
   box-shadow:
     0 18px 36px rgba(11, 94, 215, .32) !important;
@@ -1392,11 +1370,9 @@ export default {
   backdrop-filter: blur(18px);
 
   background:
-    linear-gradient(
-      145deg,
+    linear-gradient(145deg,
       rgba(255, 255, 255, .98),
-      rgba(240, 247, 255, .94)
-    ) !important;
+      rgba(240, 247, 255, .94)) !important;
 
   border: 1px solid rgba(255, 255, 255, .62) !important;
 
@@ -1409,11 +1385,9 @@ export default {
 
 .catalog-counter-card::before {
   background:
-    linear-gradient(
-      135deg,
+    linear-gradient(135deg,
       #071f42,
-      #0d7880
-    );
+      #0d7880);
 
   content: '';
   height: 6px;
@@ -1531,11 +1505,9 @@ export default {
 .category-rail button:hover,
 .category-rail button.active {
   background:
-    linear-gradient(
-      135deg,
+    linear-gradient(135deg,
       #071f42,
-      #0d7880
-    );
+      #0d7880);
 
   box-shadow:
     0 12px 26px rgba(11, 94, 215, .22);
@@ -1572,21 +1544,15 @@ export default {
 
 .catalog-product-visual {
   background:
-    radial-gradient(
-      circle at 30% 20%,
+    radial-gradient(circle at 30% 20%,
       rgba(0, 200, 255, .16),
-      transparent 28%
-    ),
-    radial-gradient(
-      circle at 85% 80%,
+      transparent 28%),
+    radial-gradient(circle at 85% 80%,
       rgba(13, 120, 128, .10),
-      transparent 30%
-    ),
-    linear-gradient(
-      145deg,
+      transparent 30%),
+    linear-gradient(145deg,
       #f8fbff,
-      #e8f1fb
-    );
+      #e8f1fb);
 
   min-height: 245px;
   padding: 12px;
@@ -1601,21 +1567,15 @@ export default {
   align-items: center;
 
   background:
-    radial-gradient(
-      circle at 30% 20%,
+    radial-gradient(circle at 30% 20%,
       rgba(11, 94, 215, .14),
-      transparent 28%
-    ),
-    radial-gradient(
-      circle at 80% 80%,
+      transparent 28%),
+    radial-gradient(circle at 80% 80%,
       rgba(13, 120, 128, .10),
-      transparent 28%
-    ),
-    linear-gradient(
-      145deg,
+      transparent 28%),
+    linear-gradient(145deg,
       #f8fbff,
-      #e8f1fb
-    );
+      #e8f1fb);
 
   border: 1px dashed #a9c7e7;
   border-radius: 20px;
@@ -1661,12 +1621,10 @@ export default {
 
 .eyebrowes {
   background:
-    linear-gradient(
-      90deg,
+    linear-gradient(90deg,
       #72edf0,
       #0f4f7c,
-      #0d7880
-    );
+      #0d7880);
 
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1715,11 +1673,9 @@ export default {
 
 .product-price-row {
   background:
-    linear-gradient(
-      135deg,
+    linear-gradient(135deg,
       #f7fbff,
-      #f2f4ff
-    );
+      #f2f4ff);
 
   border: 1px solid #dce8f5;
   border-radius: 18px;
@@ -1787,12 +1743,10 @@ export default {
 
 .cart-drawer {
   background:
-    linear-gradient(
-      180deg,
+    linear-gradient(180deg,
       #f7fbff 0%,
       #ffffff 38%,
-      #f4f8ff 100%
-    ) !important;
+      #f4f8ff 100%) !important;
   border-radius: 0;
   height: 100vh !important;
   max-height: 100vh !important;
@@ -1825,7 +1779,7 @@ export default {
   position: absolute;
 }
 
-.cart-header > * {
+.cart-header>* {
   position: relative;
   z-index: 1;
 }
@@ -1903,11 +1857,9 @@ export default {
 
 .cart-item {
   background:
-    linear-gradient(
-      145deg,
+    linear-gradient(145deg,
       rgba(255, 255, 255, .98),
-      rgba(246, 250, 255, .94)
-    );
+      rgba(246, 250, 255, .94));
   border: 1px solid rgba(180, 205, 235, .72);
   border-radius: 22px;
   box-shadow: 0 14px 32px rgba(6, 29, 67, .08);
@@ -2008,11 +1960,9 @@ export default {
 
 .cart-whatsapp-btn {
   background:
-    linear-gradient(
-      135deg,
+    linear-gradient(135deg,
       #10943a,
-      #25d366
-    ) !important;
+      #25d366) !important;
 
   box-shadow: 0 16px 34px rgba(37, 211, 102, .28) !important;
   color: #fff !important;
