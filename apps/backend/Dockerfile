@@ -47,7 +47,7 @@ RUN apk add --no-cache git unzip
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-COPY apps/backend/api/composer.json apps/backend/api/composer.lock ./
+COPY apps/backend/composer.json apps/backend/composer.lock ./
 
 RUN composer install \
     --no-dev \
@@ -64,19 +64,24 @@ FROM php-extensions AS production
 
 WORKDIR /var/www/html
 
-COPY apps/backend/api ./
+RUN apk add --no-cache bash
 
 COPY --from=production-dependencies /var/www/html/vendor ./vendor
+COPY apps/backend ./
+COPY apps/backend/docker/entrypoint.sh /usr/local/bin/embacolsa-entrypoint
 
 RUN mkdir -p \
         storage/logs \
         storage/framework/cache \
         storage/framework/sessions \
         storage/framework/views \
+        storage/app/public \
         bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+    && chmod -R 775 storage bootstrap/cache \
+    && chmod +x /usr/local/bin/embacolsa-entrypoint
 
 EXPOSE 9000
 
+ENTRYPOINT ["embacolsa-entrypoint"]
 CMD ["php-fpm"]

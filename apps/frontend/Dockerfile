@@ -8,6 +8,11 @@ RUN npm ci
 
 COPY apps/frontend/ ./
 
+ARG API_URL=/api
+ARG BACKEND_URL=http://backend
+ENV API_URL=${API_URL}
+ENV BACKEND_URL=${BACKEND_URL}
+
 RUN npm run build
 
 ENV NODE_ENV=production
