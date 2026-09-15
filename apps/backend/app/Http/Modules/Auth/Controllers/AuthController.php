@@ -23,7 +23,7 @@ class AuthController extends Controller
             return response()->json($login, Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => 'Ha ocurrido un error al iniciar sesión.',
+                'message' => 'Ha ocurrido un error al iniciar sesión. ' . $th->getMessage(),
             ], Response::HTTP_BAD_REQUEST);
         }
     }
