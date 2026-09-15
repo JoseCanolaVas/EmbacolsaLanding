@@ -1,0 +1,29 @@
+services:
+  database:
+    ports: []
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  backend:
+    volumes:
+      - backend_public_storage:/var/www/html/storage/app/public
+      - backend_oauth_keys:/var/www/html/storage-oauth
+
+  nginx:
+    ports:
+      - "80:80"
+      - "8080:80"
+    volumes:
+      - ../nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - backend_public_storage:/var/www/backend/storage/app/public:ro
+
+volumes:
+  db_data:
+    external: true
+    name: embacolsalanding_db_data
+  backend_public_storage:
+    external: true
+    name: embacolsalanding_backend_public_storage
+  backend_oauth_keys:
+    external: true
+    name: embacolsalanding_backend_oauth_keys
